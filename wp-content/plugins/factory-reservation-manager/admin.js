@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             height: 'auto',
             dayMaxEvents: false,
             fixedWeekCount: false,
-            showNonCurrentDates: true, // 前後の月の日付を表示する
+            showNonCurrentDates: false, // 前後の月の日付を表示しない
             firstDay: 0, // 日曜日始まり
             validRange: function() {
                 var today = new Date();
@@ -73,17 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 arg.el.style.setProperty('background-color', '#ffffff', 'important');
                 arg.el.style.cursor = 'default';
                 
-                // イベントコンテナをクリア
-                var eventsEl = arg.el.querySelector('.fc-daygrid-day-events');
-                if (eventsEl) {
-                    eventsEl.innerHTML = '';
-                    eventsEl.style.margin = '0';
-                }
-                
-                // 日付番号を取得
+                // 日付番号を中央上部に配置
                 var dayNumberEl = arg.el.querySelector('.fc-daygrid-day-number');
-                
-                // 日付番号のスタイル設定
                 if (dayNumberEl) {
                     dayNumberEl.style.width = '100%';
                     dayNumberEl.style.textAlign = 'center';
@@ -92,48 +83,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     dayNumberEl.style.padding = '5px 0';
                     dayNumberEl.style.position = 'relative';
                     dayNumberEl.style.marginBottom = '5px';
-                    
-                    // 土日の色設定
-                    var dayOfWeek = cellDate.getDay();
-                    if (dayOfWeek === 0) {
-                        dayNumberEl.style.color = '#ff0000';
-                    } else if (dayOfWeek === 6) {
-                        dayNumberEl.style.color = '#0066cc';
-                    }
                 }
                 
-                // 現在表示している月を取得
-                var currentView = calendar.view;
-                var viewDate = currentView.currentStart;
-                var viewYear = viewDate.getFullYear();
-                var viewMonth = viewDate.getMonth();
-                
-                // セルの日付の年月を取得
-                var cellYear = cellDate.getFullYear();
-                var cellMonth = cellDate.getMonth();
-                
-                // 他の月の日付かどうかを確認
-                if (cellYear !== viewYear || cellMonth !== viewMonth) {
-                    // 他の月の日付は薄くする
-                    if (dayNumberEl) {
-                        dayNumberEl.style.opacity = '0.3';
-                    }
-                    return; // 他の月の日付には何も表示しない
-                }
-                
-                // 現在表示している月の日付のみ処理
+                // 過去の日付の処理
                 if (cellDate < today) {
-                    // 過去の日付
+                    // 既存のイベントコンテナを取得または作成
+                    var eventsEl = arg.el.querySelector('.fc-daygrid-day-events');
                     if (eventsEl) {
+                        eventsEl.style.margin = '0';
                         eventsEl.innerHTML = '<div style="text-align: center; color: #999; font-size: 12px;">終了</div>';
                     }
                 } else {
-                    // 未来の日付
+                    // AM/PMチェックボックスを追加
+                    var eventsEl = arg.el.querySelector('.fc-daygrid-day-events');
                     if (eventsEl) {
+                        eventsEl.style.margin = '0';
+                        eventsEl.innerHTML = '';
+                        
+                        // 土日チェック
                         var dayOfWeek = cellDate.getDay();
                         var isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-                        var dateStr = arg.date.toISOString().split('T')[0];
                         
+                        // チェックボックスコンテナ
+                        var dateStr = arg.date.toISOString().split('T')[0]; // YYYY-MM-DD形式に変換
                         var checkboxHtml = '<div style="font-size: 11px; line-height: 1.3; padding: 0 5px; margin-bottom: 10px;">' +
                             '<div style="margin-bottom: 8px;">' +
                                 '<div style="font-weight: bold;">AM</div>' +
@@ -155,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         eventsEl.innerHTML = checkboxHtml;
                         
-                        // 既存の設定を取得
+                        // 既存の設定を取得して反映
                         fetch(factory_calendar.ajax_url, {
                             method: 'POST',
                             headers: {
@@ -180,6 +152,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         .catch(error => {
                             console.error('Error fetching unavailable info:', error);
                         });
+                    }
+                }
+                
+                // 土日の色設定
+                var dayOfWeek = cellDate.getDay();
+                if (dayNumberEl) {
+                    if (dayOfWeek === 0) {
+                        dayNumberEl.style.color = '#ff0000';
+                    } else if (dayOfWeek === 6) {
+                        dayNumberEl.style.color = '#0066cc';
                     }
                 }
             },
