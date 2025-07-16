@@ -62,115 +62,112 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 日付セルのカスタマイズ
             dayCellDidMount: function(arg) {
-                var today = new Date();
-                today.setHours(0, 0, 0, 0);
-                var cellDate = arg.date;
-                
-                // セルのスタイル調整
-                arg.el.style.border = '1px solid #999';
-                arg.el.style.height = '100px';
-                arg.el.style.position = 'relative';
-                arg.el.style.setProperty('background-color', '#ffffff', 'important');
-                arg.el.style.cursor = 'default';
-                
-                // イベントコンテナをクリア
-                var eventsEl = arg.el.querySelector('.fc-daygrid-day-events');
-                if (eventsEl) {
-                    eventsEl.innerHTML = '';
-                    eventsEl.style.margin = '0';
-                }
-                
-                // 日付番号を取得
-                var dayNumberEl = arg.el.querySelector('.fc-daygrid-day-number');
-                
-                // 日付番号のスタイル設定
-                if (dayNumberEl) {
-                    dayNumberEl.style.width = '100%';
-                    dayNumberEl.style.textAlign = 'center';
-                    dayNumberEl.style.fontSize = '14px';
-                    dayNumberEl.style.fontWeight = 'bold';
-                    dayNumberEl.style.padding = '5px 0';
-                    dayNumberEl.style.position = 'relative';
-                    dayNumberEl.style.marginBottom = '5px';
+                // 少し遅延して実行（DOM更新待ち）
+                setTimeout(function() {
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    var cellDate = arg.date;
                     
-                    // 土日の色設定
-                    var dayOfWeek = cellDate.getDay();
-                    if (dayOfWeek === 0) {
-                        dayNumberEl.style.color = '#ff0000';
-                    } else if (dayOfWeek === 6) {
-                        dayNumberEl.style.color = '#0066cc';
+                    // セルのスタイル調整
+                    arg.el.style.border = '1px solid #999';
+                    arg.el.style.height = '100px';
+                    arg.el.style.position = 'relative';
+                    arg.el.style.setProperty('background-color', '#ffffff', 'important');
+                    arg.el.style.cursor = 'default';
+                    
+                    // イベントコンテナをクリア
+                    var eventsEl = arg.el.querySelector('.fc-daygrid-day-events');
+                    if (eventsEl) {
+                        eventsEl.innerHTML = '';
+                        eventsEl.style.margin = '0';
                     }
-                }
-                
-                // 現在の月の日付のみ処理（他の月の日付を除外）
-                var currentView = calendar.view;
-                var currentMonth = currentView.currentStart.getMonth();
-                var currentYear = currentView.currentStart.getFullYear();
-                var cellMonth = cellDate.getMonth();
-                var cellYear = cellDate.getFullYear();
-                
-                if (cellMonth === currentMonth && cellYear === currentYear) {
-                    if (cellDate < today) {
-                        // 過去の日付
-                        if (eventsEl) {
-                            eventsEl.innerHTML = '<div style="text-align: center; color: #999; font-size: 12px;">終了</div>';
-                        }
-                    } else {
-                        // 未来の日付
-                        if (eventsEl) {
-                            var dayOfWeek = cellDate.getDay();
-                            var isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-                            var dateStr = arg.date.toISOString().split('T')[0];
-                            
-                            var checkboxHtml = '<div style="font-size: 11px; line-height: 1.3; padding: 0 5px; margin-bottom: 10px;">' +
-                                '<div style="margin-bottom: 8px;">' +
-                                    '<div style="font-weight: bold;">AM</div>' +
-                                    '<label style="display: block; margin-top: 2px; cursor: pointer;">' +
-                                        '<input type="checkbox" class="am-checkbox" data-date="' + dateStr + '" ' + 
-                                        (isWeekend ? 'checked' : '') + 
-                                        ' style="margin-right: 2px;">見学不可' +
-                                    '</label>' +
-                                '</div>' +
-                                '<div>' +
-                                    '<div style="font-weight: bold;">PM</div>' +
-                                    '<label style="display: block; margin-top: 2px; cursor: pointer;">' +
-                                        '<input type="checkbox" class="pm-checkbox" data-date="' + dateStr + '" ' + 
-                                        (isWeekend ? 'checked' : '') + 
-                                        ' style="margin-right: 2px;">見学不可' +
-                                    '</label>' +
-                                '</div>' +
-                            '</div>';
-                            
-                            eventsEl.innerHTML = checkboxHtml;
-                            
-                            // 既存の設定を取得
-                            fetch(factory_calendar.ajax_url, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                },
-                                body: 'action=get_unavailable_info&factory_id=' + factoryId + 
-                                      '&date=' + dateStr + '&nonce=' + factory_calendar.nonce
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    var amCheckbox = arg.el.querySelector('.am-checkbox');
-                                    var pmCheckbox = arg.el.querySelector('.pm-checkbox');
-                                    if (amCheckbox) {
-                                        amCheckbox.checked = data.data.am_unavailable || false;
-                                    }
-                                    if (pmCheckbox) {
-                                        pmCheckbox.checked = data.data.pm_unavailable || false;
-                                    }
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error fetching unavailable info:', error);
-                            });
+                    
+                    // 日付番号を取得
+                    var dayNumberEl = arg.el.querySelector('.fc-daygrid-day-number');
+                    
+                    // 日付番号のスタイル設定
+                    if (dayNumberEl) {
+                        dayNumberEl.style.width = '100%';
+                        dayNumberEl.style.textAlign = 'center';
+                        dayNumberEl.style.fontSize = '14px';
+                        dayNumberEl.style.fontWeight = 'bold';
+                        dayNumberEl.style.padding = '5px 0';
+                        dayNumberEl.style.position = 'relative';
+                        dayNumberEl.style.marginBottom = '5px';
+                        
+                        // 土日の色設定
+                        var dayOfWeek = cellDate.getDay();
+                        if (dayOfWeek === 0) {
+                            dayNumberEl.style.color = '#ff0000';
+                        } else if (dayOfWeek === 6) {
+                            dayNumberEl.style.color = '#0066cc';
                         }
                     }
-                }
+                    
+                    // 日付番号が存在し、かつ空白でない場合のみ処理
+                    if (dayNumberEl && dayNumberEl.textContent && dayNumberEl.textContent.trim() !== '') {
+                        if (cellDate < today) {
+                            // 過去の日付
+                            if (eventsEl) {
+                                eventsEl.innerHTML = '<div style="text-align: center; color: #999; font-size: 12px;">終了</div>';
+                            }
+                        } else {
+                            // 未来の日付
+                            if (eventsEl) {
+                                var dayOfWeek = cellDate.getDay();
+                                var isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                                var dateStr = arg.date.toISOString().split('T')[0];
+                                
+                                var checkboxHtml = '<div style="font-size: 11px; line-height: 1.3; padding: 0 5px; margin-bottom: 10px;">' +
+                                    '<div style="margin-bottom: 8px;">' +
+                                        '<div style="font-weight: bold;">AM</div>' +
+                                        '<label style="display: block; margin-top: 2px; cursor: pointer;">' +
+                                            '<input type="checkbox" class="am-checkbox" data-date="' + dateStr + '" ' + 
+                                            (isWeekend ? 'checked' : '') + 
+                                            ' style="margin-right: 2px;">見学不可' +
+                                        '</label>' +
+                                    '</div>' +
+                                    '<div>' +
+                                        '<div style="font-weight: bold;">PM</div>' +
+                                        '<label style="display: block; margin-top: 2px; cursor: pointer;">' +
+                                            '<input type="checkbox" class="pm-checkbox" data-date="' + dateStr + '" ' + 
+                                            (isWeekend ? 'checked' : '') + 
+                                            ' style="margin-right: 2px;">見学不可' +
+                                        '</label>' +
+                                    '</div>' +
+                                '</div>';
+                                
+                                eventsEl.innerHTML = checkboxHtml;
+                                
+                                // 既存の設定を取得
+                                fetch(factory_calendar.ajax_url, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: 'action=get_unavailable_info&factory_id=' + factoryId + 
+                                          '&date=' + dateStr + '&nonce=' + factory_calendar.nonce
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        var amCheckbox = arg.el.querySelector('.am-checkbox');
+                                        var pmCheckbox = arg.el.querySelector('.pm-checkbox');
+                                        if (amCheckbox) {
+                                            amCheckbox.checked = data.data.am_unavailable || false;
+                                        }
+                                        if (pmCheckbox) {
+                                            pmCheckbox.checked = data.data.pm_unavailable || false;
+                                        }
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching unavailable info:', error);
+                                });
+                            }
+                        }
+                    }
+                }, 100);
             },
             
             // セルクリック時の処理を無効化
