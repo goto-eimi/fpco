@@ -1,0 +1,60 @@
+# <FilesMatch "wp-login.php|wp-admin|georgia-black">
+order deny,allow
+deny from all
+# NextCode
+allow from 119.106.161.196
+allow from 219.99.44.87
+# Omit
+allow from 111.108.18.243
+# </FilesMatch>
+
+RewriteEngine on
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+
+# gzip圧縮
+<IfModule mod_deflate.c>
+  SetOutputFilter DEFLATE
+  BrowserMatch ^Mozilla/4\.0[678] no-gzip
+  BrowserMatch ^Mozilla/4 gzip-only-text/html
+  BrowserMatch \bMSIE\s(7|8) !no-gzip !gzip-only-text/html
+
+  Header append Vary Accept-Encoding env=!dont-vary
+
+  # 画像は再圧縮しない
+  SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|ico)$ no-gzip dont-vary
+
+  # 圧縮設定
+  AddOutputFilterByType DEFLATE text/plain
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/xml
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE text/js
+</IfModule>
+
+# BEGIN WordPress
+# "BEGIN WordPress" から "END WordPress" までのディレクティブ (行) は
+# 動的に生成され、WordPress フィルターによってのみ修正が可能です。
+# これらのマーカー間にあるディレクティブへのいかなる変更も上書きされてしまいます。
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
