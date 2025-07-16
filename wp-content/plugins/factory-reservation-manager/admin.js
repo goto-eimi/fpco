@@ -102,8 +102,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
+                // 現在表示している月を取得
+                var currentView = calendar.view;
+                var viewDate = currentView.currentStart;
+                var viewYear = viewDate.getFullYear();
+                var viewMonth = viewDate.getMonth();
+                
+                // セルの日付の年月を取得
+                var cellYear = cellDate.getFullYear();
+                var cellMonth = cellDate.getMonth();
+                
                 // 他の月の日付かどうかを確認
-                if (arg.el.classList.contains('fc-day-other')) {
+                if (cellYear !== viewYear || cellMonth !== viewMonth) {
                     // 他の月の日付は薄くする
                     if (dayNumberEl) {
                         dayNumberEl.style.opacity = '0.3';
@@ -111,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return; // 他の月の日付には何も表示しない
                 }
                 
-                // 現在の月の日付のみ処理
+                // 現在表示している月の日付のみ処理
                 if (cellDate < today) {
                     // 過去の日付
                     if (eventsEl) {
