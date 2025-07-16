@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             height: 'auto',
             dayMaxEvents: false,
             fixedWeekCount: false,
-            showNonCurrentDates: false, // 前後の月の日付を表示しない
+            showNonCurrentDates: true, // 前後の月の日付を表示する
             firstDay: 0, // 日曜日始まり
             validRange: function() {
                 var today = new Date();
