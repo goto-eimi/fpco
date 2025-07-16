@@ -16,31 +16,30 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             viewDidMount: function(viewInfo) {
                 // タイトルを手動で日本語形式に変更
-                setTimeout(function() {
-                    var titleEl = document.querySelector('.fc-toolbar-title');
-                    if (titleEl) {
-                        var currentDate = calendar.getDate();
-                        var year = currentDate.getFullYear();
-                        var month = String(currentDate.getMonth() + 1).padStart(2, '0');
-                        titleEl.textContent = year + '年' + month + '月';
-                    }
-                }, 10);
+                var titleEl = document.querySelector('.fc-toolbar-title');
+                if (titleEl) {
+                    var currentDate = calendar.getDate();
+                    var year = currentDate.getFullYear();
+                    var month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                    titleEl.textContent = year + '年' + month + '月';
+                }
                 
                 // 初期表示時の前へボタン制御
-                setTimeout(function() {
-                    var prevButton = document.querySelector('.fc-prev-button');
-                    if (prevButton) {
-                        var today = new Date();
-                        var currentCalendarDate = calendar.getDate();
-                        var isCurrentMonth = currentCalendarDate.getFullYear() === today.getFullYear() && 
-                                           currentCalendarDate.getMonth() === today.getMonth();
-                        
-                        if (isCurrentMonth) {
-                            prevButton.style.opacity = '0.3';
-                            prevButton.style.pointerEvents = 'none';
-                        }
+                var prevButton = document.querySelector('.fc-prev-button');
+                if (prevButton) {
+                    var today = new Date();
+                    var currentCalendarDate = calendar.getDate();
+                    var isCurrentMonth = currentCalendarDate.getFullYear() === today.getFullYear() && 
+                                       currentCalendarDate.getMonth() === today.getMonth();
+                    
+                    if (isCurrentMonth) {
+                        prevButton.style.opacity = '0.3';
+                        prevButton.style.pointerEvents = 'none';
+                    } else {
+                        prevButton.style.opacity = '1';
+                        prevButton.style.pointerEvents = 'auto';
                     }
-                }, 50);
+                }
             },
             buttonText: {
                 prev: '<',
@@ -223,32 +222,31 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 前/次ボタンクリック時にタイトルを更新と制御
             button.addEventListener('click', function() {
-                setTimeout(function() {
-                    var titleEl = document.querySelector('.fc-toolbar-title');
-                    if (titleEl) {
-                        var currentDate = calendar.getDate();
-                        var year = currentDate.getFullYear();
-                        var month = String(currentDate.getMonth() + 1).padStart(2, '0');
-                        titleEl.textContent = year + '年' + month + '月';
-                    }
+                // タイトルの更新を即座に実行
+                var titleEl = document.querySelector('.fc-toolbar-title');
+                if (titleEl) {
+                    var currentDate = calendar.getDate();
+                    var year = currentDate.getFullYear();
+                    var month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                    titleEl.textContent = year + '年' + month + '月';
+                }
+                
+                // 前へボタンの制御
+                var prevButton = document.querySelector('.fc-prev-button');
+                if (prevButton) {
+                    var today = new Date();
+                    var currentCalendarDate = calendar.getDate();
+                    var isCurrentMonth = currentCalendarDate.getFullYear() === today.getFullYear() && 
+                                       currentCalendarDate.getMonth() === today.getMonth();
                     
-                    // 前へボタンの制御
-                    var prevButton = document.querySelector('.fc-prev-button');
-                    if (prevButton) {
-                        var today = new Date();
-                        var currentCalendarDate = calendar.getDate();
-                        var isCurrentMonth = currentCalendarDate.getFullYear() === today.getFullYear() && 
-                                           currentCalendarDate.getMonth() === today.getMonth();
-                        
-                        if (isCurrentMonth) {
-                            prevButton.style.opacity = '0.3';
-                            prevButton.style.pointerEvents = 'none';
-                        } else {
-                            prevButton.style.opacity = '1';
-                            prevButton.style.pointerEvents = 'auto';
-                        }
+                    if (isCurrentMonth) {
+                        prevButton.style.opacity = '0.3';
+                        prevButton.style.pointerEvents = 'none';
+                    } else {
+                        prevButton.style.opacity = '1';
+                        prevButton.style.pointerEvents = 'auto';
                     }
-                }, 100);
+                }
             });
         });
         
