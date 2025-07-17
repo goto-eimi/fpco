@@ -74,21 +74,22 @@ function reservation_management_admin_menu() {
  */
 
 function handle_reservation_form_submission() {
-    // デバッグ情報を追加
-    error_log('Form submission debug: ' . print_r($_POST, true));
-    
     if (!isset($_POST['submit_reservation']) || !isset($_POST['reservation_nonce'])) {
-        error_log('Missing submit_reservation or nonce');
         return;
     }
     
+    // 出力バッファリングを開始
+    ob_start();
+    
     // Nonceチェック
     if (!wp_verify_nonce($_POST['reservation_nonce'], 'reservation_form')) {
+        ob_end_clean();
         wp_die('セキュリティチェックに失敗しました。');
     }
     
     // 権限チェック
     if (!current_user_can('read')) {
+        ob_end_clean();
         wp_die('この操作を行う権限がありません。');
     }
     
@@ -98,6 +99,7 @@ function handle_reservation_form_submission() {
     // バリデーション
     $errors = validate_reservation_form($_POST);
     if (!empty($errors)) {
+        ob_end_clean();
         set_transient('reservation_errors', $errors, 60);
         set_transient('reservation_form_data', $_POST, 60);
         wp_redirect(add_query_arg('error', '1', wp_get_referer()));
@@ -109,7 +111,7 @@ function handle_reservation_form_submission() {
     
     // 旅行会社情報の処理
     $agency_data = null;
-    if ($_POST['is_travel_agency'] === 'yes') {
+    if (isset($_POST['is_travel_agency']) && $_POST['is_travel_agency'] === 'yes') {
         $agency_data = json_encode([
             'name' => sanitize_text_field($_POST['travel_agency_name']),
             'zip' => sanitize_text_field($_POST['travel_agency_zip']),
@@ -127,9 +129,9 @@ function handle_reservation_form_submission() {
     $type_data = get_type_specific_data($_POST);
     
     // 交通手段の処理
-    $transportation = sanitize_text_field($_POST['transportation']);
+    $transportation = isset($_POST['transportation']) ? sanitize_text_field($_POST['transportation']) : '';
     $transportation_other = null;
-    if ($transportation === 'other') {
+    if ($transportation === 'other' && isset($_POST['transportation_other_text'])) {
         $transportation_other = sanitize_text_field($_POST['transportation_other_text']);
     }
     
@@ -140,9 +142,9 @@ function handle_reservation_form_submission() {
         'time_slot' => $time_slot,
         'applicant_name' => sanitize_text_field($_POST['applicant_name']),
         'applicant_kana' => sanitize_text_field($_POST['applicant_kana']),
-        'is_travel_agency' => $_POST['is_travel_agency'] === 'yes' ? 1 : 0,
+        'is_travel_agency' => (isset($_POST['is_travel_agency']) && $_POST['is_travel_agency'] === 'yes') ? 1 : 0,
         'agency_data' => $agency_data,
-        'reservation_type' => sanitize_text_field($_POST['reservation_type']),
+        'reservation_type' => isset($_POST['reservation_type']) ? sanitize_text_field($_POST['reservation_type']) : '',
         'type_data' => $type_data,
         'address_zip' => sanitize_text_field($_POST['applicant_zip']),
         'address_prefecture' => sanitize_text_field($_POST['applicant_prefecture']),
@@ -169,9 +171,11 @@ function handle_reservation_form_submission() {
     $result = $wpdb->insert($table_name, $data, $format);
     
     if ($result === false) {
+        ob_end_clean();
         set_transient('reservation_error_message', 'データベースへの保存に失敗しました。', 60);
         wp_redirect(add_query_arg('error', '1', wp_get_referer()));
     } else {
+        ob_end_clean();
         set_transient('reservation_success_message', '予約を正常に登録しました。予約番号: ' . $wpdb->insert_id, 60);
         wp_redirect(add_query_arg('success', '1', wp_get_referer()));
     }
@@ -297,12 +301,12 @@ function validate_reservation_form($data) {
     }
     
     // 交通機関「その他」の場合の入力チェック
-    if ($data['transportation'] === 'other' && empty($data['transportation_other_text'])) {
+    if (isset($data['transportation']) && $data['transportation'] === 'other' && empty($data['transportation_other_text'])) {
         $errors[] = '交通機関で「その他」を選択した場合は、内容を入力してください。';
     }
     
     // 旅行会社の場合の追加チェック
-    if ($data['is_travel_agency'] === 'yes') {
+    if (isset($data['is_travel_agency']) && $data['is_travel_agency'] === 'yes') {
         $agency_required = [
             'travel_agency_name' => '旅行会社氏名',
             'travel_agency_prefecture' => '旅行会社都道府県',
@@ -348,6 +352,11 @@ function validate_reservation_form($data) {
  */
 function validate_reservation_type_fields($data) {
     $errors = [];
+    
+    if (!isset($data['reservation_type'])) {
+        return $errors;
+    }
+    
     $type = $data['reservation_type'];
     
     switch ($type) {
