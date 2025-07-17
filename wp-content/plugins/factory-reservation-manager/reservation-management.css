@@ -104,10 +104,20 @@
     display: flex;
     align-items: center;
     margin: 0;
+    line-height: 1.4;
 }
 
 .radio-option input {
     margin-right: 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+/* 予約タイプの特別なレイアウト（3行2列） */
+.reservation-type-group {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, auto);
 }
 
 .btn-reply-email {

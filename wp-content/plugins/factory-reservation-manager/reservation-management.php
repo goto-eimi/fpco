@@ -314,7 +314,7 @@ function reservation_management_admin_page() {
                             <label class="form-label">
                                 予約タイプ <span class="required">*</span>
                             </label>
-                            <div class="radio-group">
+                            <div class="radio-group reservation-type-group">
                                 <label class="radio-option">
                                     <input type="radio" name="reservation_type" value="school" id="reservation_type_school"> 小学校・中学校・大学
                                 </label>
