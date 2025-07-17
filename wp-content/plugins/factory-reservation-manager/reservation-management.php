@@ -72,10 +72,13 @@ function reservation_management_admin_menu() {
 /**
  * フォーム送信処理
  */
-add_action('admin_init', 'handle_reservation_form_submission');
 
 function handle_reservation_form_submission() {
+    // デバッグ情報を追加
+    error_log('Form submission debug: ' . print_r($_POST, true));
+    
     if (!isset($_POST['submit_reservation']) || !isset($_POST['reservation_nonce'])) {
+        error_log('Missing submit_reservation or nonce');
         return;
     }
     
@@ -303,6 +306,11 @@ function get_type_specific_data($data) {
 function reservation_management_admin_page() {
     global $wpdb;
     
+    // フォーム送信処理
+    if (isset($_POST['submit_reservation'])) {
+        handle_reservation_form_submission();
+    }
+    
     // メッセージ表示
     if (isset($_GET['success'])) {
         $message = get_transient('reservation_success_message');
@@ -341,7 +349,7 @@ function reservation_management_admin_page() {
                     <h2 class="form-section-title">予約内容</h2>
                 </div>
                 <div class="form-section-content">
-                    <form method="post" action="">
+                    <form method="post" action="<?php echo admin_url('admin.php?page=reservation-management'); ?>">
                         <?php wp_nonce_field('reservation_form', 'reservation_nonce'); ?>
                         <!-- 予約番号 -->
                         <div class="form-field">
