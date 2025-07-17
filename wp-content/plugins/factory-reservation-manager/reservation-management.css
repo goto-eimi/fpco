@@ -175,3 +175,15 @@
     margin-top: 5px;
     display: block;
 }
+
+/* エラーフィールドの枠線スタイル */
+.error-field {
+    border: 2px solid #d63384 !important;
+    background-color: #fff5f5 !important;
+}
+
+/* エラーフィールドのフォーカス時 */
+.error-field:focus {
+    border-color: #d63384 !important;
+    box-shadow: 0 0 0 2px rgba(214, 51, 132, 0.2) !important;
+}

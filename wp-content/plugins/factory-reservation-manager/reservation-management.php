@@ -558,6 +558,13 @@ function display_field_error($field_name, $field_errors) {
 }
 
 /**
+ * フィールドにエラークラスを追加するヘルパー関数
+ */
+function get_field_error_class($field_name, $field_errors) {
+    return isset($field_errors[$field_name]) ? 'error-field' : '';
+}
+
+/**
  * 予約管理画面の表示
  */
 function reservation_management_admin_page() {
@@ -588,11 +595,7 @@ function reservation_management_admin_page() {
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($success_message) . '</p></div>';
     }
     
-    if (!empty($errors)) {
-        echo '<div class="notice notice-error is-dismissible">';
-        echo '<p>必須項目を入力してください。</p>';
-        echo '</div>';
-    }
+    // トップのエラーメッセージは表示しない（各フィールドに個別表示）
     
     // transientからのメッセージ表示（リダイレクト後の場合）
     if (isset($_GET['success'])) {
@@ -664,7 +667,7 @@ function reservation_management_admin_page() {
                             
                             $factories = $wpdb->get_results("SELECT id, name FROM {$wpdb->prefix}factorys ORDER BY name");
                             ?>
-                            <select name="factory_id" id="factory_id" class="form-select" <?php echo $is_factory_account ? 'disabled' : ''; ?>>
+                            <select name="factory_id" id="factory_id" class="form-select <?php echo get_field_error_class('factory_id', $field_errors); ?>" <?php echo $is_factory_account ? 'disabled' : ''; ?>>
                                 <option value="">選択してください</option>
                                 <?php foreach ($factories as $factory) : ?>
                                     <option value="<?php echo esc_attr($factory->id); ?>" 
@@ -685,7 +688,7 @@ function reservation_management_admin_page() {
                             <label for="visit_date" class="form-label">
                                 見学日 <span class="required">*</span>
                             </label>
-                            <input type="date" name="visit_date" id="visit_date" class="form-input" value="<?php echo get_form_value('visit_date', $form_data); ?>">
+                            <input type="date" name="visit_date" id="visit_date" class="form-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" value="<?php echo get_form_value('visit_date', $form_data); ?>">
                             <?php display_field_error('visit_date', $field_errors); ?>
                         </div>
 
@@ -695,9 +698,9 @@ function reservation_management_admin_page() {
                                 見学時間帯 <span class="required">*</span>
                             </label>
                             <div class="time-range">
-                                <input type="time" name="visit_time_start" id="visit_time_start" class="time-input" value="<?php echo get_form_value('visit_time_start', $form_data); ?>">
+                                <input type="time" name="visit_time_start" id="visit_time_start" class="time-input <?php echo get_field_error_class('visit_time_start', $field_errors); ?>" value="<?php echo get_form_value('visit_time_start', $form_data); ?>">
                                 <span>〜</span>
-                                <input type="time" name="visit_time_end" id="visit_time_end" class="time-input" value="<?php echo get_form_value('visit_time_end', $form_data); ?>">
+                                <input type="time" name="visit_time_end" id="visit_time_end" class="time-input <?php echo get_field_error_class('visit_time_end', $field_errors); ?>" value="<?php echo get_form_value('visit_time_end', $form_data); ?>">
                             </div>
                             <?php display_field_error('visit_time_start', $field_errors); ?>
                             <?php display_field_error('visit_time_end', $field_errors); ?>
@@ -708,7 +711,7 @@ function reservation_management_admin_page() {
                             <label for="applicant_name" class="form-label">
                                 申込者氏名 <span class="required">*</span>
                             </label>
-                            <input type="text" name="applicant_name" id="applicant_name" class="form-input" value="<?php echo get_form_value('applicant_name', $form_data); ?>">
+                            <input type="text" name="applicant_name" id="applicant_name" class="form-input <?php echo get_field_error_class('applicant_name', $field_errors); ?>" value="<?php echo get_form_value('applicant_name', $form_data); ?>">
                             <?php display_field_error('applicant_name', $field_errors); ?>
                         </div>
 
@@ -717,7 +720,7 @@ function reservation_management_admin_page() {
                             <label for="applicant_kana" class="form-label">
                                 申込者氏名(ふりがな) <span class="required">*</span>
                             </label>
-                            <input type="text" name="applicant_kana" id="applicant_kana" class="form-input" value="<?php echo get_form_value('applicant_kana', $form_data); ?>">
+                            <input type="text" name="applicant_kana" id="applicant_kana" class="form-input <?php echo get_field_error_class('applicant_kana', $field_errors); ?>" value="<?php echo get_form_value('applicant_kana', $form_data); ?>">
                             <?php display_field_error('applicant_kana', $field_errors); ?>
                         </div>
 
@@ -728,10 +731,10 @@ function reservation_management_admin_page() {
                             </label>
                             <div class="radio-group">
                                 <label class="radio-option">
-                                    <input type="radio" name="is_travel_agency" value="yes" id="travel_agency_yes" <?php echo is_radio_checked('is_travel_agency', 'yes', $form_data); ?>> はい
+                                    <input type="radio" name="is_travel_agency" value="yes" id="travel_agency_yes" class="<?php echo get_field_error_class('is_travel_agency', $field_errors); ?>" <?php echo is_radio_checked('is_travel_agency', 'yes', $form_data); ?>> はい
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="is_travel_agency" value="no" id="travel_agency_no" <?php echo is_radio_checked('is_travel_agency', 'no', $form_data); ?>> いいえ
+                                    <input type="radio" name="is_travel_agency" value="no" id="travel_agency_no" class="<?php echo get_field_error_class('is_travel_agency', $field_errors); ?>" <?php echo is_radio_checked('is_travel_agency', 'no', $form_data); ?>> いいえ
                                 </label>
                             </div>
                             <?php display_field_error('is_travel_agency', $field_errors); ?>
@@ -871,22 +874,22 @@ function reservation_management_admin_page() {
                             </label>
                             <div class="radio-group reservation-type-group">
                                 <label class="radio-option">
-                                    <input type="radio" name="reservation_type" value="school" id="reservation_type_school" <?php echo is_radio_checked('reservation_type', 'school', $form_data); ?>> 小学校・中学校・大学
+                                    <input type="radio" name="reservation_type" value="school" id="reservation_type_school" class="<?php echo get_field_error_class('reservation_type', $field_errors); ?>" <?php echo is_radio_checked('reservation_type', 'school', $form_data); ?>> 小学校・中学校・大学
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="reservation_type" value="student_recruit" id="reservation_type_student_recruit" <?php echo is_radio_checked('reservation_type', 'student_recruit', $form_data); ?>> 個人（大学生・高校生のリクルート）
+                                    <input type="radio" name="reservation_type" value="student_recruit" id="reservation_type_student_recruit" class="<?php echo get_field_error_class('reservation_type', $field_errors); ?>" <?php echo is_radio_checked('reservation_type', 'student_recruit', $form_data); ?>> 個人（大学生・高校生のリクルート）
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="reservation_type" value="family" id="reservation_type_family" <?php echo is_radio_checked('reservation_type', 'family', $form_data); ?>> 個人・親子見学・ご家族など
+                                    <input type="radio" name="reservation_type" value="family" id="reservation_type_family" class="<?php echo get_field_error_class('reservation_type', $field_errors); ?>" <?php echo is_radio_checked('reservation_type', 'family', $form_data); ?>> 個人・親子見学・ご家族など
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="reservation_type" value="company" id="reservation_type_company" <?php echo is_radio_checked('reservation_type', 'company', $form_data); ?>> 企業（研修など）
+                                    <input type="radio" name="reservation_type" value="company" id="reservation_type_company" class="<?php echo get_field_error_class('reservation_type', $field_errors); ?>" <?php echo is_radio_checked('reservation_type', 'company', $form_data); ?>> 企業（研修など）
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="reservation_type" value="municipality" id="reservation_type_municipality" <?php echo is_radio_checked('reservation_type', 'municipality', $form_data); ?>> 自治体主体ツアーなど
+                                    <input type="radio" name="reservation_type" value="municipality" id="reservation_type_municipality" class="<?php echo get_field_error_class('reservation_type', $field_errors); ?>" <?php echo is_radio_checked('reservation_type', 'municipality', $form_data); ?>> 自治体主体ツアーなど
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="reservation_type" value="other" id="reservation_type_other" <?php echo is_radio_checked('reservation_type', 'other', $form_data); ?>> その他（グループ・団体）
+                                    <input type="radio" name="reservation_type" value="other" id="reservation_type_other" class="<?php echo get_field_error_class('reservation_type', $field_errors); ?>" <?php echo is_radio_checked('reservation_type', 'other', $form_data); ?>> その他（グループ・団体）
                                 </label>
                             </div>
                             <?php display_field_error('reservation_type', $field_errors); ?>
@@ -1076,7 +1079,7 @@ function reservation_management_admin_page() {
                                 <div style="display: flex; align-items: center; margin-bottom: 8px;">
                                     <span style="margin-right: 5px;">〒</span>
                                     <input type="text" name="applicant_zip" id="applicant_zip" 
-                                           placeholder="1234567" maxlength="7" class="form-input" style="width: 100px !important;" 
+                                           placeholder="1234567" maxlength="7" class="form-input <?php echo get_field_error_class('applicant_zip', $field_errors); ?>" style="width: 100px !important;" 
                                            oninput="searchApplicantAddress(this.value)" value="<?php echo get_form_value('applicant_zip', $form_data); ?>">
                                     <span style="margin-left: 10px; font-size: 12px; color: #666;">郵便番号を入力すると住所が入力されます</span>
                                 </div>
@@ -1085,7 +1088,7 @@ function reservation_management_admin_page() {
                                 <!-- 県名 -->
                                 <div style="margin-bottom: 8px;">
                                     <select name="applicant_prefecture" id="applicant_prefecture" 
-                                            class="form-select" style="width: 150px;">
+                                            class="form-select <?php echo get_field_error_class('applicant_prefecture', $field_errors); ?>" style="width: 150px;">
                                         <option value="">都道府県を選択</option>
                                         <option value="北海道">北海道</option>
                                         <option value="青森県">青森県</option>
@@ -1141,14 +1144,14 @@ function reservation_management_admin_page() {
                                 <!-- 市区町村 -->
                                 <div style="margin-bottom: 8px;">
                                     <input type="text" name="applicant_city" id="applicant_city" 
-                                           placeholder="市区町村" class="form-input" style="width: 200px;" value="<?php echo get_form_value('applicant_city', $form_data); ?>">
+                                           placeholder="市区町村" class="form-input <?php echo get_field_error_class('applicant_city', $field_errors); ?>" style="width: 200px;" value="<?php echo get_form_value('applicant_city', $form_data); ?>">
                                     <?php display_field_error('applicant_city', $field_errors); ?>
                                 </div>
                                 
                                 <!-- 番地・建物名 -->
                                 <div>
                                     <input type="text" name="applicant_address" id="applicant_address" 
-                                           placeholder="番地・建物名" class="form-input">
+                                           placeholder="番地・建物名" class="form-input <?php echo get_field_error_class('applicant_address', $field_errors); ?>" value="<?php echo get_form_value('applicant_address', $form_data); ?>">
                                 </div>
                             </div>
                         </div>
@@ -1158,7 +1161,7 @@ function reservation_management_admin_page() {
                             <label for="applicant_phone" class="form-label">
                                 申込者様電話番号 <span class="required">*</span>
                             </label>
-                            <input type="tel" name="applicant_phone" id="applicant_phone" class="form-input" value="<?php echo get_form_value('applicant_phone', $form_data); ?>">
+                            <input type="tel" name="applicant_phone" id="applicant_phone" class="form-input <?php echo get_field_error_class('applicant_phone', $field_errors); ?>" value="<?php echo get_form_value('applicant_phone', $form_data); ?>">
                             <?php display_field_error('applicant_phone', $field_errors); ?>
                         </div>
 
@@ -1167,7 +1170,7 @@ function reservation_management_admin_page() {
                             <label for="emergency_contact" class="form-label">
                                 当日連絡先(携帯番号) <span class="required">*</span>
                             </label>
-                            <input type="tel" name="emergency_contact" id="emergency_contact" class="form-input" value="<?php echo get_form_value('emergency_contact', $form_data); ?>">
+                            <input type="tel" name="emergency_contact" id="emergency_contact" class="form-input <?php echo get_field_error_class('emergency_contact', $field_errors); ?>" value="<?php echo get_form_value('emergency_contact', $form_data); ?>">
                             <?php display_field_error('emergency_contact', $field_errors); ?>
                         </div>
 
@@ -1176,7 +1179,7 @@ function reservation_management_admin_page() {
                             <label for="applicant_email" class="form-label">
                                 申込者様メールアドレス <span class="required">*</span>
                             </label>
-                            <input type="email" name="applicant_email" id="applicant_email" class="form-input" value="<?php echo get_form_value('applicant_email', $form_data); ?>">
+                            <input type="email" name="applicant_email" id="applicant_email" class="form-input <?php echo get_field_error_class('applicant_email', $field_errors); ?>" value="<?php echo get_form_value('applicant_email', $form_data); ?>">
                             <?php display_field_error('applicant_email', $field_errors); ?>
                         </div>
 
@@ -1187,19 +1190,19 @@ function reservation_management_admin_page() {
                             </label>
                             <div class="radio-group">
                                 <label class="radio-option">
-                                    <input type="radio" name="transportation" value="car" id="transportation_car" <?php echo is_radio_checked('transportation', 'car', $form_data); ?>> 車
+                                    <input type="radio" name="transportation" value="car" id="transportation_car" class="<?php echo get_field_error_class('transportation', $field_errors); ?>" <?php echo is_radio_checked('transportation', 'car', $form_data); ?>> 車
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="transportation" value="chartered_bus" id="transportation_chartered_bus" <?php echo is_radio_checked('transportation', 'chartered_bus', $form_data); ?>> 貸切バス
+                                    <input type="radio" name="transportation" value="chartered_bus" id="transportation_chartered_bus" class="<?php echo get_field_error_class('transportation', $field_errors); ?>" <?php echo is_radio_checked('transportation', 'chartered_bus', $form_data); ?>> 貸切バス
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="transportation" value="local_bus" id="transportation_local_bus" <?php echo is_radio_checked('transportation', 'local_bus', $form_data); ?>> 路線バス
+                                    <input type="radio" name="transportation" value="local_bus" id="transportation_local_bus" class="<?php echo get_field_error_class('transportation', $field_errors); ?>" <?php echo is_radio_checked('transportation', 'local_bus', $form_data); ?>> 路線バス
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="transportation" value="taxi" id="transportation_taxi" <?php echo is_radio_checked('transportation', 'taxi', $form_data); ?>> タクシー
+                                    <input type="radio" name="transportation" value="taxi" id="transportation_taxi" class="<?php echo get_field_error_class('transportation', $field_errors); ?>" <?php echo is_radio_checked('transportation', 'taxi', $form_data); ?>> タクシー
                                 </label>
                                 <label class="radio-option transportation-other-option">
-                                    <input type="radio" name="transportation" value="other" id="transportation_other" <?php echo is_radio_checked('transportation', 'other', $form_data); ?>> その他
+                                    <input type="radio" name="transportation" value="other" id="transportation_other" class="<?php echo get_field_error_class('transportation', $field_errors); ?>" <?php echo is_radio_checked('transportation', 'other', $form_data); ?>> その他
                                     <input type="text" name="transportation_other_text" id="transportation_other_text" class="form-input transportation-other-input" value="<?php echo get_form_value('transportation_other_text', $form_data); ?>" <?php echo is_radio_checked('transportation', 'other', $form_data) ? '' : 'disabled'; ?>>
                                 </label>
                             </div>
@@ -1212,7 +1215,7 @@ function reservation_management_admin_page() {
                                 台数 <span class="required">*</span>
                             </label>
                             <div style="display: flex; align-items: center;">
-                                <input type="number" name="vehicle_count" id="vehicle_count" class="form-input" style="width: 50px !important;" min="1" value="<?php echo get_form_value('vehicle_count', $form_data); ?>">
+                                <input type="number" name="vehicle_count" id="vehicle_count" class="form-input <?php echo get_field_error_class('vehicle_count', $field_errors); ?>" style="width: 50px !important;" min="1" value="<?php echo get_form_value('vehicle_count', $form_data); ?>">
                                 <span style="margin-left: 5px;">台</span>
                             </div>
                             <?php display_field_error('vehicle_count', $field_errors); ?>
@@ -1223,7 +1226,7 @@ function reservation_management_admin_page() {
                             <label for="visit_purpose" class="form-label" style="margin-top: 10px;">
                                 見学目的 <span class="required">*</span>
                             </label>
-                            <textarea name="visit_purpose" id="visit_purpose" class="form-input" rows="4" style="width: 100%; resize: vertical;"><?php echo get_form_value('visit_purpose', $form_data); ?></textarea>
+                            <textarea name="visit_purpose" id="visit_purpose" class="form-input <?php echo get_field_error_class('visit_purpose', $field_errors); ?>" rows="4" style="width: 100%; resize: vertical;"><?php echo get_form_value('visit_purpose', $form_data); ?></textarea>
                             <?php display_field_error('visit_purpose', $field_errors); ?>
                         </div>
 
@@ -1234,12 +1237,12 @@ function reservation_management_admin_page() {
                             </label>
                             <div style="display: flex; align-items: center; gap: 20px;">
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="total_visitors" id="total_visitors" class="form-input" style="width: 50px !important;" min="1" value="<?php echo get_form_value('total_visitors', $form_data); ?>">
+                                    <input type="number" name="total_visitors" id="total_visitors" class="form-input <?php echo get_field_error_class('total_visitors', $field_errors); ?>" style="width: 50px !important;" min="1" value="<?php echo get_form_value('total_visitors', $form_data); ?>">
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                                 <div style="display: flex; align-items: center;">
                                     <span style="margin-right: 5px;">内小学生以下</span>
-                                    <input type="number" name="elementary_visitors" id="elementary_visitors" class="form-input" style="width: 50px !important;" min="0" value="<?php echo get_form_value('elementary_visitors', $form_data); ?>">
+                                    <input type="number" name="elementary_visitors" id="elementary_visitors" class="form-input <?php echo get_field_error_class('elementary_visitors', $field_errors); ?>" style="width: 50px !important;" min="0" value="<?php echo get_form_value('elementary_visitors', $form_data); ?>">
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                             </div>
