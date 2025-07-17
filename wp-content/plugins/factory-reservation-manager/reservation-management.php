@@ -212,9 +212,93 @@ function validate_reservation_form($data) {
         }
     }
     
+    // 日付の形式・範囲チェック
+    if (!empty($data['visit_date'])) {
+        $visit_date = $data['visit_date'];
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $visit_date)) {
+            $errors[] = '見学日の形式が正しくありません。';
+        } else {
+            $date_obj = DateTime::createFromFormat('Y-m-d', $visit_date);
+            if (!$date_obj || $date_obj->format('Y-m-d') !== $visit_date) {
+                $errors[] = '見学日が正しくありません。';
+            } else {
+                $today = new DateTime();
+                if ($date_obj < $today) {
+                    $errors[] = '見学日は今日以降の日付を選択してください。';
+                }
+            }
+        }
+    }
+    
+    // 時間の形式・範囲チェック
+    if (!empty($data['visit_time_start']) && !empty($data['visit_time_end'])) {
+        $start_time = $data['visit_time_start'];
+        $end_time = $data['visit_time_end'];
+        
+        if (!preg_match('/^\d{2}:\d{2}$/', $start_time) || !preg_match('/^\d{2}:\d{2}$/', $end_time)) {
+            $errors[] = '見学時間の形式が正しくありません。';
+        } else {
+            $start_obj = DateTime::createFromFormat('H:i', $start_time);
+            $end_obj = DateTime::createFromFormat('H:i', $end_time);
+            
+            if (!$start_obj || !$end_obj) {
+                $errors[] = '見学時間が正しくありません。';
+            } elseif ($start_obj >= $end_obj) {
+                $errors[] = '見学終了時間は開始時間よりも後の時間を選択してください。';
+            }
+        }
+    }
+    
+    // 郵便番号の形式チェック
+    if (!empty($data['applicant_zip'])) {
+        if (!preg_match('/^\d{7}$/', $data['applicant_zip'])) {
+            $errors[] = '郵便番号は7桁の数字で入力してください。';
+        }
+    }
+    
+    // 電話番号の形式チェック
+    if (!empty($data['applicant_phone'])) {
+        if (!preg_match('/^[\d-]+$/', $data['applicant_phone'])) {
+            $errors[] = '電話番号は数字とハイフンのみで入力してください。';
+        }
+    }
+    
+    if (!empty($data['emergency_contact'])) {
+        if (!preg_match('/^[\d-]+$/', $data['emergency_contact'])) {
+            $errors[] = '当日連絡先は数字とハイフンのみで入力してください。';
+        }
+    }
+    
     // メールアドレスの形式チェック
     if (!empty($data['applicant_email']) && !is_email($data['applicant_email'])) {
         $errors[] = '正しいメールアドレスを入力してください。';
+    }
+    
+    // 数値フィールドのチェック
+    $numeric_fields = [
+        'vehicle_count' => '台数',
+        'total_visitors' => '見学者人数',
+        'elementary_visitors' => '小学生以下人数'
+    ];
+    
+    foreach ($numeric_fields as $field => $label) {
+        if (!empty($data[$field])) {
+            if (!is_numeric($data[$field]) || intval($data[$field]) < 0) {
+                $errors[] = $label . 'は0以上の数値で入力してください。';
+            }
+        }
+    }
+    
+    // 見学者人数の整合性チェック
+    if (!empty($data['total_visitors']) && !empty($data['elementary_visitors'])) {
+        if (intval($data['elementary_visitors']) > intval($data['total_visitors'])) {
+            $errors[] = '小学生以下の人数は見学者人数を超えることはできません。';
+        }
+    }
+    
+    // 交通機関「その他」の場合の入力チェック
+    if ($data['transportation'] === 'other' && empty($data['transportation_other_text'])) {
+        $errors[] = '交通機関で「その他」を選択した場合は、内容を入力してください。';
     }
     
     // 旅行会社の場合の追加チェック
@@ -232,6 +316,127 @@ function validate_reservation_form($data) {
                 $errors[] = $label . 'は必須項目です。';
             }
         }
+        
+        // 旅行会社の郵便番号チェック
+        if (!empty($data['travel_agency_zip'])) {
+            if (!preg_match('/^\d{7}$/', $data['travel_agency_zip'])) {
+                $errors[] = '旅行会社の郵便番号は7桁の数字で入力してください。';
+            }
+        }
+        
+        // 旅行会社の電話番号チェック
+        if (!empty($data['travel_agency_phone'])) {
+            if (!preg_match('/^[\d-]+$/', $data['travel_agency_phone'])) {
+                $errors[] = '旅行会社の電話番号は数字とハイフンのみで入力してください。';
+            }
+        }
+        
+        // 担当者メールアドレスの形式チェック
+        if (!empty($data['contact_email']) && !is_email($data['contact_email'])) {
+            $errors[] = '担当者メールアドレスの形式が正しくありません。';
+        }
+    }
+    
+    // 予約タイプごとの必須フィールドチェック
+    $errors = array_merge($errors, validate_reservation_type_fields($data));
+    
+    return $errors;
+}
+
+/**
+ * 予約タイプごとの必須フィールドチェック
+ */
+function validate_reservation_type_fields($data) {
+    $errors = [];
+    $type = $data['reservation_type'];
+    
+    switch ($type) {
+        case 'school':
+            $school_required = [
+                'school_name' => '学校・団体名',
+                'school_name_kana' => '学校・団体名(ふりがな)',
+                'grade' => '学年',
+                'class_count' => 'クラス数',
+                'student_count' => '見学者人数(児童・生徒)',
+                'supervisor_count' => '見学者人数(引率)'
+            ];
+            
+            foreach ($school_required as $field => $label) {
+                if (empty($data[$field])) {
+                    $errors[] = $label . 'は必須項目です。';
+                }
+            }
+            
+            // 数値フィールドのチェック
+            if (!empty($data['grade']) && (!is_numeric($data['grade']) || intval($data['grade']) < 1 || intval($data['grade']) > 12)) {
+                $errors[] = '学年は1〜12の数値で入力してください。';
+            }
+            
+            if (!empty($data['class_count']) && (!is_numeric($data['class_count']) || intval($data['class_count']) < 1)) {
+                $errors[] = 'クラス数は1以上の数値で入力してください。';
+            }
+            
+            break;
+            
+        case 'student_recruit':
+            $recruit_required = [
+                'recruit_school_name' => '学校名',
+                'recruit_department' => '学部',
+                'recruit_grade' => '学年',
+                'recruit_visitor_count' => '見学者様人数'
+            ];
+            
+            foreach ($recruit_required as $field => $label) {
+                if (empty($data[$field])) {
+                    $errors[] = $label . 'は必須項目です。';
+                }
+            }
+            
+            // 同行者情報のチェック
+            if (!empty($data['recruit_visitor_count'])) {
+                $visitor_count = intval($data['recruit_visitor_count']);
+                if ($visitor_count < 1 || $visitor_count > 10) {
+                    $errors[] = '見学者様人数は1〜10人の範囲で入力してください。';
+                }
+                
+                // 同行者情報の必須チェック
+                for ($i = 1; $i < $visitor_count; $i++) {
+                    if (empty($data["companion_name_$i"])) {
+                        $errors[] = "同行者様{$i}の氏名は必須項目です。";
+                    }
+                    if (empty($data["companion_department_$i"])) {
+                        $errors[] = "同行者様{$i}の学部は必須項目です。";
+                    }
+                }
+            }
+            
+            break;
+            
+        case 'family':
+        case 'company':
+        case 'municipality':
+        case 'other':
+            $general_required = [
+                'company_name' => '会社・団体名',
+                'company_name_kana' => '会社・団体名(ふりがな)',
+                'adult_count' => '見学者人数(大人)',
+                'child_count' => '見学者人数(子ども)'
+            ];
+            
+            foreach ($general_required as $field => $label) {
+                if (empty($data[$field])) {
+                    $errors[] = $label . 'は必須項目です。';
+                }
+            }
+            
+            // 子どもの学年チェック
+            if (!empty($data['child_count']) && intval($data['child_count']) > 0) {
+                if (empty($data['child_grade'])) {
+                    $errors[] = '子どもがいる場合は学年の入力が必要です。';
+                }
+            }
+            
+            break;
     }
     
     return $errors;
@@ -1065,7 +1270,221 @@ function reservation_management_admin_page() {
         transportationCharteredBus.addEventListener('change', toggleTransportationOtherField);
         transportationLocalBus.addEventListener('change', toggleTransportationOtherField);
         transportationTaxi.addEventListener('change', toggleTransportationOtherField);
+        
+        // フォーム送信時のバリデーション
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                }
+            });
+        }
     });
+    
+    // クライアントサイドバリデーション関数
+    function validateForm() {
+        const errors = [];
+        
+        // 必須フィールドのチェック
+        const requiredFields = [
+            { id: 'factory_id', name: '見学工場' },
+            { id: 'visit_date', name: '見学日' },
+            { id: 'visit_time_start', name: '見学開始時間' },
+            { id: 'visit_time_end', name: '見学終了時間' },
+            { id: 'applicant_name', name: '申込者氏名' },
+            { id: 'applicant_kana', name: '申込者氏名(ふりがな)' },
+            { id: 'applicant_zip', name: '申込者郵便番号' },
+            { id: 'applicant_prefecture', name: '申込者都道府県' },
+            { id: 'applicant_city', name: '申込者市区町村' },
+            { id: 'applicant_phone', name: '申込者電話番号' },
+            { id: 'emergency_contact', name: '当日連絡先' },
+            { id: 'applicant_email', name: '申込者メールアドレス' },
+            { id: 'vehicle_count', name: '台数' },
+            { id: 'visit_purpose', name: '見学目的' },
+            { id: 'total_visitors', name: '見学者人数' }
+        ];
+        
+        requiredFields.forEach(field => {
+            const element = document.getElementById(field.id);
+            if (element && !element.value.trim()) {
+                errors.push(field.name + 'は必須項目です。');
+            }
+        });
+        
+        // 旅行会社・予約タイプの必須チェック
+        const travelAgencyYes = document.getElementById('travel_agency_yes');
+        const travelAgencyNo = document.getElementById('travel_agency_no');
+        if (!travelAgencyYes.checked && !travelAgencyNo.checked) {
+            errors.push('旅行会社かどうかを選択してください。');
+        }
+        
+        const reservationTypes = document.querySelectorAll('input[name="reservation_type"]');
+        let reservationTypeSelected = false;
+        reservationTypes.forEach(radio => {
+            if (radio.checked) {
+                reservationTypeSelected = true;
+            }
+        });
+        if (!reservationTypeSelected) {
+            errors.push('予約タイプを選択してください。');
+        }
+        
+        const transportations = document.querySelectorAll('input[name="transportation"]');
+        let transportationSelected = false;
+        transportations.forEach(radio => {
+            if (radio.checked) {
+                transportationSelected = true;
+            }
+        });
+        if (!transportationSelected) {
+            errors.push('交通機関を選択してください。');
+        }
+        
+        // 日付の過去チェック
+        const visitDate = document.getElementById('visit_date');
+        if (visitDate && visitDate.value) {
+            const selectedDate = new Date(visitDate.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) {
+                errors.push('見学日は今日以降の日付を選択してください。');
+            }
+        }
+        
+        // 時間の範囲チェック
+        const startTime = document.getElementById('visit_time_start');
+        const endTime = document.getElementById('visit_time_end');
+        if (startTime && endTime && startTime.value && endTime.value) {
+            if (startTime.value >= endTime.value) {
+                errors.push('見学終了時間は開始時間よりも後の時間を選択してください。');
+            }
+        }
+        
+        // 郵便番号の形式チェック
+        const zipCode = document.getElementById('applicant_zip');
+        if (zipCode && zipCode.value && !/^\d{7}$/.test(zipCode.value)) {
+            errors.push('郵便番号は7桁の数字で入力してください。');
+        }
+        
+        // メールアドレスの形式チェック
+        const email = document.getElementById('applicant_email');
+        if (email && email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+            errors.push('正しいメールアドレスを入力してください。');
+        }
+        
+        // 数値フィールドのチェック
+        const numericFields = [
+            { id: 'vehicle_count', name: '台数' },
+            { id: 'total_visitors', name: '見学者人数' },
+            { id: 'elementary_visitors', name: '小学生以下人数' }
+        ];
+        
+        numericFields.forEach(field => {
+            const element = document.getElementById(field.id);
+            if (element && element.value) {
+                const value = parseInt(element.value);
+                if (isNaN(value) || value < 0) {
+                    errors.push(field.name + 'は0以上の数値で入力してください。');
+                }
+            }
+        });
+        
+        // 見学者人数の整合性チェック
+        const totalVisitors = document.getElementById('total_visitors');
+        const elementaryVisitors = document.getElementById('elementary_visitors');
+        if (totalVisitors && elementaryVisitors && totalVisitors.value && elementaryVisitors.value) {
+            if (parseInt(elementaryVisitors.value) > parseInt(totalVisitors.value)) {
+                errors.push('小学生以下の人数は見学者人数を超えることはできません。');
+            }
+        }
+        
+        // 交通機関「その他」のチェック
+        const transportationOther = document.getElementById('transportation_other');
+        const transportationOtherText = document.getElementById('transportation_other_text');
+        if (transportationOther && transportationOther.checked && transportationOtherText && !transportationOtherText.value.trim()) {
+            errors.push('交通機関で「その他」を選択した場合は、内容を入力してください。');
+        }
+        
+        // 旅行会社情報のチェック
+        if (travelAgencyYes && travelAgencyYes.checked) {
+            const agencyRequiredFields = [
+                { id: 'travel_agency_name', name: '旅行会社氏名' },
+                { id: 'travel_agency_prefecture', name: '旅行会社都道府県' },
+                { id: 'travel_agency_city', name: '旅行会社市区町村' },
+                { id: 'travel_agency_phone', name: '旅行会社電話番号' },
+                { id: 'contact_email', name: '担当者メールアドレス' }
+            ];
+            
+            agencyRequiredFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element && !element.value.trim()) {
+                    errors.push(field.name + 'は必須項目です。');
+                }
+            });
+        }
+        
+        // 予約タイプごとの必須フィールドチェック
+        const selectedReservationType = document.querySelector('input[name="reservation_type"]:checked');
+        if (selectedReservationType) {
+            const type = selectedReservationType.value;
+            
+            if (type === 'school') {
+                const schoolFields = [
+                    { id: 'school_name', name: '学校・団体名' },
+                    { id: 'school_name_kana', name: '学校・団体名(ふりがな)' },
+                    { id: 'grade', name: '学年' },
+                    { id: 'class_count', name: 'クラス数' },
+                    { id: 'student_count', name: '見学者人数(児童・生徒)' },
+                    { id: 'supervisor_count', name: '見学者人数(引率)' }
+                ];
+                
+                schoolFields.forEach(field => {
+                    const element = document.getElementById(field.id);
+                    if (element && !element.value.trim()) {
+                        errors.push(field.name + 'は必須項目です。');
+                    }
+                });
+            } else if (type === 'student_recruit') {
+                const recruitFields = [
+                    { id: 'recruit_school_name', name: '学校名' },
+                    { id: 'recruit_department', name: '学部' },
+                    { id: 'recruit_grade', name: '学年' },
+                    { id: 'recruit_visitor_count', name: '見学者様人数' }
+                ];
+                
+                recruitFields.forEach(field => {
+                    const element = document.getElementById(field.id);
+                    if (element && !element.value.trim()) {
+                        errors.push(field.name + 'は必須項目です。');
+                    }
+                });
+            } else if (['family', 'company', 'municipality', 'other'].includes(type)) {
+                const generalFields = [
+                    { id: 'company_name', name: '会社・団体名' },
+                    { id: 'company_name_kana', name: '会社・団体名(ふりがな)' },
+                    { id: 'adult_count', name: '見学者人数(大人)' },
+                    { id: 'child_count', name: '見学者人数(子ども)' }
+                ];
+                
+                generalFields.forEach(field => {
+                    const element = document.getElementById(field.id);
+                    if (element && !element.value.trim()) {
+                        errors.push(field.name + 'は必須項目です。');
+                    }
+                });
+            }
+        }
+        
+        // エラーがある場合はアラートを表示
+        if (errors.length > 0) {
+            alert('以下のエラーがあります：\n\n' + errors.join('\n'));
+            return false;
+        }
+        
+        return true;
+    }
     
     // 見学者人数に応じた同行者フィールドの動的表示
     function updateCompanionFields() {
