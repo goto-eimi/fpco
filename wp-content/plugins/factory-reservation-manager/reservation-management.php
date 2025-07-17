@@ -98,6 +98,11 @@ function handle_reservation_form_submission() {
     
     // バリデーション
     $errors = validate_reservation_form($_POST);
+    
+    // デバッグ情報を追加
+    error_log('Validation errors: ' . print_r($errors, true));
+    error_log('POST data: ' . print_r($_POST, true));
+    
     if (!empty($errors)) {
         ob_end_clean();
         set_transient('reservation_errors', $errors, 60);
@@ -216,7 +221,7 @@ function validate_reservation_form($data) {
     ];
     
     foreach ($required_fields as $field => $label) {
-        if (empty($data[$field])) {
+        if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
             $errors[] = $label . 'は必須項目です。';
         }
     }
@@ -306,7 +311,8 @@ function validate_reservation_form($data) {
     }
     
     // 交通機関「その他」の場合の入力チェック
-    if (isset($data['transportation']) && $data['transportation'] === 'other' && empty($data['transportation_other_text'])) {
+    if (isset($data['transportation']) && $data['transportation'] === 'other' && 
+        (!isset($data['transportation_other_text']) || $data['transportation_other_text'] === '' || $data['transportation_other_text'] === null)) {
         $errors[] = '交通機関で「その他」を選択した場合は、内容を入力してください。';
     }
     
@@ -321,7 +327,7 @@ function validate_reservation_form($data) {
         ];
         
         foreach ($agency_required as $field => $label) {
-            if (empty($data[$field])) {
+            if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
                 $errors[] = $label . 'は必須項目です。';
             }
         }
@@ -376,7 +382,7 @@ function validate_reservation_type_fields($data) {
             ];
             
             foreach ($school_required as $field => $label) {
-                if (empty($data[$field])) {
+                if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
                     $errors[] = $label . 'は必須項目です。';
                 }
             }
@@ -401,7 +407,7 @@ function validate_reservation_type_fields($data) {
             ];
             
             foreach ($recruit_required as $field => $label) {
-                if (empty($data[$field])) {
+                if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
                     $errors[] = $label . 'は必須項目です。';
                 }
             }
@@ -415,10 +421,10 @@ function validate_reservation_type_fields($data) {
                 
                 // 同行者情報の必須チェック
                 for ($i = 1; $i < $visitor_count; $i++) {
-                    if (empty($data["companion_name_$i"])) {
+                    if (!isset($data["companion_name_$i"]) || $data["companion_name_$i"] === '' || $data["companion_name_$i"] === null) {
                         $errors[] = "同行者様{$i}の氏名は必須項目です。";
                     }
-                    if (empty($data["companion_department_$i"])) {
+                    if (!isset($data["companion_department_$i"]) || $data["companion_department_$i"] === '' || $data["companion_department_$i"] === null) {
                         $errors[] = "同行者様{$i}の学部は必須項目です。";
                     }
                 }
@@ -438,14 +444,14 @@ function validate_reservation_type_fields($data) {
             ];
             
             foreach ($general_required as $field => $label) {
-                if (empty($data[$field])) {
+                if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
                     $errors[] = $label . 'は必須項目です。';
                 }
             }
             
             // 子どもの学年チェック
             if (!empty($data['child_count']) && intval($data['child_count']) > 0) {
-                if (empty($data['child_grade'])) {
+                if (!isset($data['child_grade']) || $data['child_grade'] === '' || $data['child_grade'] === null) {
                     $errors[] = '子どもがいる場合は学年の入力が必要です。';
                 }
             }
