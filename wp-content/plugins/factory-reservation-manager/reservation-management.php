@@ -638,7 +638,7 @@ function reservation_management_admin_page() {
                                 </label>
                                 <label class="radio-option transportation-other-option">
                                     <input type="radio" name="transportation" value="other" id="transportation_other"> その他
-                                    <input type="text" name="transportation_other_text" id="transportation_other_text" class="form-input transportation-other-input">
+                                    <input type="text" name="transportation_other_text" id="transportation_other_text" class="form-input transportation-other-input" disabled>
                                 </label>
                             </div>
                         </div>
