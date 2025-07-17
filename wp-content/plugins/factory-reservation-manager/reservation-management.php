@@ -92,10 +92,14 @@ function handle_reservation_form_submission() {
     $table_name = $wpdb->prefix . 'reservations';
     
     // バリデーション
-    $errors = validate_reservation_form($_POST);
+    $validation_result = validate_reservation_form($_POST);
     
-    if (!empty($errors)) {
-        return ['success' => false, 'errors' => $errors];
+    if (!empty($validation_result['errors'])) {
+        return [
+            'success' => false, 
+            'errors' => $validation_result['errors'],
+            'field_errors' => $validation_result['field_errors']
+        ];
     }
     
     // データの準備
@@ -174,6 +178,13 @@ function handle_reservation_form_submission() {
  */
 function validate_reservation_form($data) {
     $errors = [];
+    $field_errors = [];
+    
+    // フィールドエラーを追加するヘルパー関数
+    $add_field_error = function($field, $message) use (&$errors, &$field_errors) {
+        $errors[] = $message;
+        $field_errors[$field] = $message;
+    };
     
     // 必須フィールドのチェック
     $required_fields = [
@@ -199,7 +210,7 @@ function validate_reservation_form($data) {
     
     foreach ($required_fields as $field => $label) {
         if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
-            $errors[] = $label . 'は必須項目です。';
+            $add_field_error($field, $label . 'は必須項目です。');
         }
     }
     
@@ -207,15 +218,15 @@ function validate_reservation_form($data) {
     if (!empty($data['visit_date'])) {
         $visit_date = $data['visit_date'];
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $visit_date)) {
-            $errors[] = '見学日の形式が正しくありません。';
+            $add_field_error('visit_date', '見学日の形式が正しくありません。');
         } else {
             $date_obj = DateTime::createFromFormat('Y-m-d', $visit_date);
             if (!$date_obj || $date_obj->format('Y-m-d') !== $visit_date) {
-                $errors[] = '見学日が正しくありません。';
+                $add_field_error('visit_date', '見学日が正しくありません。');
             } else {
                 $today = new DateTime();
                 if ($date_obj < $today) {
-                    $errors[] = '見学日は今日以降の日付を選択してください。';
+                    $add_field_error('visit_date', '見学日は今日以降の日付を選択してください。');
                 }
             }
         }
@@ -226,16 +237,21 @@ function validate_reservation_form($data) {
         $start_time = $data['visit_time_start'];
         $end_time = $data['visit_time_end'];
         
-        if (!preg_match('/^\d{2}:\d{2}$/', $start_time) || !preg_match('/^\d{2}:\d{2}$/', $end_time)) {
-            $errors[] = '見学時間の形式が正しくありません。';
-        } else {
+        if (!preg_match('/^\d{2}:\d{2}$/', $start_time)) {
+            $add_field_error('visit_time_start', '見学開始時間の形式が正しくありません。');
+        }
+        if (!preg_match('/^\d{2}:\d{2}$/', $end_time)) {
+            $add_field_error('visit_time_end', '見学終了時間の形式が正しくありません。');
+        }
+        
+        if (preg_match('/^\d{2}:\d{2}$/', $start_time) && preg_match('/^\d{2}:\d{2}$/', $end_time)) {
             $start_obj = DateTime::createFromFormat('H:i', $start_time);
             $end_obj = DateTime::createFromFormat('H:i', $end_time);
             
             if (!$start_obj || !$end_obj) {
-                $errors[] = '見学時間が正しくありません。';
+                $add_field_error('visit_time_start', '見学時間が正しくありません。');
             } elseif ($start_obj >= $end_obj) {
-                $errors[] = '見学終了時間は開始時間よりも後の時間を選択してください。';
+                $add_field_error('visit_time_end', '見学終了時間は開始時間よりも後の時間を選択してください。');
             }
         }
     }
@@ -330,9 +346,11 @@ function validate_reservation_form($data) {
     }
     
     // 予約タイプごとの必須フィールドチェック
-    $errors = array_merge($errors, validate_reservation_type_fields($data));
+    $type_validation = validate_reservation_type_fields($data);
+    $errors = array_merge($errors, $type_validation['errors']);
+    $field_errors = array_merge($field_errors, $type_validation['field_errors']);
     
-    return $errors;
+    return ['errors' => $errors, 'field_errors' => $field_errors];
 }
 
 /**
@@ -340,12 +358,19 @@ function validate_reservation_form($data) {
  */
 function validate_reservation_type_fields($data) {
     $errors = [];
+    $field_errors = [];
     
     if (!isset($data['reservation_type'])) {
-        return $errors;
+        return ['errors' => $errors, 'field_errors' => $field_errors];
     }
     
     $type = $data['reservation_type'];
+    
+    // フィールドエラーを追加するヘルパー関数
+    $add_field_error = function($field, $message) use (&$errors, &$field_errors) {
+        $errors[] = $message;
+        $field_errors[$field] = $message;
+    };
     
     switch ($type) {
         case 'school':
@@ -360,17 +385,17 @@ function validate_reservation_type_fields($data) {
             
             foreach ($school_required as $field => $label) {
                 if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
-                    $errors[] = $label . 'は必須項目です。';
+                    $add_field_error($field, $label . 'は必須項目です。');
                 }
             }
             
             // 数値フィールドのチェック
             if (!empty($data['grade']) && (!is_numeric($data['grade']) || intval($data['grade']) < 1 || intval($data['grade']) > 12)) {
-                $errors[] = '学年は1〜12の数値で入力してください。';
+                $add_field_error('grade', '学年は1〜12の数値で入力してください。');
             }
             
             if (!empty($data['class_count']) && (!is_numeric($data['class_count']) || intval($data['class_count']) < 1)) {
-                $errors[] = 'クラス数は1以上の数値で入力してください。';
+                $add_field_error('class_count', 'クラス数は1以上の数値で入力してください。');
             }
             
             break;
@@ -436,7 +461,7 @@ function validate_reservation_type_fields($data) {
             break;
     }
     
-    return $errors;
+    return ['errors' => $errors, 'field_errors' => $field_errors];
 }
 
 /**
@@ -524,12 +549,22 @@ function is_option_selected($field_name, $value, $form_data) {
 }
 
 /**
+ * フィールドごとのエラーメッセージを表示するヘルパー関数
+ */
+function display_field_error($field_name, $field_errors) {
+    if (isset($field_errors[$field_name])) {
+        echo '<div class="field-error">' . esc_html($field_errors[$field_name]) . '</div>';
+    }
+}
+
+/**
  * 予約管理画面の表示
  */
 function reservation_management_admin_page() {
     global $wpdb;
     
     $errors = [];
+    $field_errors = [];
     $success_message = '';
     $form_data = [];
     
@@ -542,6 +577,7 @@ function reservation_management_admin_page() {
             $form_data = [];
         } else {
             $errors = $result['errors'];
+            $field_errors = $result['field_errors'];
             // エラー時はフォームデータを保持
             $form_data = $_POST;
         }
@@ -643,6 +679,7 @@ function reservation_management_admin_page() {
                             <?php if ($is_factory_account): ?>
                                 <input type="hidden" name="factory_id" value="<?php echo esc_attr($assigned_factory); ?>">
                             <?php endif; ?>
+                            <?php display_field_error('factory_id', $field_errors); ?>
                         </div>
 
                         <!-- 見学日 -->
@@ -651,6 +688,7 @@ function reservation_management_admin_page() {
                                 見学日 <span class="required">*</span>
                             </label>
                             <input type="date" name="visit_date" id="visit_date" class="form-input" value="<?php echo get_form_value('visit_date', $form_data); ?>">
+                            <?php display_field_error('visit_date', $field_errors); ?>
                         </div>
 
                         <!-- 見学時間帯 -->
@@ -671,6 +709,7 @@ function reservation_management_admin_page() {
                                 申込者氏名 <span class="required">*</span>
                             </label>
                             <input type="text" name="applicant_name" id="applicant_name" class="form-input" value="<?php echo get_form_value('applicant_name', $form_data); ?>">
+                            <?php display_field_error('applicant_name', $field_errors); ?>
                         </div>
 
                         <!-- 申込者氏名(ふりがな) -->

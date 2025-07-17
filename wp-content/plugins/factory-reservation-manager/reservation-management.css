@@ -167,3 +167,11 @@
     color: white;
     cursor: pointer;
 }
+
+/* フィールドエラーメッセージのスタイル */
+.field-error {
+    color: #d63384;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
