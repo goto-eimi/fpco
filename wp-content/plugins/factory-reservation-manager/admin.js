@@ -137,14 +137,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         })
                         .then(response => response.json())
                         .then(data => {
+                            var amCheckbox = arg.el.querySelector('.am-checkbox');
+                            var pmCheckbox = arg.el.querySelector('.pm-checkbox');
+                            
                             if (data.success) {
-                                var amCheckbox = arg.el.querySelector('.am-checkbox');
-                                var pmCheckbox = arg.el.querySelector('.pm-checkbox');
+                                // データベースに設定があれば使用
                                 if (amCheckbox) {
                                     amCheckbox.checked = data.data.am_unavailable || false;
                                 }
                                 if (pmCheckbox) {
                                     pmCheckbox.checked = data.data.pm_unavailable || false;
+                                }
+                            } else {
+                                // データベースに設定がない場合、土日はデフォルトでチェック
+                                if (isWeekend) {
+                                    if (amCheckbox) amCheckbox.checked = true;
+                                    if (pmCheckbox) pmCheckbox.checked = true;
+                                    
+                                    // 土日のデフォルト設定をデータベースに保存
+                                    fetch(factory_calendar.ajax_url, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                        },
+                                        body: 'action=save_unavailable&factory_id=' + factoryId + 
+                                              '&date=' + dateStr + 
+                                              '&am_unavailable=true' + 
+                                              '&pm_unavailable=true' + 
+                                              '&nonce=' + factory_calendar.nonce
+                                    });
                                 }
                             }
                         })
