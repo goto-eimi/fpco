@@ -75,22 +75,17 @@ function reservation_management_admin_menu() {
 
 function handle_reservation_form_submission() {
     if (!isset($_POST['submit_reservation']) || !isset($_POST['reservation_nonce'])) {
-        return;
+        return ['success' => false, 'errors' => []];
     }
-    
-    // 出力バッファリングを開始
-    ob_start();
     
     // Nonceチェック
     if (!wp_verify_nonce($_POST['reservation_nonce'], 'reservation_form')) {
-        ob_end_clean();
-        wp_die('セキュリティチェックに失敗しました。');
+        return ['success' => false, 'errors' => ['セキュリティチェックに失敗しました。']];
     }
     
     // 権限チェック
     if (!current_user_can('read')) {
-        ob_end_clean();
-        wp_die('この操作を行う権限がありません。');
+        return ['success' => false, 'errors' => ['この操作を行う権限がありません。']];
     }
     
     global $wpdb;
@@ -99,19 +94,8 @@ function handle_reservation_form_submission() {
     // バリデーション
     $errors = validate_reservation_form($_POST);
     
-    // デバッグ情報を追加
-    error_log('Validation errors: ' . print_r($errors, true));
-    error_log('POST data: ' . print_r($_POST, true));
-    
     if (!empty($errors)) {
-        ob_end_clean();
-        set_transient('reservation_errors', $errors, 60);
-        set_transient('reservation_form_data', $_POST, 60);
-        
-        // JavaScriptを使用してリダイレクト
-        $redirect_url = add_query_arg('error', '1', admin_url('admin.php?page=reservation-management'));
-        echo '<script>window.location.href = "' . esc_url($redirect_url) . '";</script>';
-        exit;
+        return ['success' => false, 'errors' => $errors];
     }
     
     // データの準備
@@ -179,17 +163,10 @@ function handle_reservation_form_submission() {
     $result = $wpdb->insert($table_name, $data, $format);
     
     if ($result === false) {
-        ob_end_clean();
-        set_transient('reservation_error_message', 'データベースへの保存に失敗しました。', 60);
-        $redirect_url = add_query_arg('error', '1', admin_url('admin.php?page=reservation-management'));
-        echo '<script>window.location.href = "' . esc_url($redirect_url) . '";</script>';
+        return ['success' => false, 'errors' => ['データベースへの保存に失敗しました。']];
     } else {
-        ob_end_clean();
-        set_transient('reservation_success_message', '予約を正常に登録しました。予約番号: ' . $wpdb->insert_id, 60);
-        $redirect_url = add_query_arg('success', '1', admin_url('admin.php?page=reservation-management'));
-        echo '<script>window.location.href = "' . esc_url($redirect_url) . '";</script>';
+        return ['success' => true, 'message' => '予約を正常に登録しました。予約番号: ' . $wpdb->insert_id];
     }
-    exit;
 }
 
 /**
@@ -531,12 +508,33 @@ function get_type_specific_data($data) {
 function reservation_management_admin_page() {
     global $wpdb;
     
+    $errors = [];
+    $success_message = '';
+    
     // フォーム送信処理
     if (isset($_POST['submit_reservation'])) {
-        handle_reservation_form_submission();
+        $result = handle_reservation_form_submission();
+        if ($result['success']) {
+            $success_message = $result['message'];
+        } else {
+            $errors = $result['errors'];
+        }
     }
     
     // メッセージ表示
+    if ($success_message) {
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($success_message) . '</p></div>';
+    }
+    
+    if (!empty($errors)) {
+        echo '<div class="notice notice-error is-dismissible">';
+        foreach ($errors as $error) {
+            echo '<p>' . esc_html($error) . '</p>';
+        }
+        echo '</div>';
+    }
+    
+    // transientからのメッセージ表示（リダイレクト後の場合）
     if (isset($_GET['success'])) {
         $message = get_transient('reservation_success_message');
         if ($message) {
@@ -546,12 +544,12 @@ function reservation_management_admin_page() {
     }
     
     if (isset($_GET['error'])) {
-        $errors = get_transient('reservation_errors');
+        $transient_errors = get_transient('reservation_errors');
         $error_message = get_transient('reservation_error_message');
         
-        if ($errors) {
+        if ($transient_errors) {
             echo '<div class="notice notice-error is-dismissible">';
-            foreach ($errors as $error) {
+            foreach ($transient_errors as $error) {
                 echo '<p>' . esc_html($error) . '</p>';
             }
             echo '</div>';
