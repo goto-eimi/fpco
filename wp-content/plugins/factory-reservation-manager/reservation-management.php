@@ -503,6 +503,27 @@ function get_type_specific_data($data) {
 }
 
 /**
+ * フォームフィールドの値を取得するヘルパー関数
+ */
+function get_form_value($field_name, $form_data, $default = '') {
+    return isset($form_data[$field_name]) ? esc_attr($form_data[$field_name]) : $default;
+}
+
+/**
+ * ラジオボタンの選択状態を取得するヘルパー関数
+ */
+function is_radio_checked($field_name, $value, $form_data) {
+    return isset($form_data[$field_name]) && $form_data[$field_name] === $value ? 'checked' : '';
+}
+
+/**
+ * セレクトボックスの選択状態を取得するヘルパー関数
+ */
+function is_option_selected($field_name, $value, $form_data) {
+    return isset($form_data[$field_name]) && $form_data[$field_name] === $value ? 'selected' : '';
+}
+
+/**
  * 予約管理画面の表示
  */
 function reservation_management_admin_page() {
@@ -510,14 +531,19 @@ function reservation_management_admin_page() {
     
     $errors = [];
     $success_message = '';
+    $form_data = [];
     
     // フォーム送信処理
     if (isset($_POST['submit_reservation'])) {
         $result = handle_reservation_form_submission();
         if ($result['success']) {
             $success_message = $result['message'];
+            // 成功時はフォームデータをクリア
+            $form_data = [];
         } else {
             $errors = $result['errors'];
+            // エラー時はフォームデータを保持
+            $form_data = $_POST;
         }
     }
     
@@ -608,7 +634,8 @@ function reservation_management_admin_page() {
                                 <option value="">選択してください</option>
                                 <?php foreach ($factories as $factory) : ?>
                                     <option value="<?php echo esc_attr($factory->id); ?>" 
-                                            <?php echo ($is_factory_account && $factory->id == $assigned_factory) ? 'selected' : ''; ?>>
+                                            <?php echo ($is_factory_account && $factory->id == $assigned_factory) ? 'selected' : ''; ?>
+                                            <?php echo is_option_selected('factory_id', $factory->id, $form_data); ?>>
                                         <?php echo esc_html($factory->name); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -623,7 +650,7 @@ function reservation_management_admin_page() {
                             <label for="visit_date" class="form-label">
                                 見学日 <span class="required">*</span>
                             </label>
-                            <input type="date" name="visit_date" id="visit_date" class="form-input">
+                            <input type="date" name="visit_date" id="visit_date" class="form-input" value="<?php echo get_form_value('visit_date', $form_data); ?>">
                         </div>
 
                         <!-- 見学時間帯 -->
@@ -632,9 +659,9 @@ function reservation_management_admin_page() {
                                 見学時間帯 <span class="required">*</span>
                             </label>
                             <div class="time-range">
-                                <input type="time" name="visit_time_start" id="visit_time_start" class="time-input">
+                                <input type="time" name="visit_time_start" id="visit_time_start" class="time-input" value="<?php echo get_form_value('visit_time_start', $form_data); ?>">
                                 <span>〜</span>
-                                <input type="time" name="visit_time_end" id="visit_time_end" class="time-input">
+                                <input type="time" name="visit_time_end" id="visit_time_end" class="time-input" value="<?php echo get_form_value('visit_time_end', $form_data); ?>">
                             </div>
                         </div>
 
@@ -643,7 +670,7 @@ function reservation_management_admin_page() {
                             <label for="applicant_name" class="form-label">
                                 申込者氏名 <span class="required">*</span>
                             </label>
-                            <input type="text" name="applicant_name" id="applicant_name" class="form-input">
+                            <input type="text" name="applicant_name" id="applicant_name" class="form-input" value="<?php echo get_form_value('applicant_name', $form_data); ?>">
                         </div>
 
                         <!-- 申込者氏名(ふりがな) -->
@@ -651,7 +678,7 @@ function reservation_management_admin_page() {
                             <label for="applicant_kana" class="form-label">
                                 申込者氏名(ふりがな) <span class="required">*</span>
                             </label>
-                            <input type="text" name="applicant_kana" id="applicant_kana" class="form-input">
+                            <input type="text" name="applicant_kana" id="applicant_kana" class="form-input" value="<?php echo get_form_value('applicant_kana', $form_data); ?>">
                         </div>
 
                         <!-- 旅行会社の方ですか -->
@@ -661,10 +688,10 @@ function reservation_management_admin_page() {
                             </label>
                             <div class="radio-group">
                                 <label class="radio-option">
-                                    <input type="radio" name="is_travel_agency" value="yes" id="travel_agency_yes"> はい
+                                    <input type="radio" name="is_travel_agency" value="yes" id="travel_agency_yes" <?php echo is_radio_checked('is_travel_agency', 'yes', $form_data); ?>> はい
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="is_travel_agency" value="no" id="travel_agency_no"> いいえ
+                                    <input type="radio" name="is_travel_agency" value="no" id="travel_agency_no" <?php echo is_radio_checked('is_travel_agency', 'no', $form_data); ?>> いいえ
                                 </label>
                             </div>
                         </div>
@@ -1086,7 +1113,7 @@ function reservation_management_admin_page() {
                             <label for="applicant_phone" class="form-label">
                                 申込者様電話番号 <span class="required">*</span>
                             </label>
-                            <input type="tel" name="applicant_phone" id="applicant_phone" class="form-input">
+                            <input type="tel" name="applicant_phone" id="applicant_phone" class="form-input" value="<?php echo get_form_value('applicant_phone', $form_data); ?>">
                         </div>
 
                         <!-- 当日連絡先(携帯番号) -->
@@ -1094,7 +1121,7 @@ function reservation_management_admin_page() {
                             <label for="emergency_contact" class="form-label">
                                 当日連絡先(携帯番号) <span class="required">*</span>
                             </label>
-                            <input type="tel" name="emergency_contact" id="emergency_contact" class="form-input">
+                            <input type="tel" name="emergency_contact" id="emergency_contact" class="form-input" value="<?php echo get_form_value('emergency_contact', $form_data); ?>">
                         </div>
 
                         <!-- 申込者様メールアドレス -->
@@ -1102,7 +1129,7 @@ function reservation_management_admin_page() {
                             <label for="applicant_email" class="form-label">
                                 申込者様メールアドレス <span class="required">*</span>
                             </label>
-                            <input type="email" name="applicant_email" id="applicant_email" class="form-input">
+                            <input type="email" name="applicant_email" id="applicant_email" class="form-input" value="<?php echo get_form_value('applicant_email', $form_data); ?>">
                         </div>
 
                         <!-- ご利用の交通機関 -->
@@ -1136,7 +1163,7 @@ function reservation_management_admin_page() {
                                 台数 <span class="required">*</span>
                             </label>
                             <div style="display: flex; align-items: center;">
-                                <input type="number" name="vehicle_count" id="vehicle_count" class="form-input" style="width: 50px !important;" min="1">
+                                <input type="number" name="vehicle_count" id="vehicle_count" class="form-input" style="width: 50px !important;" min="1" value="<?php echo get_form_value('vehicle_count', $form_data); ?>">
                                 <span style="margin-left: 5px;">台</span>
                             </div>
                         </div>
@@ -1146,7 +1173,7 @@ function reservation_management_admin_page() {
                             <label for="visit_purpose" class="form-label" style="margin-top: 10px;">
                                 見学目的 <span class="required">*</span>
                             </label>
-                            <textarea name="visit_purpose" id="visit_purpose" class="form-input" rows="4" style="width: 100%; resize: vertical;"></textarea>
+                            <textarea name="visit_purpose" id="visit_purpose" class="form-input" rows="4" style="width: 100%; resize: vertical;"><?php echo get_form_value('visit_purpose', $form_data); ?></textarea>
                         </div>
 
                         <!-- 見学者人数 -->
@@ -1156,12 +1183,12 @@ function reservation_management_admin_page() {
                             </label>
                             <div style="display: flex; align-items: center; gap: 20px;">
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="total_visitors" id="total_visitors" class="form-input" style="width: 50px !important;" min="1">
+                                    <input type="number" name="total_visitors" id="total_visitors" class="form-input" style="width: 50px !important;" min="1" value="<?php echo get_form_value('total_visitors', $form_data); ?>">
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                                 <div style="display: flex; align-items: center;">
                                     <span style="margin-right: 5px;">内小学生以下</span>
-                                    <input type="number" name="elementary_visitors" id="elementary_visitors" class="form-input" style="width: 50px !important;" min="0">
+                                    <input type="number" name="elementary_visitors" id="elementary_visitors" class="form-input" style="width: 50px !important;" min="0" value="<?php echo get_form_value('elementary_visitors', $form_data); ?>">
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                             </div>
