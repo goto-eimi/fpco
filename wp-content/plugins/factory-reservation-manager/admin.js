@@ -140,21 +140,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             var amCheckbox = arg.el.querySelector('.am-checkbox');
                             var pmCheckbox = arg.el.querySelector('.pm-checkbox');
                             
-                            if (data.success) {
-                                // データベースに設定があれば使用
-                                if (amCheckbox) {
-                                    amCheckbox.checked = data.data.am_unavailable || false;
-                                }
-                                if (pmCheckbox) {
-                                    pmCheckbox.checked = data.data.pm_unavailable || false;
-                                }
-                            } else {
-                                // データベースに設定がない場合、土日はデフォルトでチェック
-                                if (isWeekend) {
-                                    if (amCheckbox) amCheckbox.checked = true;
-                                    if (pmCheckbox) pmCheckbox.checked = true;
-                                    
-                                    // 土日のデフォルト設定をデータベースに保存
+                            if (isWeekend) {
+                                // 土日は常に見学不可に設定
+                                if (amCheckbox) amCheckbox.checked = true;
+                                if (pmCheckbox) pmCheckbox.checked = true;
+                                
+                                // 土日のデフォルト設定をデータベースに保存（データがない場合のみ）
+                                if (!data.success) {
                                     fetch(factory_calendar.ajax_url, {
                                         method: 'POST',
                                         headers: {
@@ -166,6 +158,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                               '&pm_unavailable=true' + 
                                               '&nonce=' + factory_calendar.nonce
                                     });
+                                }
+                            } else if (data.success) {
+                                // 平日はデータベースの設定を使用
+                                if (amCheckbox) {
+                                    amCheckbox.checked = data.data.am_unavailable || false;
+                                }
+                                if (pmCheckbox) {
+                                    pmCheckbox.checked = data.data.pm_unavailable || false;
                                 }
                             }
                         })
