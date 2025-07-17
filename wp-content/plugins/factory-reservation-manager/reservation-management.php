@@ -11,6 +11,54 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * プラグイン有効化時にテーブルを作成
+ */
+register_activation_hook(__FILE__, 'create_reservations_table');
+
+function create_reservations_table() {
+    global $wpdb;
+    
+    $table_name = $wpdb->prefix . 'reservations';
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        factory_id bigint(20) NOT NULL,
+        date date NOT NULL,
+        time_slot varchar(50) NOT NULL,
+        applicant_name varchar(255) NOT NULL,
+        applicant_kana varchar(255) NOT NULL,
+        is_travel_agency tinyint(1) DEFAULT 0,
+        agency_data longtext,
+        reservation_type enum('school','student_recruit','family','company','municipality','other') NOT NULL,
+        type_data longtext,
+        address_zip varchar(10),
+        address_prefecture varchar(50),
+        address_city varchar(100),
+        address_street varchar(255),
+        phone varchar(50) NOT NULL,
+        day_of_contact varchar(50) NOT NULL,
+        email varchar(255) NOT NULL,
+        transportation_method varchar(50) NOT NULL,
+        transportation_other varchar(255),
+        transportation_count int(11) NOT NULL,
+        purpose text NOT NULL,
+        participant_count int(11) NOT NULL,
+        participants_child_count int(11) DEFAULT 0,
+        status enum('new','checking','approved','rejected','cancelled') DEFAULT 'new',
+        created_at datetime DEFAULT CURRENT_TIMESTAMP,
+        updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        KEY factory_id (factory_id),
+        KEY date (date),
+        KEY status (status)
+    ) $charset_collate;";
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
+
+/**
  * CSSファイルの読み込み
  */
 add_action('admin_enqueue_scripts', 'reservation_management_enqueue_scripts');
@@ -70,10 +118,265 @@ function reservation_management_admin_menu() {
 }
 
 /**
+ * フォーム送信処理
+ */
+add_action('admin_init', 'handle_reservation_form_submission');
+
+function handle_reservation_form_submission() {
+    if (!isset($_POST['submit_reservation']) || !isset($_POST['reservation_nonce'])) {
+        return;
+    }
+    
+    // Nonceチェック
+    if (!wp_verify_nonce($_POST['reservation_nonce'], 'reservation_form')) {
+        wp_die('セキュリティチェックに失敗しました。');
+    }
+    
+    // 権限チェック
+    if (!current_user_can('read')) {
+        wp_die('この操作を行う権限がありません。');
+    }
+    
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'reservations';
+    
+    // バリデーション
+    $errors = validate_reservation_form($_POST);
+    if (!empty($errors)) {
+        set_transient('reservation_errors', $errors, 60);
+        set_transient('reservation_form_data', $_POST, 60);
+        wp_redirect(add_query_arg('error', '1', wp_get_referer()));
+        exit;
+    }
+    
+    // データの準備
+    $time_slot = sanitize_text_field($_POST['visit_time_start']) . '-' . sanitize_text_field($_POST['visit_time_end']);
+    
+    // 旅行会社情報の処理
+    $agency_data = null;
+    if ($_POST['is_travel_agency'] === 'yes') {
+        $agency_data = json_encode([
+            'name' => sanitize_text_field($_POST['travel_agency_name']),
+            'zip' => sanitize_text_field($_POST['travel_agency_zip']),
+            'prefecture' => sanitize_text_field($_POST['travel_agency_prefecture']),
+            'city' => sanitize_text_field($_POST['travel_agency_city']),
+            'address' => sanitize_text_field($_POST['travel_agency_address']),
+            'phone' => sanitize_text_field($_POST['travel_agency_phone']),
+            'fax' => sanitize_text_field($_POST['travel_agency_fax']),
+            'contact_mobile' => sanitize_text_field($_POST['contact_mobile']),
+            'contact_email' => sanitize_email($_POST['contact_email'])
+        ], JSON_UNESCAPED_UNICODE);
+    }
+    
+    // 予約タイプごとのデータ処理
+    $type_data = get_type_specific_data($_POST);
+    
+    // 交通手段の処理
+    $transportation = sanitize_text_field($_POST['transportation']);
+    $transportation_other = null;
+    if ($transportation === 'other') {
+        $transportation_other = sanitize_text_field($_POST['transportation_other_text']);
+    }
+    
+    // データベースに保存
+    $data = [
+        'factory_id' => intval($_POST['factory_id']),
+        'date' => sanitize_text_field($_POST['visit_date']),
+        'time_slot' => $time_slot,
+        'applicant_name' => sanitize_text_field($_POST['applicant_name']),
+        'applicant_kana' => sanitize_text_field($_POST['applicant_kana']),
+        'is_travel_agency' => $_POST['is_travel_agency'] === 'yes' ? 1 : 0,
+        'agency_data' => $agency_data,
+        'reservation_type' => sanitize_text_field($_POST['reservation_type']),
+        'type_data' => $type_data,
+        'address_zip' => sanitize_text_field($_POST['applicant_zip']),
+        'address_prefecture' => sanitize_text_field($_POST['applicant_prefecture']),
+        'address_city' => sanitize_text_field($_POST['applicant_city']),
+        'address_street' => sanitize_text_field($_POST['applicant_address']),
+        'phone' => sanitize_text_field($_POST['applicant_phone']),
+        'day_of_contact' => sanitize_text_field($_POST['emergency_contact']),
+        'email' => sanitize_email($_POST['applicant_email']),
+        'transportation_method' => $transportation,
+        'transportation_other' => $transportation_other,
+        'transportation_count' => intval($_POST['vehicle_count']),
+        'purpose' => sanitize_textarea_field($_POST['visit_purpose']),
+        'participant_count' => intval($_POST['total_visitors']),
+        'participants_child_count' => intval($_POST['elementary_visitors']),
+        'status' => 'new'
+    ];
+    
+    $format = [
+        '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s',
+        '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s',
+        '%d', '%s', '%d', '%d', '%s'
+    ];
+    
+    $result = $wpdb->insert($table_name, $data, $format);
+    
+    if ($result === false) {
+        set_transient('reservation_error_message', 'データベースへの保存に失敗しました。', 60);
+        wp_redirect(add_query_arg('error', '1', wp_get_referer()));
+    } else {
+        set_transient('reservation_success_message', '予約を正常に登録しました。予約番号: ' . $wpdb->insert_id, 60);
+        wp_redirect(add_query_arg('success', '1', wp_get_referer()));
+    }
+    exit;
+}
+
+/**
+ * バリデーション関数
+ */
+function validate_reservation_form($data) {
+    $errors = [];
+    
+    // 必須フィールドのチェック
+    $required_fields = [
+        'factory_id' => '見学工場',
+        'visit_date' => '見学日',
+        'visit_time_start' => '見学開始時間',
+        'visit_time_end' => '見学終了時間',
+        'applicant_name' => '申込者氏名',
+        'applicant_kana' => '申込者氏名(ふりがな)',
+        'is_travel_agency' => '旅行会社かどうか',
+        'reservation_type' => '予約タイプ',
+        'applicant_zip' => '申込者郵便番号',
+        'applicant_prefecture' => '申込者都道府県',
+        'applicant_city' => '申込者市区町村',
+        'applicant_phone' => '申込者電話番号',
+        'emergency_contact' => '当日連絡先',
+        'applicant_email' => '申込者メールアドレス',
+        'transportation' => '交通機関',
+        'vehicle_count' => '台数',
+        'visit_purpose' => '見学目的',
+        'total_visitors' => '見学者人数'
+    ];
+    
+    foreach ($required_fields as $field => $label) {
+        if (empty($data[$field])) {
+            $errors[] = $label . 'は必須項目です。';
+        }
+    }
+    
+    // メールアドレスの形式チェック
+    if (!empty($data['applicant_email']) && !is_email($data['applicant_email'])) {
+        $errors[] = '正しいメールアドレスを入力してください。';
+    }
+    
+    // 旅行会社の場合の追加チェック
+    if ($data['is_travel_agency'] === 'yes') {
+        $agency_required = [
+            'travel_agency_name' => '旅行会社氏名',
+            'travel_agency_prefecture' => '旅行会社都道府県',
+            'travel_agency_city' => '旅行会社市区町村',
+            'travel_agency_phone' => '旅行会社電話番号',
+            'contact_email' => '担当者メールアドレス'
+        ];
+        
+        foreach ($agency_required as $field => $label) {
+            if (empty($data[$field])) {
+                $errors[] = $label . 'は必須項目です。';
+            }
+        }
+    }
+    
+    return $errors;
+}
+
+/**
+ * 予約タイプごとのデータを取得
+ */
+function get_type_specific_data($data) {
+    $type_data = [];
+    
+    switch ($data['reservation_type']) {
+        case 'school':
+            $type_data = [
+                'school_name' => sanitize_text_field($data['school_name']),
+                'school_name_kana' => sanitize_text_field($data['school_name_kana']),
+                'representative_name' => sanitize_text_field($data['representative_name']),
+                'representative_name_kana' => sanitize_text_field($data['representative_name_kana']),
+                'grade' => intval($data['grade']),
+                'class_count' => intval($data['class_count']),
+                'student_count' => intval($data['student_count']),
+                'supervisor_count' => intval($data['supervisor_count'])
+            ];
+            break;
+            
+        case 'student_recruit':
+            $type_data = [
+                'school_name' => sanitize_text_field($data['recruit_school_name']),
+                'department' => sanitize_text_field($data['recruit_department']),
+                'grade' => intval($data['recruit_grade']),
+                'visitor_count' => intval($data['recruit_visitor_count'])
+            ];
+            
+            // 同行者情報
+            $companions = [];
+            for ($i = 1; $i < intval($data['recruit_visitor_count']); $i++) {
+                if (!empty($data["companion_name_$i"])) {
+                    $companions[] = [
+                        'name' => sanitize_text_field($data["companion_name_$i"]),
+                        'department' => sanitize_text_field($data["companion_department_$i"])
+                    ];
+                }
+            }
+            if (!empty($companions)) {
+                $type_data['companions'] = $companions;
+            }
+            break;
+            
+        case 'family':
+        case 'company':
+        case 'municipality':
+        case 'other':
+            $type_data = [
+                'company_name' => sanitize_text_field($data['company_name']),
+                'company_name_kana' => sanitize_text_field($data['company_name_kana']),
+                'adult_count' => intval($data['adult_count']),
+                'child_count' => intval($data['child_count'])
+            ];
+            
+            if (!empty($data['child_grade'])) {
+                $type_data['child_grade'] = sanitize_text_field($data['child_grade']);
+            }
+            break;
+    }
+    
+    return json_encode($type_data, JSON_UNESCAPED_UNICODE);
+}
+
+/**
  * 予約管理画面の表示
  */
 function reservation_management_admin_page() {
     global $wpdb;
+    
+    // メッセージ表示
+    if (isset($_GET['success'])) {
+        $message = get_transient('reservation_success_message');
+        if ($message) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($message) . '</p></div>';
+            delete_transient('reservation_success_message');
+        }
+    }
+    
+    if (isset($_GET['error'])) {
+        $errors = get_transient('reservation_errors');
+        $error_message = get_transient('reservation_error_message');
+        
+        if ($errors) {
+            echo '<div class="notice notice-error is-dismissible">';
+            foreach ($errors as $error) {
+                echo '<p>' . esc_html($error) . '</p>';
+            }
+            echo '</div>';
+            delete_transient('reservation_errors');
+        } elseif ($error_message) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($error_message) . '</p></div>';
+            delete_transient('reservation_error_message');
+        }
+    }
+    
     ?>
     <div class="wrap">
         <h1>予約追加・編集</h1>
@@ -87,6 +390,7 @@ function reservation_management_admin_page() {
                 </div>
                 <div class="form-section-content">
                     <form method="post" action="">
+                        <?php wp_nonce_field('reservation_form', 'reservation_nonce'); ?>
                         <!-- 予約番号 -->
                         <div class="form-field">
                             <label for="reservation_number" class="form-label">
@@ -702,7 +1006,7 @@ function reservation_management_admin_page() {
                     </button>
                     
                     <div class="btn-register-container">
-                        <button type="submit" id="register_reservation" class="btn-register">
+                        <button type="submit" name="submit_reservation" id="register_reservation" class="btn-register">
                             登録
                         </button>
                     </div>
