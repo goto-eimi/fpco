@@ -1,12 +1,19 @@
 # <FilesMatch "wp-login.php|wp-admin|georgia-black">
-order deny,allow
-deny from all
+# order deny,allow
+# deny from all
 # NextCode
-allow from 119.106.161.196
-allow from 219.99.44.87
+# allow from 119.106.161.196
+# allow from 219.99.44.87
 # Omit
-allow from 111.108.18.243
+# allow from 111.108.18.243
 # </FilesMatch>
+
+# AJAX requests must be allowed
+<Files "admin-ajax.php">
+    Order allow,deny
+    Allow from all
+    Satisfy any
+</Files>
 
 RewriteEngine on
 RewriteCond %{HTTPS} off
