@@ -102,7 +102,10 @@ function handle_reservation_form_submission() {
         ob_end_clean();
         set_transient('reservation_errors', $errors, 60);
         set_transient('reservation_form_data', $_POST, 60);
-        wp_redirect(add_query_arg('error', '1', wp_get_referer()));
+        
+        // JavaScriptを使用してリダイレクト
+        $redirect_url = add_query_arg('error', '1', admin_url('admin.php?page=reservation-management'));
+        echo '<script>window.location.href = "' . esc_url($redirect_url) . '";</script>';
         exit;
     }
     
@@ -173,11 +176,13 @@ function handle_reservation_form_submission() {
     if ($result === false) {
         ob_end_clean();
         set_transient('reservation_error_message', 'データベースへの保存に失敗しました。', 60);
-        wp_redirect(add_query_arg('error', '1', wp_get_referer()));
+        $redirect_url = add_query_arg('error', '1', admin_url('admin.php?page=reservation-management'));
+        echo '<script>window.location.href = "' . esc_url($redirect_url) . '";</script>';
     } else {
         ob_end_clean();
         set_transient('reservation_success_message', '予約を正常に登録しました。予約番号: ' . $wpdb->insert_id, 60);
-        wp_redirect(add_query_arg('success', '1', wp_get_referer()));
+        $redirect_url = add_query_arg('success', '1', admin_url('admin.php?page=reservation-management'));
+        echo '<script>window.location.href = "' . esc_url($redirect_url) . '";</script>';
     }
     exit;
 }
