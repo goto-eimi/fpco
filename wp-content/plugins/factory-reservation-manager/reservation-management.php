@@ -11,54 +11,6 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * プラグイン有効化時にテーブルを作成
- */
-register_activation_hook(__FILE__, 'create_reservations_table');
-
-function create_reservations_table() {
-    global $wpdb;
-    
-    $table_name = $wpdb->prefix . 'reservations';
-    $charset_collate = $wpdb->get_charset_collate();
-    
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-        id bigint(20) NOT NULL AUTO_INCREMENT,
-        factory_id bigint(20) NOT NULL,
-        date date NOT NULL,
-        time_slot varchar(50) NOT NULL,
-        applicant_name varchar(255) NOT NULL,
-        applicant_kana varchar(255) NOT NULL,
-        is_travel_agency tinyint(1) DEFAULT 0,
-        agency_data longtext,
-        reservation_type enum('school','student_recruit','family','company','municipality','other') NOT NULL,
-        type_data longtext,
-        address_zip varchar(10),
-        address_prefecture varchar(50),
-        address_city varchar(100),
-        address_street varchar(255),
-        phone varchar(50) NOT NULL,
-        day_of_contact varchar(50) NOT NULL,
-        email varchar(255) NOT NULL,
-        transportation_method varchar(50) NOT NULL,
-        transportation_other varchar(255),
-        transportation_count int(11) NOT NULL,
-        purpose text NOT NULL,
-        participant_count int(11) NOT NULL,
-        participants_child_count int(11) DEFAULT 0,
-        status enum('new','checking','approved','rejected','cancelled') DEFAULT 'new',
-        created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        KEY factory_id (factory_id),
-        KEY date (date),
-        KEY status (status)
-    ) $charset_collate;";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-/**
  * CSSファイルの読み込み
  */
 add_action('admin_enqueue_scripts', 'reservation_management_enqueue_scripts');
