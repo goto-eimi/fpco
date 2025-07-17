@@ -120,6 +120,24 @@
     grid-template-rows: repeat(3, auto);
 }
 
+/* 交通機関の「その他」オプション */
+.transportation-other-option {
+    grid-column: 1 / -1; /* グリッドの全幅を使用 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.transportation-other-input {
+    width: 200px !important;
+    margin-left: 10px;
+}
+
+.transportation-other-input:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+}
+
 .btn-reply-email {
     width: 100%;
     padding: 2px 10px;

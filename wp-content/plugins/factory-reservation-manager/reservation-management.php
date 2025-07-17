@@ -636,13 +636,10 @@ function reservation_management_admin_page() {
                                 <label class="radio-option">
                                     <input type="radio" name="transportation" value="taxi" id="transportation_taxi"> タクシー
                                 </label>
-                                <label class="radio-option">
+                                <label class="radio-option transportation-other-option">
                                     <input type="radio" name="transportation" value="other" id="transportation_other"> その他
+                                    <input type="text" name="transportation_other_text" id="transportation_other_text" class="form-input transportation-other-input" placeholder="その他の交通機関を入力してください" disabled>
                                 </label>
-                            </div>
-                            <!-- その他の場合の自由入力 -->
-                            <div id="transportation_other_field" style="display: none; margin-top: 10px;">
-                                <input type="text" name="transportation_other_text" id="transportation_other_text" class="form-input" placeholder="その他の交通機関を入力してください">
                             </div>
                         </div>
 
@@ -781,19 +778,21 @@ function reservation_management_admin_page() {
         reservationTypeMunicipality.addEventListener('change', toggleAllFields);
         reservationTypeOther.addEventListener('change', toggleAllFields);
         
-        // 交通機関の「その他」フィールドの表示/非表示制御
+        // 交通機関の「その他」入力フィールドの有効/無効制御
         const transportationOther = document.getElementById('transportation_other');
         const transportationCar = document.getElementById('transportation_car');
         const transportationCharteredBus = document.getElementById('transportation_chartered_bus');
         const transportationLocalBus = document.getElementById('transportation_local_bus');
         const transportationTaxi = document.getElementById('transportation_taxi');
-        const transportationOtherField = document.getElementById('transportation_other_field');
+        const transportationOtherText = document.getElementById('transportation_other_text');
         
         function toggleTransportationOtherField() {
             if (transportationOther.checked) {
-                transportationOtherField.style.display = 'block';
+                transportationOtherText.disabled = false;
+                transportationOtherText.focus();
             } else {
-                transportationOtherField.style.display = 'none';
+                transportationOtherText.disabled = true;
+                transportationOtherText.value = '';
             }
         }
         
