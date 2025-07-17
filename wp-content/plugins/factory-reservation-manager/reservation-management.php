@@ -943,7 +943,6 @@ function reservation_management_admin_page() {
                                 </div>
                             </div>
                         </div>
-                    </form>
                 </div>
             </div>
             
@@ -972,6 +971,7 @@ function reservation_management_admin_page() {
                     </div>
                 </div>
             </div>
+                    </form>
         </div>
     </div>
     
