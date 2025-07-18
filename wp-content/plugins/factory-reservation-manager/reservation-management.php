@@ -223,7 +223,6 @@ function validate_reservation_form($data) {
         'emergency_contact' => '当日連絡先',
         'applicant_email' => '申込者メールアドレス',
         'transportation' => '交通機関',
-        'vehicle_count' => '台数',
         'visit_purpose' => '見学目的',
         'total_visitors' => '見学者人数'
     ];
@@ -231,6 +230,13 @@ function validate_reservation_form($data) {
     foreach ($required_fields as $field => $label) {
         if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
             $add_field_error($field, $label . 'は必須項目です。');
+        }
+    }
+
+    // 台数の条件付きバリデーション（車、貸切バス、タクシーの場合のみ必須）
+    if (isset($data['transportation']) && in_array($data['transportation'], ['car', 'chartered_bus', 'taxi'])) {
+        if (!isset($data['vehicle_count']) || $data['vehicle_count'] === '' || $data['vehicle_count'] === null) {
+            $add_field_error('vehicle_count', '台数は必須項目です。');
         }
     }
     
@@ -1471,6 +1477,7 @@ function reservation_management_admin_page() {
         const transportationLocalBus = document.getElementById('transportation_local_bus');
         const transportationTaxi = document.getElementById('transportation_taxi');
         const transportationOtherText = document.getElementById('transportation_other_text');
+        const vehicleCountField = document.getElementById('vehicle_count').closest('.form-field');
         
         function toggleTransportationOtherField() {
             if (transportationOther.checked) {
@@ -1481,17 +1488,39 @@ function reservation_management_admin_page() {
                 transportationOtherText.value = '';
             }
         }
+
+        function toggleVehicleCountField() {
+            const showVehicleCount = transportationCar.checked || 
+                                   transportationCharteredBus.checked || 
+                                   transportationTaxi.checked;
+            
+            if (vehicleCountField) {
+                vehicleCountField.style.display = showVehicleCount ? 'flex' : 'none';
+                
+                // フィールドが非表示の場合は値をクリアして必須バリデーションをスキップ
+                const vehicleCountInput = document.getElementById('vehicle_count');
+                if (!showVehicleCount && vehicleCountInput) {
+                    vehicleCountInput.value = '';
+                }
+            }
+        }
         
-        transportationOther.addEventListener('change', toggleTransportationOtherField);
-        transportationCar.addEventListener('change', toggleTransportationOtherField);
-        transportationCharteredBus.addEventListener('change', toggleTransportationOtherField);
-        transportationLocalBus.addEventListener('change', toggleTransportationOtherField);
-        transportationTaxi.addEventListener('change', toggleTransportationOtherField);
+        function handleTransportationChange() {
+            toggleTransportationOtherField();
+            toggleVehicleCountField();
+        }
+
+        transportationOther.addEventListener('change', handleTransportationChange);
+        transportationCar.addEventListener('change', handleTransportationChange);
+        transportationCharteredBus.addEventListener('change', handleTransportationChange);
+        transportationLocalBus.addEventListener('change', handleTransportationChange);
+        transportationTaxi.addEventListener('change', handleTransportationChange);
         
         // 初期状態の設定（フォームエラー時でも選択状態を維持）
         toggleTravelAgencyFields();
         toggleAllFields();
         toggleTransportationOtherField();
+        toggleVehicleCountField();
         
         // 同行者フィールドの初期化（個人リクルート選択時）
         if (recruitFields && recruitFields.style.display !== 'none') {
@@ -1539,7 +1568,6 @@ function reservation_management_admin_page() {
             { id: 'applicant_phone', name: '申込者電話番号' },
             { id: 'emergency_contact', name: '当日連絡先' },
             { id: 'applicant_email', name: '申込者メールアドレス' },
-            { id: 'vehicle_count', name: '台数' },
             { id: 'visit_purpose', name: '見学目的' },
             { id: 'total_visitors', name: '見学者人数' }
         ];
@@ -1550,6 +1578,20 @@ function reservation_management_admin_page() {
                 errors.push(field.name + 'は必須項目です。');
             }
         });
+
+        // 台数の条件付きバリデーション（車、貸切バス、タクシーの場合のみ必須）
+        const transportationCar = document.getElementById('transportation_car');
+        const transportationCharteredBus = document.getElementById('transportation_chartered_bus');
+        const transportationTaxi = document.getElementById('transportation_taxi');
+        const vehicleCountInput = document.getElementById('vehicle_count');
+        
+        if ((transportationCar && transportationCar.checked) || 
+            (transportationCharteredBus && transportationCharteredBus.checked) || 
+            (transportationTaxi && transportationTaxi.checked)) {
+            if (vehicleCountInput && !vehicleCountInput.value.trim()) {
+                errors.push('台数は必須項目です。');
+            }
+        }
         
         // 旅行会社・予約タイプの必須チェック
         const travelAgencyYes = document.getElementById('travel_agency_yes');
@@ -1637,7 +1679,6 @@ function reservation_management_admin_page() {
         
         // 数値フィールドのチェック
         const numericFields = [
-            { id: 'vehicle_count', name: '台数' },
             { id: 'total_visitors', name: '見学者人数' },
             { id: 'elementary_visitors', name: '小学生以下人数' }
         ];
@@ -1651,6 +1692,14 @@ function reservation_management_admin_page() {
                 }
             }
         });
+
+        // 台数の数値チェック（表示されている場合のみ）
+        if (vehicleCountInput && vehicleCountInput.value && vehicleCountField && vehicleCountField.style.display !== 'none') {
+            const vehicleCountValue = parseInt(vehicleCountInput.value);
+            if (isNaN(vehicleCountValue) || vehicleCountValue < 0) {
+                errors.push('台数は0以上の数値で入力してください。');
+            }
+        }
         
         // 見学者人数の整合性チェック
         const totalVisitors = document.getElementById('total_visitors');
