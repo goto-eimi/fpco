@@ -189,7 +189,6 @@ function factory_add_user_fields($user) {
                                value="<?php echo esc_attr($max_participants); ?>" 
                            min="1" 
                            style="width: 80px;" />
-                        <p class="description">選択された工場の予約可能人数を設定します。</p>
                     <?php else: ?>
                         <input type="number" 
                                name="max_participants" 
@@ -452,7 +451,7 @@ function factory_user_management_scripts($hook) {
                             // 予約可能人数を更新
                             $participantsField.val(response.data.capacity);
                             $participantsField.prop("disabled", false);
-                            $description.text("選択された工場の予約可能人数を設定します。");
+                            $description.text("");
                             
                             // 見学時間帯を更新
                             updateTimeslots(response.data.timeslots);
