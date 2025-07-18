@@ -51,15 +51,15 @@ function reservation_list_admin_menu() {
  */
 function get_search_conditions() {
     return [
-        'reservation_number' => sanitize_text_field($_GET['reservation_number'] ?? ''),
-        'date_from' => sanitize_text_field($_GET['date_from'] ?? ''),
-        'date_to' => sanitize_text_field($_GET['date_to'] ?? ''),
-        'time_slot' => sanitize_text_field($_GET['time_slot'] ?? ''),
-        'status' => sanitize_text_field($_GET['status'] ?? ''),
-        'per_page' => intval($_GET['per_page'] ?? 20),
-        'page' => intval($_GET['paged'] ?? 1),
-        'orderby' => sanitize_text_field($_GET['orderby'] ?? 'id'),
-        'order' => sanitize_text_field($_GET['order'] ?? 'DESC')
+        'reservation_number' => isset($_GET['reservation_number']) ? sanitize_text_field($_GET['reservation_number']) : '',
+        'date_from' => isset($_GET['date_from']) ? sanitize_text_field($_GET['date_from']) : '',
+        'date_to' => isset($_GET['date_to']) ? sanitize_text_field($_GET['date_to']) : '',
+        'time_slot' => isset($_GET['time_slot']) ? sanitize_text_field($_GET['time_slot']) : '',
+        'status' => isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '',
+        'per_page' => isset($_GET['per_page']) ? intval($_GET['per_page']) : 20,
+        'page' => isset($_GET['paged']) ? intval($_GET['paged']) : 1,
+        'orderby' => isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'id',
+        'order' => isset($_GET['order']) ? sanitize_text_field($_GET['order']) : 'DESC'
     ];
 }
 
@@ -367,7 +367,7 @@ function reservation_list_admin_page() {
             <a href="admin.php?page=reservation-management" class="button button-primary">
                 <span class="dashicons dashicons-plus-alt"></span> 新規追加
             </a>
-            <a href="?page=reservation-list&action=export_csv&<?php echo http_build_query($conditions); ?>" 
+            <a href="?page=reservation-list&action=export_csv&<?php echo http_build_query(array_filter($conditions, function($value) { return $value !== '' && $value !== null; })); ?>" 
                class="button button-secondary">
                 <span class="dashicons dashicons-download"></span> CSV出力
             </a>
@@ -387,7 +387,7 @@ function reservation_list_admin_page() {
                     <thead>
                         <tr>
                             <th class="sortable <?php echo $conditions['orderby'] === 'id' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
-                                <a href="?<?php echo http_build_query(array_merge($conditions, ['orderby' => 'id', 'order' => ($conditions['orderby'] === 'id' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC'])); ?>">
+                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['orderby' => 'id', 'order' => ($conditions['orderby'] === 'id' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
                                     予約番号 
                                     <span class="sorting-indicator">
                                         <?php if ($conditions['orderby'] === 'id'): ?>
@@ -400,7 +400,7 @@ function reservation_list_admin_page() {
                             </th>
                             <th>予約者</th>
                             <th class="sortable <?php echo $conditions['orderby'] === 'date' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
-                                <a href="?<?php echo http_build_query(array_merge($conditions, ['orderby' => 'date', 'order' => ($conditions['orderby'] === 'date' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC'])); ?>">
+                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['orderby' => 'date', 'order' => ($conditions['orderby'] === 'date' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
                                     予約日時
                                     <span class="sorting-indicator">
                                         <?php if ($conditions['orderby'] === 'date'): ?>
@@ -414,7 +414,7 @@ function reservation_list_admin_page() {
                             <th>電話番号</th>
                             <th>予約タイプ</th>
                             <th class="sortable <?php echo $conditions['orderby'] === 'status' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
-                                <a href="?<?php echo http_build_query(array_merge($conditions, ['orderby' => 'status', 'order' => ($conditions['orderby'] === 'status' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC'])); ?>">
+                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['orderby' => 'status', 'order' => ($conditions['orderby'] === 'status' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
                                     ステータス
                                     <span class="sorting-indicator">
                                         <?php if ($conditions['orderby'] === 'status'): ?>
