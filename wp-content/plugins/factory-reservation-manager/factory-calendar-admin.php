@@ -54,7 +54,7 @@ function factory_calendar_create_tables() {
         details longtext DEFAULT NULL,
         participants_total int(11) NOT NULL DEFAULT 1,
         participants_child int(11) NOT NULL DEFAULT 0,
-        status enum('pending','confirmed','cancelled') DEFAULT 'pending',
+        status enum('new','pending','approved','rejected','cancelled') DEFAULT 'new',
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         KEY idx_factory_date (factory_id, date),

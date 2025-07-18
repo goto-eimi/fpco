@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS wp_reservations (
     visit_date date NOT NULL,
     visit_duration int NOT NULL DEFAULT 60 COMMENT '見学時間（分）',
     time_slot varchar(20) NOT NULL COMMENT '時間帯',
-    status varchar(20) NOT NULL DEFAULT 'new' COMMENT '予約ステータス',
+    status enum('new','pending','approved','rejected','cancelled') NOT NULL DEFAULT 'new' COMMENT '予約ステータス: new=新規受付, pending=確認中, approved=承認, rejected=否認, cancelled=キャンセル',
     visitor_type varchar(50) NOT NULL COMMENT '見学者分類',
     is_travel_agency tinyint(1) NOT NULL DEFAULT 0 COMMENT '旅行会社フラグ',
     applicant_name varchar(255) NOT NULL COMMENT '申込者氏名',

@@ -11,6 +11,29 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * 予約ステータス定数
+ */
+define('RESERVATION_STATUS_NEW', 'new');           // 新規受付
+define('RESERVATION_STATUS_PENDING', 'pending');   // 確認中  
+define('RESERVATION_STATUS_APPROVED', 'approved'); // 承認
+define('RESERVATION_STATUS_REJECTED', 'rejected'); // 否認
+define('RESERVATION_STATUS_CANCELLED', 'cancelled'); // キャンセル
+
+/**
+ * ステータス表示名を取得
+ */
+function get_reservation_status_label($status) {
+    $labels = [
+        RESERVATION_STATUS_NEW => '新規受付',
+        RESERVATION_STATUS_PENDING => '確認中',
+        RESERVATION_STATUS_APPROVED => '承認',
+        RESERVATION_STATUS_REJECTED => '否認',
+        RESERVATION_STATUS_CANCELLED => 'キャンセル'
+    ];
+    return isset($labels[$status]) ? $labels[$status] : $status;
+}
+
+/**
  * CSSファイルの読み込み
  */
 add_action('admin_enqueue_scripts', 'reservation_management_enqueue_scripts');
@@ -173,7 +196,7 @@ function handle_reservation_form_submission() {
         'purpose' => sanitize_textarea_field($_POST['visit_purpose']),
         'participant_count' => intval($_POST['total_visitors']),
         'participants_child_count' => intval($_POST['elementary_visitors']),
-        'status' => 'pending'
+        'status' => RESERVATION_STATUS_NEW
     ];
     
     $format = [
