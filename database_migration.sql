@@ -1,11 +1,9 @@
 -- 工場見学予約システム - データベース移行スクリプト
 -- 実行前に必ずバックアップを取得してください
 
--- 1. wp_factorysテーブルにtimeslot_modeカラムを追加
--- （既にカラムが存在する場合はエラーになりますが、問題ありません）
-ALTER TABLE wp_factorys 
-ADD COLUMN timeslot_mode varchar(20) NOT NULL DEFAULT 'am_pm_only' 
-COMMENT '時間帯管理モード（am_pm_only: AM/PMパターン, duration_based: 60分・90分パターン）';
+-- 1. timeslot_modeカラムは廃止されました
+-- データ内容で自動的にパターンを判定するため、このカラムは不要です
+-- 既に追加済みの場合は、remove_timeslot_mode.sqlで削除してください
 
 -- 2. wp_factorysテーブルにcreated_atとupdated_atカラムを追加
 -- （SPECIFICATION.mdに記載されているが、現在のテーブルには存在しない可能性があります）

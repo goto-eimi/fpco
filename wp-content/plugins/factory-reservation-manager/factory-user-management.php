@@ -20,15 +20,7 @@ add_action('edit_user_profile', 'factory_add_user_fields');
 function get_factory_timeslots($factory_id) {
     global $wpdb;
     
-    // 工場のtimeslot_modeを取得
-    $factory = $wpdb->get_row(
-        $wpdb->prepare(
-            "SELECT timeslot_mode FROM {$wpdb->prefix}factorys WHERE id = %d",
-            $factory_id
-        )
-    );
-    
-    $timeslot_mode = $factory ? $factory->timeslot_mode : 'am_pm_only';
+    // timeslot_modeは廃止。データ内容で自動判定する
     
     // AM/PMパターンの時間帯定義
     $am_pm_timeslots = array(
@@ -162,22 +154,18 @@ function get_factory_timeslots($factory_id) {
         // 九州選別センター - AM/PMパターンのみ（duration_timeslotsに定義しない）
     );
     
-    // モードに応じて時間帯を返す
-    if ($timeslot_mode === 'duration_based') {
-        // 60分・90分パターン
-        return isset($duration_timeslots[$factory_id]) ? $duration_timeslots[$factory_id] : array('60min' => array('am' => [], 'pm' => []), '90min' => array('am' => [], 'pm' => []));
-    } else {
-        // AM/PMパターン（デフォルト）
-        // ただし、60分・90分のデータが定義されている場合は、そちらを優先表示
-        if (isset($duration_timeslots[$factory_id]) && 
-            (!empty($duration_timeslots[$factory_id]['60min']['am']) || 
-             !empty($duration_timeslots[$factory_id]['60min']['pm']) ||
-             !empty($duration_timeslots[$factory_id]['90min']['am']) || 
-             !empty($duration_timeslots[$factory_id]['90min']['pm']))) {
-            return $duration_timeslots[$factory_id];
-        }
-        return isset($am_pm_timeslots[$factory_id]) ? $am_pm_timeslots[$factory_id] : array('am' => [], 'pm' => []);
+    // データ内容で自動判定して時間帯を返す
+    // 60分・90分のデータが定義されている場合は、そちらを優先表示
+    if (isset($duration_timeslots[$factory_id]) && 
+        (!empty($duration_timeslots[$factory_id]['60min']['am']) || 
+         !empty($duration_timeslots[$factory_id]['60min']['pm']) ||
+         !empty($duration_timeslots[$factory_id]['90min']['am']) || 
+         !empty($duration_timeslots[$factory_id]['90min']['pm']))) {
+        return $duration_timeslots[$factory_id];
     }
+    
+    // AM/PMパターンを返す
+    return isset($am_pm_timeslots[$factory_id]) ? $am_pm_timeslots[$factory_id] : array('am' => [], 'pm' => []);
 }
 
 function factory_add_user_fields($user) {
@@ -325,19 +313,10 @@ function factory_add_user_fields($user) {
             <th><label>見学時間帯</label></th>
             <td id="timeslots-container">
                     <?php 
-                    // 工場のtimeslot_modeを取得
-                    $factory_data = $wpdb->get_row(
-                        $wpdb->prepare(
-                            "SELECT timeslot_mode FROM {$wpdb->prefix}factorys WHERE id = %d",
-                            $current_factory
-                        )
-                    );
-                    $timeslot_mode = $factory_data ? $factory_data->timeslot_mode : 'am_pm_only';
-                    
                     // 60分・90分パターンが定義されているかチェック
                     $has_duration_pattern = (isset($timeslots['60min']) || isset($timeslots['90min']));
                     
-                    if ($timeslot_mode === 'duration_based' || $has_duration_pattern) {
+                    if ($has_duration_pattern) {
                         // 60分・90分パターン
                         ?>
                         <?php if (!empty($timeslots['60min']['am']) || !empty($timeslots['60min']['pm'])): ?>

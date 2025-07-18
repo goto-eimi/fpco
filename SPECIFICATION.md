@@ -269,7 +269,7 @@
   - 管理画面の工場設定で以下から選択：
     - AM・PMのみ
     - 60分・90分コース
-  - 設定は`timeslot_mode`カラムに保存
+  - データ内容に基づいて自動的にパターンを判定
   - フロントエンドと管理画面の表示に自動反映
 
 - **時間帯の例**
@@ -331,7 +331,6 @@
 | name | varchar(255) | NOT NULL | - | 工場名 |
 | capacity | int | NOT NULL | 50 | 予約可能人数 |
 | manager_user_id | bigint | - | NULL | 管理ユーザーID（外部キー） |
-| timeslot_mode | varchar(20) | NOT NULL | 'am_pm_only' | 時間帯管理モード |
 | created_at | datetime | NOT NULL | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | datetime | NOT NULL ON UPDATE | CURRENT_TIMESTAMP | 更新日時 |
 
