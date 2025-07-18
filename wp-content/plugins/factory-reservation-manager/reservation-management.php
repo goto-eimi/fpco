@@ -64,7 +64,7 @@ function reservation_management_admin_menu() {
             'reservation-management',
             'reservation_management_admin_page',
             'dashicons-clipboard',
-            31
+            29  // 工場カレンダーメニューの前に配置
         );
     }
 }

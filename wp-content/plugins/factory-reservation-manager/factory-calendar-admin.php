@@ -98,10 +98,11 @@ function factory_calendar_admin_menu() {
     }
     
     if ($can_access) {
-        // 工場一覧を取得
-        $factories = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}factorys ORDER BY name");
+        // 工場一覧を取得（名前順）
+        $factories = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}factorys ORDER BY name ASC");
         
         // 各工場ごとにメニューを追加
+        $position = 30; // 開始位置
         foreach ($factories as $factory) {
             $menu_slug = 'factory-calendar-' . $factory->id;
             $menu_title = $factory->name . 'カレンダー';
@@ -115,7 +116,7 @@ function factory_calendar_admin_menu() {
                     factory_calendar_admin_page($factory->id);
                 },
                 'dashicons-calendar-alt',
-                30 + $factory->id
+                $position++  // 位置を1ずつ増やす
             );
         }
     }
