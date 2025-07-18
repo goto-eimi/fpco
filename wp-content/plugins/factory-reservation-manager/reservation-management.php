@@ -633,7 +633,7 @@ function get_type_specific_data($data) {
  * フォームフィールドの値を取得するヘルパー関数
  */
 function get_form_value($field_name, $form_data, $default = '') {
-    return isset($form_data[$field_name]) ? esc_attr($form_data[$field_name]) : $default;
+    return isset($form_data[$field_name]) ? esc_attr($form_data[$field_name] ?? '') : $default;
 }
 
 /**
@@ -659,7 +659,7 @@ function is_option_selected($field_name, $value, $form_data, $default = '') {
  */
 function display_field_error($field_name, $field_errors) {
     if (isset($field_errors[$field_name])) {
-        echo '<div class="field-error">' . esc_html($field_errors[$field_name]) . '</div>';
+        echo '<div class="field-error">' . esc_html($field_errors[$field_name] ?? '') . '</div>';
     }
 }
 
@@ -762,8 +762,8 @@ function reservation_management_admin_page() {
                                 $reservation_number = intval($max_id) + 1;
                             }
                             ?>
-                            <span><?php echo esc_html($reservation_number); ?></span>
-                            <input type="hidden" name="reservation_number" value="<?php echo esc_attr($reservation_number); ?>">
+                            <span><?php echo esc_html($reservation_number ?? ''); ?></span>
+                            <input type="hidden" name="reservation_number" value="<?php echo esc_attr($reservation_number ?? ''); ?>">
                         </div>
 
                         <!-- 見学工場 -->
@@ -781,10 +781,10 @@ function reservation_management_admin_page() {
                             <select name="factory_id" id="factory_id" class="form-select <?php echo get_field_error_class('factory_id', $field_errors); ?>" <?php echo $is_factory_account ? 'disabled' : ''; ?>>
                                 <option value="">選択してください</option>
                                 <?php foreach ($factories as $factory) : ?>
-                                    <option value="<?php echo esc_attr($factory->id); ?>" 
+                                    <option value="<?php echo esc_attr($factory->id ?? ''); ?>" 
                                             <?php echo ($is_factory_account && $factory->id == $assigned_factory) ? 'selected' : ''; ?>
                                             <?php echo is_option_selected('factory_id', $factory->id, $form_data); ?>>
-                                        <?php echo esc_html($factory->name); ?>
+                                        <?php echo esc_html($factory->name ?? ''); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

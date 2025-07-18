@@ -303,20 +303,20 @@ function reservation_list_admin_page() {
                     <div class="search-field">
                         <label for="reservation_number">予約番号</label>
                         <input type="text" name="reservation_number" id="reservation_number" 
-                               value="<?php echo esc_attr($conditions['reservation_number']); ?>" 
+                               value="<?php echo esc_attr($conditions['reservation_number'] ?? ''); ?>" 
                                placeholder="予約番号" pattern="[0-9]*">
                     </div>
                     
                     <div class="search-field">
                         <label for="date_from">予約日（開始）</label>
                         <input type="date" name="date_from" id="date_from" 
-                               value="<?php echo esc_attr($conditions['date_from']); ?>">
+                               value="<?php echo esc_attr($conditions['date_from'] ?? ''); ?>">
                     </div>
                     
                     <div class="search-field">
                         <label for="date_to">予約日（終了）</label>
                         <input type="date" name="date_to" id="date_to" 
-                               value="<?php echo esc_attr($conditions['date_to']); ?>">
+                               value="<?php echo esc_attr($conditions['date_to'] ?? ''); ?>">
                     </div>
                     
                     <div class="search-field">
@@ -372,7 +372,7 @@ function reservation_list_admin_page() {
                 <span class="dashicons dashicons-download"></span> CSV出力
             </a>
             <div class="items-count">
-                <?php echo esc_html($pagination['total_items']); ?>個の項目
+                <?php echo esc_html($pagination['total_items'] ?? 0); ?>個の項目
             </div>
         </div>
         
@@ -429,9 +429,9 @@ function reservation_list_admin_page() {
                     </thead>
                     <tbody>
                         <?php foreach ($reservations as $reservation): ?>
-                            <tr class="reservation-row" data-id="<?php echo esc_attr($reservation['id']); ?>">
+                            <tr class="reservation-row" data-id="<?php echo esc_attr($reservation['id'] ?? ''); ?>">
                                 <td class="reservation-number">
-                                    <a href="admin.php?page=reservation-management&reservation_id=<?php echo esc_attr($reservation['id']); ?>" 
+                                    <a href="admin.php?page=reservation-management&reservation_id=<?php echo esc_attr($reservation['id'] ?? ''); ?>" 
                                        class="reservation-link">
                                         <?php echo esc_html($reservation['id'] ?? ''); ?>
                                     </a>
