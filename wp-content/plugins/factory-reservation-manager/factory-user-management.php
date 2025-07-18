@@ -174,7 +174,7 @@ function factory_add_user_fields($user) {
                         <strong><?php echo esc_html($factory_name); ?></strong>
                         <input type="hidden" name="assigned_factory" value="<?php echo esc_attr($current_factory); ?>" />
                     <?php else: ?>
-                        <strong>未割り当て</strong>
+                        <strong>工場が割り当てられていません</strong>
                     <?php endif; ?>
             </td>
         </tr>
@@ -203,8 +203,15 @@ function factory_add_user_fields($user) {
                                disabled />
                     <?php endif; ?>
                 <?php else: ?>
-                    <!-- 非管理者用：表示のみ -->
-                    <strong><?php echo esc_html($max_participants ? $max_participants : '未設定'); ?>名</strong>
+                    <!-- 非管理者用：disabled入力欄 -->
+                    <input type="number" 
+                           name="max_participants" 
+                           id="max_participants" 
+                           value="<?php echo esc_attr($max_participants ? $max_participants : ''); ?>" 
+                           min="1" 
+                           style="width: 80px;" 
+                           disabled />
+                    <span> 名</span>
                 <?php endif; ?>
             </td>
         </tr>
