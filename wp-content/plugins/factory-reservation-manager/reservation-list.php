@@ -265,22 +265,6 @@ function export_reservations_csv($conditions) {
     exit;
 }
 
-/**
- * ステータスのラベルを取得（メイン予約管理プラグインの関数が利用できない場合のフォールバック）
- */
-if (!function_exists('get_reservation_status_label')) {
-    function get_reservation_status_label($status) {
-        $status_labels = [
-            'new' => '新規受付',
-            'pending' => '確認中',
-            'approved' => '承認',
-            'rejected' => '否認',
-            'cancelled' => 'キャンセル'
-        ];
-        
-        return $status_labels[$status] ?? $status;
-    }
-}
 
 /**
  * 管理画面表示
