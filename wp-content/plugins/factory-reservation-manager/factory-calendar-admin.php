@@ -46,7 +46,7 @@ function factory_calendar_create_tables() {
     $sql3 = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}reservations (
         id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         factory_id bigint(20) UNSIGNED NOT NULL,
-        reservation_date date NOT NULL,
+        date date NOT NULL,
         time_slot varchar(11) NOT NULL,
         applicant_name varchar(255) NOT NULL,
         applicant_kana varchar(255) DEFAULT NULL,
@@ -57,7 +57,7 @@ function factory_calendar_create_tables() {
         status enum('pending','confirmed','cancelled') DEFAULT 'pending',
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
-        KEY idx_factory_date (factory_id, reservation_date),
+        KEY idx_factory_date (factory_id, date),
         KEY idx_status (status)
     ) $charset_collate;";
     

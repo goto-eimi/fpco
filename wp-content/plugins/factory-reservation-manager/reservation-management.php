@@ -162,7 +162,7 @@ function handle_reservation_form_submission() {
     // 既存のテーブル構造に合わせたデータ
     $data = [
         'factory_id' => intval($_POST['factory_id']),
-        'reservation_date' => sanitize_text_field($_POST['visit_date']),
+        'date' => sanitize_text_field($_POST['visit_date']),
         'time_slot' => $time_slot,
         'applicant_name' => sanitize_text_field($_POST['applicant_name']),
         'applicant_kana' => sanitize_text_field($_POST['applicant_kana']),
