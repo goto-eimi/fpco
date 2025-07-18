@@ -595,7 +595,10 @@ function reservation_management_admin_page() {
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($success_message) . '</p></div>';
     }
     
-    // トップのエラーメッセージは表示しない（各フィールドに個別表示）
+    // トップのエラーメッセージ表示（必須項目未入力の場合）
+    if (!empty($field_errors)) {
+        echo '<div class="notice notice-error is-dismissible"><p>必須項目が未入力です。</p></div>';
+    }
     
     // transientからのメッセージ表示（リダイレクト後の場合）
     if (isset($_GET['success'])) {
