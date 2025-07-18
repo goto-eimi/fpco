@@ -259,26 +259,26 @@ function validate_reservation_form($data) {
     // 郵便番号の形式チェック
     if (!empty($data['applicant_zip'])) {
         if (!preg_match('/^\d{7}$/', $data['applicant_zip'])) {
-            $errors[] = '郵便番号は7桁の数字で入力してください。';
+            $add_field_error('applicant_zip', '郵便番号は7桁の数字で入力してください。');
         }
     }
     
     // 電話番号の形式チェック
     if (!empty($data['applicant_phone'])) {
         if (!preg_match('/^[\d-]+$/', $data['applicant_phone'])) {
-            $errors[] = '電話番号は数字とハイフンのみで入力してください。';
+            $add_field_error('applicant_phone', '電話番号は数字とハイフンのみで入力してください。');
         }
     }
     
     if (!empty($data['emergency_contact'])) {
         if (!preg_match('/^[\d-]+$/', $data['emergency_contact'])) {
-            $errors[] = '当日連絡先は数字とハイフンのみで入力してください。';
+            $add_field_error('emergency_contact', '当日連絡先は数字とハイフンのみで入力してください。');
         }
     }
     
     // メールアドレスの形式チェック
     if (!empty($data['applicant_email']) && !is_email($data['applicant_email'])) {
-        $errors[] = '正しいメールアドレスを入力してください。';
+        $add_field_error('applicant_email', '正しいメールアドレスを入力してください。');
     }
     
     // 数値フィールドのチェック
@@ -291,7 +291,7 @@ function validate_reservation_form($data) {
     foreach ($numeric_fields as $field => $label) {
         if (!empty($data[$field])) {
             if (!is_numeric($data[$field]) || intval($data[$field]) < 0) {
-                $errors[] = $label . 'は0以上の数値で入力してください。';
+                $add_field_error($field, $label . 'は0以上の数値で入力してください。');
             }
         }
     }
@@ -299,14 +299,14 @@ function validate_reservation_form($data) {
     // 見学者人数の整合性チェック
     if (!empty($data['total_visitors']) && !empty($data['elementary_visitors'])) {
         if (intval($data['elementary_visitors']) > intval($data['total_visitors'])) {
-            $errors[] = '小学生以下の人数は見学者人数を超えることはできません。';
+            $add_field_error('elementary_visitors', '小学生以下の人数は見学者人数を超えることはできません。');
         }
     }
     
     // 交通機関「その他」の場合の入力チェック
     if (isset($data['transportation']) && $data['transportation'] === 'other' && 
         (!isset($data['transportation_other_text']) || $data['transportation_other_text'] === '' || $data['transportation_other_text'] === null)) {
-        $errors[] = '交通機関で「その他」を選択した場合は、内容を入力してください。';
+        $add_field_error('transportation_other_text', '交通機関で「その他」を選択した場合は、内容を入力してください。'};
     }
     
     // 旅行会社の場合の追加チェック
@@ -321,27 +321,27 @@ function validate_reservation_form($data) {
         
         foreach ($agency_required as $field => $label) {
             if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
-                $errors[] = $label . 'は必須項目です。';
+                $add_field_error($field, $label . 'は必須項目です。');
             }
         }
         
         // 旅行会社の郵便番号チェック
         if (!empty($data['travel_agency_zip'])) {
             if (!preg_match('/^\d{7}$/', $data['travel_agency_zip'])) {
-                $errors[] = '旅行会社の郵便番号は7桁の数字で入力してください。';
+                $add_field_error('travel_agency_zip', '旅行会社の郵便番号は7桁の数字で入力してください。');
             }
         }
         
         // 旅行会社の電話番号チェック
         if (!empty($data['travel_agency_phone'])) {
             if (!preg_match('/^[\d-]+$/', $data['travel_agency_phone'])) {
-                $errors[] = '旅行会社の電話番号は数字とハイフンのみで入力してください。';
+                $add_field_error('travel_agency_phone', '旅行会社の電話番号は数字とハイフンのみで入力してください。');
             }
         }
         
         // 担当者メールアドレスの形式チェック
         if (!empty($data['contact_email']) && !is_email($data['contact_email'])) {
-            $errors[] = '担当者メールアドレスの形式が正しくありません。';
+            $add_field_error('contact_email', '担当者メールアドレスの形式が正しくありません。');
         }
     }
     
@@ -410,7 +410,7 @@ function validate_reservation_type_fields($data) {
             
             foreach ($recruit_required as $field => $label) {
                 if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
-                    $errors[] = $label . 'は必須項目です。';
+                    $add_field_error($field, $label . 'は必須項目です。');
                 }
             }
             
@@ -418,16 +418,16 @@ function validate_reservation_type_fields($data) {
             if (!empty($data['recruit_visitor_count'])) {
                 $visitor_count = intval($data['recruit_visitor_count']);
                 if ($visitor_count < 1 || $visitor_count > 10) {
-                    $errors[] = '見学者様人数は1〜10人の範囲で入力してください。';
+                    $add_field_error('recruit_visitor_count', '見学者様人数は1〜10人の範囲で入力してください。');
                 }
                 
                 // 同行者情報の必須チェック
                 for ($i = 1; $i < $visitor_count; $i++) {
                     if (!isset($data["companion_name_$i"]) || $data["companion_name_$i"] === '' || $data["companion_name_$i"] === null) {
-                        $errors[] = "同行者様{$i}の氏名は必須項目です。";
+                        $add_field_error("companion_name_$i", "同行者様{$i}の氏名は必須項目です。");
                     }
                     if (!isset($data["companion_department_$i"]) || $data["companion_department_$i"] === '' || $data["companion_department_$i"] === null) {
-                        $errors[] = "同行者様{$i}の学部は必須項目です。";
+                        $add_field_error("companion_department_$i", "同行者様{$i}の学部は必須項目です。");
                     }
                 }
             }
@@ -447,14 +447,14 @@ function validate_reservation_type_fields($data) {
             
             foreach ($general_required as $field => $label) {
                 if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
-                    $errors[] = $label . 'は必須項目です。';
+                    $add_field_error($field, $label . 'は必須項目です。');
                 }
             }
             
             // 子どもの学年チェック
             if (!empty($data['child_count']) && intval($data['child_count']) > 0) {
                 if (!isset($data['child_grade']) || $data['child_grade'] === '' || $data['child_grade'] === null) {
-                    $errors[] = '子どもがいる場合は学年の入力が必要です。';
+                    $add_field_error('child_grade', '子どもがいる場合は学年の入力が必要です。');
                 }
             }
             
@@ -750,7 +750,8 @@ function reservation_management_admin_page() {
                                 <label for="travel_agency_name" class="form-label">
                                     旅行会社氏名 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="travel_agency_name" id="travel_agency_name" class="form-input">
+                                <input type="text" name="travel_agency_name" id="travel_agency_name" class="form-input" value="<?php echo get_form_value('travel_agency_name', $form_data); ?>">
+                                <?php display_field_error('travel_agency_name', $field_errors); ?>
                             </div>
 
                             <!-- 旅行会社住所 -->
@@ -764,7 +765,8 @@ function reservation_management_admin_page() {
                                         <span style="margin-right: 5px;">〒</span>
                                         <input type="text" name="travel_agency_zip" id="travel_agency_zip" 
                                                placeholder="1234567" maxlength="7" class="form-input" style="width: 100px !important;" 
-                                               oninput="searchAddress(this.value)">
+                                               oninput="searchAddress(this.value)" value="<?php echo get_form_value('travel_agency_zip', $form_data); ?>">
+                                        <?php display_field_error('travel_agency_zip', $field_errors); ?>
                                         <span style="margin-left: 10px; font-size: 12px; color: #666;">郵便番号を入力すると住所が入力されます</span>
                                     </div>
                                     
@@ -773,66 +775,69 @@ function reservation_management_admin_page() {
                                         <select name="travel_agency_prefecture" id="travel_agency_prefecture" 
                                                 class="form-select" style="width: 150px;">
                                             <option value="">都道府県を選択</option>
-                                            <option value="北海道">北海道</option>
-                                            <option value="青森県">青森県</option>
-                                            <option value="岩手県">岩手県</option>
-                                            <option value="宮城県">宮城県</option>
-                                            <option value="秋田県">秋田県</option>
-                                            <option value="山形県">山形県</option>
-                                            <option value="福島県">福島県</option>
-                                            <option value="茨城県">茨城県</option>
-                                            <option value="栃木県">栃木県</option>
-                                            <option value="群馬県">群馬県</option>
-                                            <option value="埼玉県">埼玉県</option>
-                                            <option value="千葉県">千葉県</option>
-                                            <option value="東京都">東京都</option>
-                                            <option value="神奈川県">神奈川県</option>
-                                            <option value="新潟県">新潟県</option>
-                                            <option value="富山県">富山県</option>
-                                            <option value="石川県">石川県</option>
-                                            <option value="福井県">福井県</option>
-                                            <option value="山梨県">山梨県</option>
-                                            <option value="長野県">長野県</option>
-                                            <option value="岐阜県">岐阜県</option>
-                                            <option value="静岡県">静岡県</option>
-                                            <option value="愛知県">愛知県</option>
-                                            <option value="三重県">三重県</option>
-                                            <option value="滋賀県">滋賀県</option>
-                                            <option value="京都府">京都府</option>
-                                            <option value="大阪府">大阪府</option>
-                                            <option value="兵庫県">兵庫県</option>
-                                            <option value="奈良県">奈良県</option>
-                                            <option value="和歌山県">和歌山県</option>
-                                            <option value="鳥取県">鳥取県</option>
-                                            <option value="島根県">島根県</option>
-                                            <option value="岡山県">岡山県</option>
-                                            <option value="広島県">広島県</option>
-                                            <option value="山口県">山口県</option>
-                                            <option value="徳島県">徳島県</option>
-                                            <option value="香川県">香川県</option>
-                                            <option value="愛媛県">愛媛県</option>
-                                            <option value="高知県">高知県</option>
-                                            <option value="福岡県">福岡県</option>
-                                            <option value="佐賀県">佐賀県</option>
-                                            <option value="長崎県">長崎県</option>
-                                            <option value="熊本県">熊本県</option>
-                                            <option value="大分県">大分県</option>
-                                            <option value="宮崎県">宮崎県</option>
-                                            <option value="鹿児島県">鹿児島県</option>
-                                            <option value="沖縄県">沖縄県</option>
+                                            <option value="北海道" <?php echo is_option_selected('travel_agency_prefecture', '北海道', $form_data); ?>>北海道</option>
+                                            <option value="青森県" <?php echo is_option_selected('travel_agency_prefecture', '青森県', $form_data); ?>>青森県</option>
+                                            <option value="岩手県" <?php echo is_option_selected('travel_agency_prefecture', '岩手県', $form_data); ?>>岩手県</option>
+                                            <option value="宮城県" <?php echo is_option_selected('travel_agency_prefecture', '宮城県', $form_data); ?>>宮城県</option>
+                                            <option value="秋田県" <?php echo is_option_selected('travel_agency_prefecture', '秋田県', $form_data); ?>>秋田県</option>
+                                            <option value="山形県" <?php echo is_option_selected('travel_agency_prefecture', '山形県', $form_data); ?>>山形県</option>
+                                            <option value="福島県" <?php echo is_option_selected('travel_agency_prefecture', '福島県', $form_data); ?>>福島県</option>
+                                            <option value="茨城県" <?php echo is_option_selected('travel_agency_prefecture', '茨城県', $form_data); ?>>茨城県</option>
+                                            <option value="栃木県" <?php echo is_option_selected('travel_agency_prefecture', '栃木県', $form_data); ?>>栃木県</option>
+                                            <option value="群馬県" <?php echo is_option_selected('travel_agency_prefecture', '群馬県', $form_data); ?>>群馬県</option>
+                                            <option value="埼玉県" <?php echo is_option_selected('travel_agency_prefecture', '埼玉県', $form_data); ?>>埼玉県</option>
+                                            <option value="千葉県" <?php echo is_option_selected('travel_agency_prefecture', '千葉県', $form_data); ?>>千葉県</option>
+                                            <option value="東京都" <?php echo is_option_selected('travel_agency_prefecture', '東京都', $form_data); ?>>東京都</option>
+                                            <option value="神奈川県" <?php echo is_option_selected('travel_agency_prefecture', '神奈川県', $form_data); ?>>神奈川県</option>
+                                            <option value="新潟県" <?php echo is_option_selected('travel_agency_prefecture', '新潟県', $form_data); ?>>新潟県</option>
+                                            <option value="富山県" <?php echo is_option_selected('travel_agency_prefecture', '富山県', $form_data); ?>>富山県</option>
+                                            <option value="石川県" <?php echo is_option_selected('travel_agency_prefecture', '石川県', $form_data); ?>>石川県</option>
+                                            <option value="福井県" <?php echo is_option_selected('travel_agency_prefecture', '福井県', $form_data); ?>>福井県</option>
+                                            <option value="山梨県" <?php echo is_option_selected('travel_agency_prefecture', '山梨県', $form_data); ?>>山梨県</option>
+                                            <option value="長野県" <?php echo is_option_selected('travel_agency_prefecture', '長野県', $form_data); ?>>長野県</option>
+                                            <option value="岐阜県" <?php echo is_option_selected('travel_agency_prefecture', '岐阜県', $form_data); ?>>岐阜県</option>
+                                            <option value="静岡県" <?php echo is_option_selected('travel_agency_prefecture', '静岡県', $form_data); ?>>静岡県</option>
+                                            <option value="愛知県" <?php echo is_option_selected('travel_agency_prefecture', '愛知県', $form_data); ?>>愛知県</option>
+                                            <option value="三重県" <?php echo is_option_selected('travel_agency_prefecture', '三重県', $form_data); ?>>三重県</option>
+                                            <option value="滋賀県" <?php echo is_option_selected('travel_agency_prefecture', '滋賀県', $form_data); ?>>滋賀県</option>
+                                            <option value="京都府" <?php echo is_option_selected('travel_agency_prefecture', '京都府', $form_data); ?>>京都府</option>
+                                            <option value="大阪府" <?php echo is_option_selected('travel_agency_prefecture', '大阪府', $form_data); ?>>大阪府</option>
+                                            <option value="兵庫県" <?php echo is_option_selected('travel_agency_prefecture', '兵庫県', $form_data); ?>>兵庫県</option>
+                                            <option value="奈良県" <?php echo is_option_selected('travel_agency_prefecture', '奈良県', $form_data); ?>>奈良県</option>
+                                            <option value="和歌山県" <?php echo is_option_selected('travel_agency_prefecture', '和歌山県', $form_data); ?>>和歌山県</option>
+                                            <option value="鳥取県" <?php echo is_option_selected('travel_agency_prefecture', '鳥取県', $form_data); ?>>鳥取県</option>
+                                            <option value="島根県" <?php echo is_option_selected('travel_agency_prefecture', '島根県', $form_data); ?>>島根県</option>
+                                            <option value="岡山県" <?php echo is_option_selected('travel_agency_prefecture', '岡山県', $form_data); ?>>岡山県</option>
+                                            <option value="広島県" <?php echo is_option_selected('travel_agency_prefecture', '広島県', $form_data); ?>>広島県</option>
+                                            <option value="山口県" <?php echo is_option_selected('travel_agency_prefecture', '山口県', $form_data); ?>>山口県</option>
+                                            <option value="徳島県" <?php echo is_option_selected('travel_agency_prefecture', '徳島県', $form_data); ?>>徳島県</option>
+                                            <option value="香川県" <?php echo is_option_selected('travel_agency_prefecture', '香川県', $form_data); ?>>香川県</option>
+                                            <option value="愛媛県" <?php echo is_option_selected('travel_agency_prefecture', '愛媛県', $form_data); ?>>愛媛県</option>
+                                            <option value="高知県" <?php echo is_option_selected('travel_agency_prefecture', '高知県', $form_data); ?>>高知県</option>
+                                            <option value="福岡県" <?php echo is_option_selected('travel_agency_prefecture', '福岡県', $form_data); ?>>福岡県</option>
+                                            <option value="佐賀県" <?php echo is_option_selected('travel_agency_prefecture', '佐賀県', $form_data); ?>>佐賀県</option>
+                                            <option value="長崎県" <?php echo is_option_selected('travel_agency_prefecture', '長崎県', $form_data); ?>>長崎県</option>
+                                            <option value="熊本県" <?php echo is_option_selected('travel_agency_prefecture', '熊本県', $form_data); ?>>熊本県</option>
+                                            <option value="大分県" <?php echo is_option_selected('travel_agency_prefecture', '大分県', $form_data); ?>>大分県</option>
+                                            <option value="宮崎県" <?php echo is_option_selected('travel_agency_prefecture', '宮崎県', $form_data); ?>>宮崎県</option>
+                                            <option value="鹿児島県" <?php echo is_option_selected('travel_agency_prefecture', '鹿児島県', $form_data); ?>>鹿児島県</option>
+                                            <option value="沖縄県" <?php echo is_option_selected('travel_agency_prefecture', '沖縄県', $form_data); ?>>沖縄県</option>
                                         </select>
+                                        <?php display_field_error('travel_agency_prefecture', $field_errors); ?>
                                     </div>
                                     
                                     <!-- 市区町村 -->
                                     <div style="margin-bottom: 8px;">
                                         <input type="text" name="travel_agency_city" id="travel_agency_city" 
-                                               placeholder="市区町村" class="form-input" style="width: 200px;">
+                                               placeholder="市区町村" class="form-input" style="width: 200px;" value="<?php echo get_form_value('travel_agency_city', $form_data); ?>">
+                                        <?php display_field_error('travel_agency_city', $field_errors); ?>
                                     </div>
                                     
                                     <!-- 番地・建物名 -->
                                     <div>
                                         <input type="text" name="travel_agency_address" id="travel_agency_address" 
-                                               placeholder="番地・建物名" class="form-input">
+                                               placeholder="番地・建物名" class="form-input" value="<?php echo get_form_value('travel_agency_address', $form_data); ?>">
+                                        <?php display_field_error('travel_agency_address', $field_errors); ?>
                                     </div>
                                 </div>
                             </div>
@@ -842,7 +847,8 @@ function reservation_management_admin_page() {
                                 <label for="travel_agency_phone" class="form-label">
                                     旅行会社電話番号 <span class="required">*</span>
                                 </label>
-                                <input type="tel" name="travel_agency_phone" id="travel_agency_phone" class="form-input">
+                                <input type="tel" name="travel_agency_phone" id="travel_agency_phone" class="form-input" value="<?php echo get_form_value('travel_agency_phone', $form_data); ?>">
+                                <?php display_field_error('travel_agency_phone', $field_errors); ?>
                             </div>
 
                             <!-- 旅行会社FAX番号 -->
@@ -850,7 +856,8 @@ function reservation_management_admin_page() {
                                 <label for="travel_agency_fax" class="form-label">
                                     旅行会社FAX番号
                                 </label>
-                                <input type="tel" name="travel_agency_fax" id="travel_agency_fax" class="form-input">
+                                <input type="tel" name="travel_agency_fax" id="travel_agency_fax" class="form-input" value="<?php echo get_form_value('travel_agency_fax', $form_data); ?>">
+                                <?php display_field_error('travel_agency_fax', $field_errors); ?>
                             </div>
 
                             <!-- 担当者携帯番号 -->
@@ -858,7 +865,8 @@ function reservation_management_admin_page() {
                                 <label for="contact_mobile" class="form-label">
                                     担当者携帯番号
                                 </label>
-                                <input type="tel" name="contact_mobile" id="contact_mobile" class="form-input">
+                                <input type="tel" name="contact_mobile" id="contact_mobile" class="form-input" value="<?php echo get_form_value('contact_mobile', $form_data); ?>">
+                                <?php display_field_error('contact_mobile', $field_errors); ?>
                             </div>
 
                             <!-- 担当者メールアドレス -->
@@ -866,7 +874,8 @@ function reservation_management_admin_page() {
                                 <label for="contact_email" class="form-label">
                                     担当者メールアドレス <span class="required">*</span>
                                 </label>
-                                <input type="email" name="contact_email" id="contact_email" class="form-input">
+                                <input type="email" name="contact_email" id="contact_email" class="form-input" value="<?php echo get_form_value('contact_email', $form_data); ?>">
+                                <?php display_field_error('contact_email', $field_errors); ?>
                             </div>
                         </div>
 
@@ -905,7 +914,8 @@ function reservation_management_admin_page() {
                                 <label for="school_name" class="form-label">
                                     学校・団体名 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="school_name" id="school_name" class="form-input">
+                                <input type="text" name="school_name" id="school_name" class="form-input" value="<?php echo get_form_value('school_name', $form_data); ?>">
+                                <?php display_field_error('school_name', $field_errors); ?>
                             </div>
 
                             <!-- 学校・団体名(ふりがな) -->
@@ -913,7 +923,8 @@ function reservation_management_admin_page() {
                                 <label for="school_name_kana" class="form-label">
                                     学校・団体名(ふりがな) <span class="required">*</span>
                                 </label>
-                                <input type="text" name="school_name_kana" id="school_name_kana" class="form-input">
+                                <input type="text" name="school_name_kana" id="school_name_kana" class="form-input" value="<?php echo get_form_value('school_name_kana', $form_data); ?>">
+                                <?php display_field_error('school_name_kana', $field_errors); ?>
                             </div>
 
                             <!-- 代表者氏名 -->
@@ -921,7 +932,8 @@ function reservation_management_admin_page() {
                                 <label for="representative_name" class="form-label">
                                     代表者氏名
                                 </label>
-                                <input type="text" name="representative_name" id="representative_name" class="form-input">
+                                <input type="text" name="representative_name" id="representative_name" class="form-input" value="<?php echo get_form_value('representative_name', $form_data); ?>">
+                                <?php display_field_error('representative_name', $field_errors); ?>
                             </div>
 
                             <!-- 代表者氏名(ふりがな) -->
@@ -929,7 +941,8 @@ function reservation_management_admin_page() {
                                 <label for="representative_name_kana" class="form-label">
                                     代表者氏名(ふりがな)
                                 </label>
-                                <input type="text" name="representative_name_kana" id="representative_name_kana" class="form-input">
+                                <input type="text" name="representative_name_kana" id="representative_name_kana" class="form-input" value="<?php echo get_form_value('representative_name_kana', $form_data); ?>">
+                                <?php display_field_error('representative_name_kana', $field_errors); ?>
                             </div>
 
                             <!-- 学年 -->
@@ -938,7 +951,8 @@ function reservation_management_admin_page() {
                                     学年 <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="grade" id="grade" class="form-input" style="width: 50px !important;" min="1" max="12">
+                                    <input type="number" name="grade" id="grade" class="form-input" style="width: 50px !important;" min="1" max="12" value="<?php echo get_form_value('grade', $form_data); ?>">
+                                <?php display_field_error('grade', $field_errors); ?>
                                     <span style="margin-left: 5px;">年生</span>
                                 </div>
                             </div>
@@ -949,7 +963,8 @@ function reservation_management_admin_page() {
                                     クラス数 <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="class_count" id="class_count" class="form-input" style="width: 50px !important;" min="1">
+                                    <input type="number" name="class_count" id="class_count" class="form-input" style="width: 50px !important;" min="1" value="<?php echo get_form_value('class_count', $form_data); ?>">
+                                <?php display_field_error('class_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">クラス</span>
                                 </div>
                             </div>
@@ -960,7 +975,8 @@ function reservation_management_admin_page() {
                                     見学者人数(児童・生徒) <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="student_count" id="student_count" class="form-input" style="width: 50px !important;" min="0">
+                                    <input type="number" name="student_count" id="student_count" class="form-input" style="width: 50px !important;" min="0" value="<?php echo get_form_value('student_count', $form_data); ?>">
+                                <?php display_field_error('student_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                             </div>
@@ -971,7 +987,8 @@ function reservation_management_admin_page() {
                                     見学者人数(引率) <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="supervisor_count" id="supervisor_count" class="form-input" style="width: 50px !important;" min="0">
+                                    <input type="number" name="supervisor_count" id="supervisor_count" class="form-input" style="width: 50px !important;" min="0" value="<?php echo get_form_value('supervisor_count', $form_data); ?>">
+                                <?php display_field_error('supervisor_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                             </div>
@@ -984,7 +1001,8 @@ function reservation_management_admin_page() {
                                 <label for="recruit_school_name" class="form-label">
                                     学校名 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="recruit_school_name" id="recruit_school_name" class="form-input">
+                                <input type="text" name="recruit_school_name" id="recruit_school_name" class="form-input" value="<?php echo get_form_value('recruit_school_name', $form_data); ?>">
+                                <?php display_field_error('recruit_school_name', $field_errors); ?>
                             </div>
 
                             <!-- 学部 -->
@@ -992,7 +1010,8 @@ function reservation_management_admin_page() {
                                 <label for="recruit_department" class="form-label">
                                     学部 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="recruit_department" id="recruit_department" class="form-input">
+                                <input type="text" name="recruit_department" id="recruit_department" class="form-input" value="<?php echo get_form_value('recruit_department', $form_data); ?>">
+                                <?php display_field_error('recruit_department', $field_errors); ?>
                             </div>
 
                             <!-- 学年 -->
@@ -1001,7 +1020,8 @@ function reservation_management_admin_page() {
                                     学年 <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="recruit_grade" id="recruit_grade" class="form-input" style="width: 50px !important;" min="1" max="6">
+                                    <input type="number" name="recruit_grade" id="recruit_grade" class="form-input" style="width: 50px !important;" min="1" max="6" value="<?php echo get_form_value('recruit_grade', $form_data); ?>">
+                                <?php display_field_error('recruit_grade', $field_errors); ?>
                                     <span style="margin-left: 5px;">年生</span>
                                 </div>
                             </div>
@@ -1012,13 +1032,36 @@ function reservation_management_admin_page() {
                                     見学者様人数 <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="recruit_visitor_count" id="recruit_visitor_count" class="form-input" style="width: 50px !important;" min="1" onchange="updateCompanionFields()">
+                                    <input type="number" name="recruit_visitor_count" id="recruit_visitor_count" class="form-input" style="width: 50px !important;" min="1" onchange="updateCompanionFields()" value="<?php echo get_form_value('recruit_visitor_count', $form_data); ?>">
+                                <?php display_field_error('recruit_visitor_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                             </div>
 
                             <!-- 同行者様情報（動的に表示） -->
-                            <div id="companion_fields"></div>
+                            <div id="companion_fields">
+                                <?php
+                                // フォームエラー時に同行者フィールドを復元
+                                if (isset($form_data['recruit_visitor_count']) && $form_data['recruit_visitor_count'] > 1) {
+                                    $visitor_count = intval($form_data['recruit_visitor_count']);
+                                    for ($i = 1; $i < $visitor_count; $i++) {
+                                        echo '<div class="form-field">';
+                                        echo '<label class="form-label" style="align-items: flex-start;">同行者様' . $i . '</label>';
+                                        echo '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                                        echo '<div>';
+                                        echo '<label class="form-label" style="margin-right: 45px;">氏名 <span class="required">*</span></label>';
+                                        echo '<input type="text" name="companion_name_' . $i . '" id="companion_name_' . $i . '" class="form-input" style="width: 215px !important;" value="' . get_form_value('companion_name_' . $i, $form_data) . '" required>';
+                                        echo '</div>';
+                                        echo '<div>';
+                                        echo '<label class="form-label" style="margin-right: 45px;">学部 <span class="required">*</span></label>';
+                                        echo '<input type="text" name="companion_department_' . $i . '" id="companion_department_' . $i . '" class="form-input" style="width: 215px !important;" value="' . get_form_value('companion_department_' . $i, $form_data) . '" required>';
+                                        echo '</div>';
+                                        echo '</div>';
+                                        echo '</div>';
+                                    }
+                                }
+                                ?>
+                            </div>
                         </div>
 
                         <!-- 一般・企業情報（「個人・親子見学・ご家族など」「企業」「自治体主体」「その他」の場合のみ表示） -->
@@ -1028,7 +1071,8 @@ function reservation_management_admin_page() {
                                 <label for="company_name" class="form-label">
                                     会社・団体名 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="company_name" id="company_name" class="form-input">
+                                <input type="text" name="company_name" id="company_name" class="form-input" value="<?php echo get_form_value('company_name', $form_data); ?>">
+                                <?php display_field_error('company_name', $field_errors); ?>
                             </div>
 
                             <!-- 会社・団体名(ふりがな) -->
@@ -1036,7 +1080,8 @@ function reservation_management_admin_page() {
                                 <label for="company_name_kana" class="form-label">
                                     会社・団体名(ふりがな) <span class="required">*</span>
                                 </label>
-                                <input type="text" name="company_name_kana" id="company_name_kana" class="form-input">
+                                <input type="text" name="company_name_kana" id="company_name_kana" class="form-input" value="<?php echo get_form_value('company_name_kana', $form_data); ?>">
+                                <?php display_field_error('company_name_kana', $field_errors); ?>
                             </div>
 
                             <!-- 見学者人数(大人) -->
@@ -1045,7 +1090,8 @@ function reservation_management_admin_page() {
                                     見学者人数(大人) <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="adult_count" id="adult_count" class="form-input" style="width: 50px !important;" min="0">
+                                    <input type="number" name="adult_count" id="adult_count" class="form-input" style="width: 50px !important;" min="0" value="<?php echo get_form_value('adult_count', $form_data); ?>">
+                                <?php display_field_error('adult_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                             </div>
@@ -1056,7 +1102,8 @@ function reservation_management_admin_page() {
                                     見学者人数(子ども) <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="child_count" id="child_count" class="form-input" style="width: 50px !important;" min="0" onchange="updateChildGradeFields()">
+                                    <input type="number" name="child_count" id="child_count" class="form-input" style="width: 50px !important;" min="0" onchange="updateChildGradeFields()" value="<?php echo get_form_value('child_count', $form_data); ?>">
+                                <?php display_field_error('child_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
                             </div>
@@ -1067,7 +1114,8 @@ function reservation_management_admin_page() {
                                     <label for="child_grade" class="form-label">
                                         学年 <span class="required">*</span>
                                     </label>
-                                    <input type="text" name="child_grade" id="child_grade" class="form-input" placeholder="例：小学1年生、小学3年生">
+                                    <input type="text" name="child_grade" id="child_grade" class="form-input" placeholder="例：小学1年生、小学3年生" value="<?php echo get_form_value('child_grade', $form_data); ?>">
+                                    <?php display_field_error('child_grade', $field_errors); ?>
                                 </div>
                             </div>
                         </div>
@@ -1093,52 +1141,52 @@ function reservation_management_admin_page() {
                                     <select name="applicant_prefecture" id="applicant_prefecture" 
                                             class="form-select <?php echo get_field_error_class('applicant_prefecture', $field_errors); ?>" style="width: 150px;">
                                         <option value="">都道府県を選択</option>
-                                        <option value="北海道">北海道</option>
-                                        <option value="青森県">青森県</option>
-                                        <option value="岩手県">岩手県</option>
-                                        <option value="宮城県">宮城県</option>
-                                        <option value="秋田県">秋田県</option>
-                                        <option value="山形県">山形県</option>
-                                        <option value="福島県">福島県</option>
-                                        <option value="茨城県">茨城県</option>
-                                        <option value="栃木県">栃木県</option>
-                                        <option value="群馬県">群馬県</option>
-                                        <option value="埼玉県">埼玉県</option>
-                                        <option value="千葉県">千葉県</option>
-                                        <option value="東京都">東京都</option>
-                                        <option value="神奈川県">神奈川県</option>
-                                        <option value="新潟県">新潟県</option>
-                                        <option value="富山県">富山県</option>
-                                        <option value="石川県">石川県</option>
-                                        <option value="福井県">福井県</option>
-                                        <option value="山梨県">山梨県</option>
-                                        <option value="長野県">長野県</option>
-                                        <option value="岐阜県">岐阜県</option>
-                                        <option value="静岡県">静岡県</option>
-                                        <option value="愛知県">愛知県</option>
-                                        <option value="三重県">三重県</option>
-                                        <option value="滋賀県">滋賀県</option>
-                                        <option value="京都府">京都府</option>
-                                        <option value="大阪府">大阪府</option>
-                                        <option value="兵庫県">兵庫県</option>
-                                        <option value="奈良県">奈良県</option>
-                                        <option value="和歌山県">和歌山県</option>
-                                        <option value="鳥取県">鳥取県</option>
-                                        <option value="島根県">島根県</option>
-                                        <option value="岡山県">岡山県</option>
-                                        <option value="広島県">広島県</option>
-                                        <option value="山口県">山口県</option>
-                                        <option value="徳島県">徳島県</option>
-                                        <option value="香川県">香川県</option>
-                                        <option value="愛媛県">愛媛県</option>
-                                        <option value="高知県">高知県</option>
-                                        <option value="福岡県">福岡県</option>
-                                        <option value="佐賀県">佐賀県</option>
-                                        <option value="長崎県">長崎県</option>
-                                        <option value="熊本県">熊本県</option>
-                                        <option value="大分県">大分県</option>
-                                        <option value="宮崎県">宮崎県</option>
-                                        <option value="鹿児島県">鹿児島県</option>
+                                        <option value="北海道" <?php echo is_option_selected('applicant_prefecture', '北海道', $form_data); ?>>北海道</option>
+                                        <option value="青森県" <?php echo is_option_selected('applicant_prefecture', '青森県', $form_data); ?>>青森県</option>
+                                        <option value="岩手県" <?php echo is_option_selected('applicant_prefecture', '岩手県', $form_data); ?>>岩手県</option>
+                                        <option value="宮城県" <?php echo is_option_selected('applicant_prefecture', '宮城県', $form_data); ?>>宮城県</option>
+                                        <option value="秋田県" <?php echo is_option_selected('applicant_prefecture', '秋田県', $form_data); ?>>秋田県</option>
+                                        <option value="山形県" <?php echo is_option_selected('applicant_prefecture', '山形県', $form_data); ?>>山形県</option>
+                                        <option value="福島県" <?php echo is_option_selected('applicant_prefecture', '福島県', $form_data); ?>>福島県</option>
+                                        <option value="茨城県" <?php echo is_option_selected('applicant_prefecture', '茨城県', $form_data); ?>>茨城県</option>
+                                        <option value="栃木県" <?php echo is_option_selected('applicant_prefecture', '栃木県', $form_data); ?>>栃木県</option>
+                                        <option value="群馬県" <?php echo is_option_selected('applicant_prefecture', '群馬県', $form_data); ?>>群馬県</option>
+                                        <option value="埼玉県" <?php echo is_option_selected('applicant_prefecture', '埼玉県', $form_data); ?>>埼玉県</option>
+                                        <option value="千葉県" <?php echo is_option_selected('applicant_prefecture', '千葉県', $form_data); ?>>千葉県</option>
+                                        <option value="東京都" <?php echo is_option_selected('applicant_prefecture', '東京都', $form_data); ?>>東京都</option>
+                                        <option value="神奈川県" <?php echo is_option_selected('applicant_prefecture', '神奈川県', $form_data); ?>>神奈川県</option>
+                                        <option value="新潟県" <?php echo is_option_selected('applicant_prefecture', '新潟県', $form_data); ?>>新潟県</option>
+                                        <option value="富山県" <?php echo is_option_selected('applicant_prefecture', '富山県', $form_data); ?>>富山県</option>
+                                        <option value="石川県" <?php echo is_option_selected('applicant_prefecture', '石川県', $form_data); ?>>石川県</option>
+                                        <option value="福井県" <?php echo is_option_selected('applicant_prefecture', '福井県', $form_data); ?>>福井県</option>
+                                        <option value="山梨県" <?php echo is_option_selected('applicant_prefecture', '山梨県', $form_data); ?>>山梨県</option>
+                                        <option value="長野県" <?php echo is_option_selected('applicant_prefecture', '長野県', $form_data); ?>>長野県</option>
+                                        <option value="岐阜県" <?php echo is_option_selected('applicant_prefecture', '岐阜県', $form_data); ?>>岐阜県</option>
+                                        <option value="静岡県" <?php echo is_option_selected('applicant_prefecture', '静岡県', $form_data); ?>>静岡県</option>
+                                        <option value="愛知県" <?php echo is_option_selected('applicant_prefecture', '愛知県', $form_data); ?>>愛知県</option>
+                                        <option value="三重県" <?php echo is_option_selected('applicant_prefecture', '三重県', $form_data); ?>>三重県</option>
+                                        <option value="滋賀県" <?php echo is_option_selected('applicant_prefecture', '滋賀県', $form_data); ?>>滋賀県</option>
+                                        <option value="京都府" <?php echo is_option_selected('applicant_prefecture', '京都府', $form_data); ?>>京都府</option>
+                                        <option value="大阪府" <?php echo is_option_selected('applicant_prefecture', '大阪府', $form_data); ?>>大阪府</option>
+                                        <option value="兵庫県" <?php echo is_option_selected('applicant_prefecture', '兵庫県', $form_data); ?>>兵庫県</option>
+                                        <option value="奈良県" <?php echo is_option_selected('applicant_prefecture', '奈良県', $form_data); ?>>奈良県</option>
+                                        <option value="和歌山県" <?php echo is_option_selected('applicant_prefecture', '和歌山県', $form_data); ?>>和歌山県</option>
+                                        <option value="鳥取県" <?php echo is_option_selected('applicant_prefecture', '鳥取県', $form_data); ?>>鳥取県</option>
+                                        <option value="島根県" <?php echo is_option_selected('applicant_prefecture', '島根県', $form_data); ?>>島根県</option>
+                                        <option value="岡山県" <?php echo is_option_selected('applicant_prefecture', '岡山県', $form_data); ?>>岡山県</option>
+                                        <option value="広島県" <?php echo is_option_selected('applicant_prefecture', '広島県', $form_data); ?>>広島県</option>
+                                        <option value="山口県" <?php echo is_option_selected('applicant_prefecture', '山口県', $form_data); ?>>山口県</option>
+                                        <option value="徳島県" <?php echo is_option_selected('applicant_prefecture', '徳島県', $form_data); ?>>徳島県</option>
+                                        <option value="香川県" <?php echo is_option_selected('applicant_prefecture', '香川県', $form_data); ?>>香川県</option>
+                                        <option value="愛媛県" <?php echo is_option_selected('applicant_prefecture', '愛媛県', $form_data); ?>>愛媛県</option>
+                                        <option value="高知県" <?php echo is_option_selected('applicant_prefecture', '高知県', $form_data); ?>>高知県</option>
+                                        <option value="福岡県" <?php echo is_option_selected('applicant_prefecture', '福岡県', $form_data); ?>>福岡県</option>
+                                        <option value="佐賀県" <?php echo is_option_selected('applicant_prefecture', '佐賀県', $form_data); ?>>佐賀県</option>
+                                        <option value="長崎県" <?php echo is_option_selected('applicant_prefecture', '長崎県', $form_data); ?>>長崎県</option>
+                                        <option value="熊本県" <?php echo is_option_selected('applicant_prefecture', '熊本県', $form_data); ?>>熊本県</option>
+                                        <option value="大分県" <?php echo is_option_selected('applicant_prefecture', '大分県', $form_data); ?>>大分県</option>
+                                        <option value="宮崎県" <?php echo is_option_selected('applicant_prefecture', '宮崎県', $form_data); ?>>宮崎県</option>
+                                        <option value="鹿児島県" <?php echo is_option_selected('applicant_prefecture', '鹿児島県', $form_data); ?>>鹿児島県</option>
                                         <option value="沖縄県" <?php echo is_option_selected('applicant_prefecture', '沖縄県', $form_data); ?>>沖縄県</option>
                                     </select>
                                     <?php display_field_error('applicant_prefecture', $field_errors); ?>
@@ -1388,6 +1436,13 @@ function reservation_management_admin_page() {
             }
         }
         
+        // 子ども学年フィールドの初期化（一般フィールド表示時）
+        if (generalFields && generalFields.style.display !== 'none') {
+            if (typeof window.updateChildGradeFields === 'function') {
+                window.updateChildGradeFields();
+            }
+        }
+        
         // フォーム送信時のバリデーション
         const form = document.querySelector('form');
         if (form) {
@@ -1608,12 +1663,26 @@ function reservation_management_admin_page() {
         const visitorCount = parseInt(document.getElementById('recruit_visitor_count').value) || 0;
         const companionFields = document.getElementById('companion_fields');
         
+        // 既存の値を保存
+        const existingValues = {};
+        for (let i = 1; i < 10; i++) {
+            const nameField = document.getElementById(`companion_name_${i}`);
+            const deptField = document.getElementById(`companion_department_${i}`);
+            if (nameField) existingValues[`companion_name_${i}`] = nameField.value;
+            if (deptField) existingValues[`companion_department_${i}`] = deptField.value;
+        }
+        
         companionFields.innerHTML = '';
         
         if (visitorCount > 1) {
             for (let i = 1; i < visitorCount; i++) {
                 const companionDiv = document.createElement('div');
                 companionDiv.className = 'form-field';
+                
+                // 既存値を使用、なければ空文字
+                const nameValue = existingValues[`companion_name_${i}`] || '';
+                const deptValue = existingValues[`companion_department_${i}`] || '';
+                
                 companionDiv.innerHTML = `
                     <label class="form-label" style="align-items: flex-start;">
                         同行者様${i}
@@ -1621,11 +1690,11 @@ function reservation_management_admin_page() {
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         <div>
                             <label class="form-label" style="margin-right: 45px;">氏名 <span class="required">*</span></label>
-                            <input type="text" name="companion_name_${i}" id="companion_name_${i}" class="form-input" style="width: 215px !important;" required>
+                            <input type="text" name="companion_name_${i}" id="companion_name_${i}" class="form-input" style="width: 215px !important;" value="${nameValue}" required>
                         </div>
                         <div>
                             <label class="form-label" style="margin-right: 45px;">学部 <span class="required">*</span></label>
-                            <input type="text" name="companion_department_${i}" id="companion_department_${i}" class="form-input" style="width: 215px !important;" required>
+                            <input type="text" name="companion_department_${i}" id="companion_department_${i}" class="form-input" style="width: 215px !important;" value="${deptValue}" required>
                         </div>
                     </div>
                 `;
