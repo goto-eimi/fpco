@@ -73,6 +73,8 @@ function factory_calendar_create_tables() {
 add_action('admin_menu', 'factory_calendar_admin_menu');
 
 function factory_calendar_admin_menu() {
+    global $wpdb;
+    
     // 現在のユーザーを取得
     $current_user = wp_get_current_user();
     
@@ -96,15 +98,26 @@ function factory_calendar_admin_menu() {
     }
     
     if ($can_access) {
-        add_menu_page(
-            '予約カレンダー',
-            '予約カレンダー',
-            'read',  // 権限を緩和
-            'factory-calendar',
-            'factory_calendar_admin_page',
-            'dashicons-calendar-alt',
-            30
-        );
+        // 工場一覧を取得
+        $factories = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}factorys ORDER BY name");
+        
+        // 各工場ごとにメニューを追加
+        foreach ($factories as $factory) {
+            $menu_slug = 'factory-calendar-' . $factory->id;
+            $menu_title = $factory->name . 'カレンダー';
+            
+            add_menu_page(
+                $menu_title,
+                $menu_title,
+                'read',  // 権限を緩和
+                $menu_slug,
+                function() use ($factory) {
+                    factory_calendar_admin_page($factory->id);
+                },
+                'dashicons-calendar-alt',
+                30 + $factory->id
+            );
+        }
     }
 }
 
@@ -114,7 +127,8 @@ function factory_calendar_admin_menu() {
 add_action('admin_enqueue_scripts', 'factory_calendar_admin_scripts');
 
 function factory_calendar_admin_scripts($hook) {
-    if ($hook !== 'toplevel_page_factory-calendar') {
+    // 各工場のカレンダーページでスクリプトを読み込む
+    if (!preg_match('/^toplevel_page_factory-calendar-\d+$/', $hook)) {
         return;
     }
     
@@ -135,66 +149,36 @@ function factory_calendar_admin_scripts($hook) {
 /**
  * カレンダー管理画面の表示
  */
-function factory_calendar_admin_page() {
+function factory_calendar_admin_page($factory_id = null) {
     global $wpdb;
     
-    // 現在のユーザー情報を取得
-    $current_user = wp_get_current_user();
-    $current_user_id = $current_user->ID;
-    
-    // 管理者かどうかを判定
-    $is_admin = ($current_user_id == 1 || $current_user->user_login == 'admin' || current_user_can('manage_options'));
-    
-    // ユーザーが管理する工場を取得
-    $factory = null;
-    if (!$is_admin) {
-        // 一般ユーザーまたは工場アカウントの場合
+    // 指定された工場IDの工場情報を取得
+    if ($factory_id) {
         $factory = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}factorys WHERE manager_user_id = %d",
-                $current_user_id
+                "SELECT * FROM {$wpdb->prefix}factorys WHERE id = %d",
+                $factory_id
             )
         );
-        
-        if (!$factory) {
-            echo '<div class="wrap"><h1>アクセス権限がありません</h1><p>工場が割り当てられていません。</p></div>';
-            return;
-        }
+    } else {
+        echo '<div class="wrap"><h1>エラー</h1><p>工場が指定されていません。</p></div>';
+        return;
     }
     
-    // 管理者の場合は全工場を取得
-    $factories = array();
-    if ($is_admin) {
-        $factories = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}factorys ORDER BY name");
-        // 最初の工場をデフォルトとして選択
-        if ($factories && !$factory) {
-            $factory = $factories[0];
-        }
+    if (!$factory) {
+        echo '<div class="wrap"><h1>エラー</h1><p>指定された工場が見つかりません。</p></div>';
+        return;
     }
     ?>
     
     <div class="wrap" style="background-color: white; padding: 20px;">
         <div style="max-width: 1200px;">
-            <?php if ($is_admin && $factories): ?>
-                <div style="margin-bottom: 20px;">
-                    <label for="factory-select">工場選択：</label>
-                    <select id="factory-select" style="min-width: 200px;">
-                        <?php foreach ($factories as $f): ?>
-                            <option value="<?php echo esc_attr($f->id); ?>" 
-                                    <?php selected($factory ? $factory->id : 0, $f->id); ?>>
-                                <?php echo esc_html($f->name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            <?php endif; ?>
-            
             <h1 id="factory-name" style="font-size: 24px; margin-bottom: 10px;">
-                <?php echo $factory ? esc_html($factory->name) : ''; ?>カレンダー
+                <?php echo esc_html($factory->name); ?>カレンダー
             </h1>
             
             <div style="margin-bottom: 20px;">
-                <span style="font-size: 16px;">予約可能人数：<strong id="factory-capacity"><?php echo $factory ? esc_html($factory->capacity) : ''; ?></strong>名</span>
+                <span style="font-size: 16px;">予約可能人数：<strong id="factory-capacity"><?php echo esc_html($factory->capacity); ?></strong>名</span>
             </div>
             
             <!-- カレンダー表示エリア -->
@@ -296,7 +280,7 @@ function factory_calendar_admin_page() {
     </style>
     
     <script>
-    var currentFactoryId = <?php echo $factory ? $factory->id : 'null'; ?>;
+    var currentFactoryId = <?php echo $factory->id; ?>;
     </script>
     <?php
 }

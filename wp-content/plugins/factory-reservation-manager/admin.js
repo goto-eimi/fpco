@@ -317,37 +317,4 @@ document.addEventListener('DOMContentLoaded', function() {
         initCalendar(currentFactoryId);
     }
     
-    // 工場選択の変更
-    var factorySelect = document.getElementById('factory-select');
-    if (factorySelect) {
-        factorySelect.addEventListener('change', function() {
-            var factoryId = this.value;
-            var factoryName = this.options[this.selectedIndex].text;
-            
-            document.getElementById('factory-name').textContent = factoryName + 'カレンダー';
-            
-            // 容量を取得して表示
-            fetch(factory_calendar.ajax_url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'action=get_factory_info&factory_id=' + factoryId + '&nonce=' + factory_calendar.nonce
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('factory-capacity').textContent = data.data.capacity;
-                }
-            });
-            
-            currentFactoryId = factoryId;
-            
-            // カレンダーを再初期化
-            if (calendar) {
-                calendar.destroy();
-            }
-            initCalendar(factoryId);
-        });
-    }
 });
