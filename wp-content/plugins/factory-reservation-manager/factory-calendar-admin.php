@@ -98,8 +98,47 @@ function factory_calendar_admin_menu() {
     }
     
     if ($can_access) {
-        // 工場一覧を取得（名前順）
-        $factories = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}factorys ORDER BY name ASC");
+        // 工場一覧を取得
+        if ($is_admin) {
+            // 管理者の場合は全工場を取得（名前順）
+            $factories = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}factorys ORDER BY name ASC");
+        } else {
+            // 工場アカウントの場合は割り当てられた工場のみ取得
+            $factories = array();
+            if ($assigned_factory) {
+                $factory = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->prefix}factorys WHERE id = %d",
+                        $assigned_factory
+                    )
+                );
+                if ($factory) {
+                    $factories[] = $factory;
+                }
+            }
+            
+            // manager_user_idでも確認
+            $managed_factories = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpdb->prefix}factorys WHERE manager_user_id = %d",
+                    $current_user->ID
+                )
+            );
+            foreach ($managed_factories as $mf) {
+                $factories[] = $mf;
+            }
+            
+            // 重複を除去
+            $factory_ids = array();
+            $unique_factories = array();
+            foreach ($factories as $f) {
+                if (!in_array($f->id, $factory_ids)) {
+                    $factory_ids[] = $f->id;
+                    $unique_factories[] = $f;
+                }
+            }
+            $factories = $unique_factories;
+        }
         
         // 各工場ごとにメニューを追加
         $position = 30; // 開始位置
