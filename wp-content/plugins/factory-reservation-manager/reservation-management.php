@@ -1375,6 +1375,19 @@ function reservation_management_admin_page() {
         transportationLocalBus.addEventListener('change', toggleTransportationOtherField);
         transportationTaxi.addEventListener('change', toggleTransportationOtherField);
         
+        // 初期状態の設定（フォームエラー時でも選択状態を維持）
+        toggleTravelAgencyFields();
+        toggleAllFields();
+        toggleTransportationOtherField();
+        
+        // 同行者フィールドの初期化（個人リクルート選択時）
+        if (recruitFields && recruitFields.style.display !== 'none') {
+            // updateCompanionFieldsはグローバル関数なので、window経由で呼び出す
+            if (typeof window.updateCompanionFields === 'function') {
+                window.updateCompanionFields();
+            }
+        }
+        
         // フォーム送信時のバリデーション
         const form = document.querySelector('form');
         if (form) {
