@@ -1989,6 +1989,50 @@ function reservation_management_admin_page() {
                 });
         }
     }
+
+    // 返信メールボタンの機能
+    document.addEventListener('DOMContentLoaded', function() {
+        const replyEmailBtn = document.getElementById('create_reply_email');
+        const statusSelect = document.getElementById('reservation_status');
+        
+        function updateReplyEmailButton() {
+            if (statusSelect && replyEmailBtn) {
+                const status = statusSelect.value;
+                if (status === 'pending') {
+                    replyEmailBtn.style.display = 'inline-block';
+                    replyEmailBtn.disabled = false;
+                } else {
+                    replyEmailBtn.style.display = 'none';
+                    replyEmailBtn.disabled = true;
+                }
+            }
+        }
+        
+        // 初期状態の設定
+        updateReplyEmailButton();
+        
+        // ステータス変更時の処理
+        if (statusSelect) {
+            statusSelect.addEventListener('change', updateReplyEmailButton);
+        }
+        
+        // 返信メールボタンクリック時の処理
+        if (replyEmailBtn) {
+            replyEmailBtn.addEventListener('click', function() {
+                const currentUrl = new URL(window.location.href);
+                const reservationId = currentUrl.searchParams.get('reservation_id');
+                
+                if (!reservationId) {
+                    alert('予約データを保存してから返信メールを作成してください。');
+                    return;
+                }
+                
+                // 返信メール作成画面へ遷移
+                const replyUrl = 'admin.php?page=reply-email&reservation_id=' + reservationId;
+                window.location.href = replyUrl;
+            });
+        }
+    });
     </script>
     <?php
 }

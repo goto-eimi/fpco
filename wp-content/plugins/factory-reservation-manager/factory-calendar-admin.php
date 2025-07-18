@@ -61,10 +61,27 @@ function factory_calendar_create_tables() {
         KEY idx_status (status)
     ) $charset_collate;";
     
+    // メール送信履歴テーブル
+    $sql4 = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}email_logs (
+        id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        reservation_id bigint(20) UNSIGNED NOT NULL,
+        sender_user_id bigint(20) UNSIGNED NOT NULL,
+        template_type varchar(50) DEFAULT NULL,
+        subject varchar(255) NOT NULL,
+        body longtext NOT NULL,
+        sent_at datetime DEFAULT CURRENT_TIMESTAMP,
+        status enum('sent','failed') DEFAULT 'sent',
+        PRIMARY KEY (id),
+        KEY idx_reservation (reservation_id),
+        KEY idx_sender (sender_user_id),
+        KEY idx_sent_at (sent_at)
+    ) $charset_collate;";
+    
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql1);
     dbDelta($sql2);
     dbDelta($sql3);
+    dbDelta($sql4);
 }
 
 /**
