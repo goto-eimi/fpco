@@ -66,14 +66,8 @@ function get_factory_timeslots($factory_id) {
         )
     );
     
-    // デフォルト時間帯
-    $default = array(
-        'am' => ['9:00 - 10:00', '9:30 - 10:30', '11:00 - 12:00'],
-        'pm' => ['14:00 - 15:00', '14:30 - 15:30', '16:00 - 17:00']
-    );
-    
-    // 指定された工場IDの時間帯を返す（なければデフォルト）
-    return isset($factory_timeslots[$factory_id]) ? $factory_timeslots[$factory_id] : $default;
+    // 指定された工場IDの時間帯を返す（なければ空の配列）
+    return isset($factory_timeslots[$factory_id]) ? $factory_timeslots[$factory_id] : array('am' => [], 'pm' => []);
 }
 
 function factory_add_user_fields($user) {
@@ -131,8 +125,8 @@ function factory_add_user_fields($user) {
         // 工場IDに基づいて時間帯を取得
         $timeslots = get_factory_timeslots($current_factory);
     } else {
-        // デフォルト時間帯
-        $timeslots = get_factory_timeslots(null);
+        // 工場が割り当てられていない場合は空の時間帯
+        $timeslots = array('am' => [], 'pm' => []);
     }
     ?>
     
