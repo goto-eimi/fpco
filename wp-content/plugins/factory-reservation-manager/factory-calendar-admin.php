@@ -80,10 +80,12 @@ function factory_calendar_admin_menu() {
     
     // 管理者またはfactoryロールのユーザーのみメニューを表示
     $can_access = false;
+    $is_admin = false;
     
     // 管理者チェック（ユーザーID：1またはuser_login：admin）
     if ($current_user->ID == 1 || $current_user->user_login == 'admin' || current_user_can('manage_options')) {
         $can_access = true;
+        $is_admin = true;
     }
     
     // factoryロールチェック
