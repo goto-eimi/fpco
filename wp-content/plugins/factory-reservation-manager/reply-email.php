@@ -10,13 +10,18 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// WordPressが完全に読み込まれるまで待機
+if (!function_exists('add_action')) {
+    return;
+}
+
 /**
  * CSSファイルの読み込み
  */
 add_action('admin_enqueue_scripts', 'reply_email_enqueue_scripts');
 
 function reply_email_enqueue_scripts($hook) {
-    if ($hook !== 'toplevel_page_reply-email') {
+    if (!$hook || $hook !== 'toplevel_page_reply-email') {
         return;
     }
     wp_enqueue_style('reply-email-css', plugin_dir_url(__FILE__) . 'reply-email.css', [], '1.0');
@@ -203,11 +208,11 @@ function handle_email_form_submission() {
         return ['success' => false, 'message' => '本文は必須項目です。'];
     }
     
-    if (strlen($subject) > 100) {
+    if (strlen($subject ?? '') > 100) {
         return ['success' => false, 'message' => '件名は100文字以内で入力してください。'];
     }
     
-    if (strlen($body) > 5000) {
+    if (strlen($body ?? '') > 5000) {
         return ['success' => false, 'message' => '本文は5000文字以内で入力してください。'];
     }
     
@@ -279,7 +284,7 @@ function reply_email_admin_page() {
         
         <?php if ($show_warning): ?>
             <div class="notice notice-warning">
-                <p><strong>注意:</strong> この予約のステータスは「<?php echo esc_html(get_reservation_status_label($reservation['status'])); ?>」です。
+                <p><strong>注意:</strong> この予約のステータスは「<?php echo esc_html(function_exists('get_reservation_status_label') ? get_reservation_status_label($reservation['status'] ?? '') : ($reservation['status'] ?? '')); ?>」です。
                 通常、返信メールは「確認中」ステータスの予約に対して送信します。</p>
             </div>
         <?php endif; ?>
