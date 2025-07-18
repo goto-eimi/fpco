@@ -1,18 +1,16 @@
 -- wp_reservationsテーブルに100件のダミーデータを挿入するSQL
 -- 予約管理システム用のテストデータ
+-- 実際のテーブル構造に合わせて修正
 
 -- ダミーデータの挿入
 INSERT INTO wp_reservations (
-    factory_id, date, time_slot, applicant_name, applicant_kana, is_travel_agency, 
-    agency_data, reservation_type, type_data, postal_code, applicant_prefecture, 
-    applicant_city, applicant_address, phone, email, transportation_method, 
-    transportation_count, purpose, participant_count, participants_child_count, 
-    status, created_at, updated_at
+    factory_id, date, time_slot, applicant_name, applicant_kana, applicant_type, 
+    details, participants_total, participants_child, status, created_at
 ) VALUES
 -- 1-10件目
-(1, '2025-01-20', '9:00-10:00', '田中太郎', 'たなかたろう', 0, NULL, 'individual', NULL, '100-0001', '東京都', '千代田区', '千代田1-1-1', '03-1234-5678', 'tanaka@example.com', 'car', 1, '工場見学による学習', 4, 1, 'new', NOW(), NOW()),
-(1, '2025-01-21', '10:00-11:00', '佐藤花子', 'さとうはなこ', 0, NULL, 'individual', NULL, '150-0001', '東京都', '渋谷区', '渋谷2-2-2', '03-2345-6789', 'sato@example.com', 'bus', 0, '製造工程の見学', 2, 0, 'pending', NOW(), NOW()),
-(2, '2025-01-22', '14:00-15:00', '鈴木一郎', 'すずきいちろう', 0, NULL, 'individual', NULL, '530-0001', '大阪府', '大阪市北区', '梅田3-3-3', '06-3456-7890', 'suzuki@example.com', 'taxi', 1, '環境への取り組み見学', 3, 2, 'approved', NOW(), NOW()),
+(1, '2025-01-20', '9:00-10:00', '田中太郎', 'たなかたろう', 'individual', '工場見学による学習\n住所: 〒100-0001 東京都千代田区千代田1-1-1\n電話: 03-1234-5678\nメール: tanaka@example.com\n交通手段: 車', 4, 1, 'new', NOW()),
+(1, '2025-01-21', '10:00-11:00', '佐藤花子', 'さとうはなこ', 'individual', '製造工程の見学\n住所: 〒150-0001 東京都渋谷区渋谷2-2-2\n電話: 03-2345-6789\nメール: sato@example.com\n交通手段: バス', 2, 0, 'pending', NOW()),
+(2, '2025-01-22', '14:00-15:00', '鈴木一郎', 'すずきいちろう', 'individual', '環境への取り組み見学\n住所: 〒530-0001 大阪府大阪市北区梅田3-3-3\n電話: 06-3456-7890\nメール: suzuki@example.com\n交通手段: タクシー', 3, 2, 'approved', NOW()),
 (1, '2025-01-23', '9:30-10:30', '高橋美咲', 'たかはしみさき', 1, '{"name":"JTB旅行", "phone":"03-9999-8888"}', 'group', '{"organization_name":"○○小学校", "participant_count": 25}', '220-0001', '神奈川県', '横浜市西区', 'みなとみらい4-4-4', '045-4567-8901', 'takahashi@example.com', 'bus', 1, '社会科見学', 25, 25, 'pending', NOW(), NOW()),
 (2, '2025-01-24', '15:00-16:00', '伊藤健太', 'いとうけんた', 0, NULL, 'individual', NULL, '460-0001', '愛知県', '名古屋市中区', '栄5-5-5', '052-5678-9012', 'ito@example.com', 'car', 2, 'リサイクル技術の学習', 6, 3, 'new', NOW(), NOW()),
 (1, '2025-01-25', '11:00-12:00', '渡辺由美', 'わたなべゆみ', 0, NULL, 'individual', NULL, '810-0001', '福岡県', '福岡市中央区', '天神6-6-6', '092-6789-0123', 'watanabe@example.com', 'other', 0, '環境学習', 2, 1, 'rejected', NOW(), NOW()),
