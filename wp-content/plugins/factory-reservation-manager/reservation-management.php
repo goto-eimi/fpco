@@ -139,13 +139,8 @@ function handle_reservation_form_submission() {
         $transportation_other = sanitize_text_field($_POST['transportation_other_text']);
     }
     
-    // データベースに保存
-    $data = [
-        'factory_id' => intval($_POST['factory_id']),
-        'date' => sanitize_text_field($_POST['visit_date']),
-        'time_slot' => $time_slot,
-        'applicant_name' => sanitize_text_field($_POST['applicant_name']),
-        'applicant_kana' => sanitize_text_field($_POST['applicant_kana']),
+    // 詳細データの準備（既存のテーブル構造に対応）
+    $details = [
         'is_travel_agency' => (isset($_POST['is_travel_agency']) && $_POST['is_travel_agency'] === 'yes') ? 1 : 0,
         'agency_data' => $agency_data,
         'reservation_type' => isset($_POST['reservation_type']) ? sanitize_text_field($_POST['reservation_type']) : '',
@@ -157,19 +152,29 @@ function handle_reservation_form_submission() {
         'phone' => sanitize_text_field($_POST['applicant_phone']),
         'day_of_contact' => sanitize_text_field($_POST['emergency_contact']),
         'email' => sanitize_email($_POST['applicant_email']),
-        'transportation_method' => $transportation,
+        'transportation' => $transportation,
         'transportation_other' => $transportation_other,
         'transportation_count' => intval($_POST['vehicle_count']),
         'purpose' => sanitize_textarea_field($_POST['visit_purpose']),
-        'participant_count' => intval($_POST['total_visitors']),
-        'participants_child_count' => intval($_POST['elementary_visitors']),
-        'status' => 'new'
+        'elementary_visitors' => intval($_POST['elementary_visitors'])
+    ];
+    
+    // 既存のテーブル構造に合わせたデータ
+    $data = [
+        'factory_id' => intval($_POST['factory_id']),
+        'reservation_date' => sanitize_text_field($_POST['visit_date']),
+        'time_slot' => $time_slot,
+        'applicant_name' => sanitize_text_field($_POST['applicant_name']),
+        'applicant_kana' => sanitize_text_field($_POST['applicant_kana']),
+        'applicant_type' => isset($_POST['reservation_type']) ? sanitize_text_field($_POST['reservation_type']) : 'individual',
+        'details' => json_encode($details, JSON_UNESCAPED_UNICODE),
+        'participants_total' => intval($_POST['total_visitors']),
+        'participants_child' => intval($_POST['elementary_visitors']),
+        'status' => 'pending'
     ];
     
     $format = [
-        '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s',
-        '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s',
-        '%d', '%s', '%d', '%d', '%s'
+        '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s'
     ];
     
     $result = $wpdb->insert($table_name, $data, $format);
