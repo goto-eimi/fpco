@@ -103,7 +103,15 @@ function handle_reservation_form_submission() {
     }
     
     // データの準備
-    $time_slot = sanitize_text_field($_POST['visit_time_start']) . '-' . sanitize_text_field($_POST['visit_time_end']);
+    // 時間の組み立て
+    $start_hour = str_pad(sanitize_text_field($_POST['visit_time_start_hour']), 2, '0', STR_PAD_LEFT);
+    $start_minute = str_pad(sanitize_text_field($_POST['visit_time_start_minute']), 2, '0', STR_PAD_LEFT);
+    $end_hour = str_pad(sanitize_text_field($_POST['visit_time_end_hour']), 2, '0', STR_PAD_LEFT);
+    $end_minute = str_pad(sanitize_text_field($_POST['visit_time_end_minute']), 2, '0', STR_PAD_LEFT);
+    
+    $visit_time_start = $start_hour . ':' . $start_minute;
+    $visit_time_end = $end_hour . ':' . $end_minute;
+    $time_slot = $visit_time_start . '-' . $visit_time_end;
     
     // 旅行会社情報の処理
     $agency_data = null;
@@ -190,8 +198,10 @@ function validate_reservation_form($data) {
     $required_fields = [
         'factory_id' => '見学工場',
         'visit_date' => '見学日',
-        'visit_time_start' => '見学開始時間',
-        'visit_time_end' => '見学終了時間',
+        'visit_time_start_hour' => '見学開始時間（時）',
+        'visit_time_start_minute' => '見学開始時間（分）',
+        'visit_time_end_hour' => '見学終了時間（時）',
+        'visit_time_end_minute' => '見学終了時間（分）',
         'applicant_name' => '申込者氏名',
         'applicant_kana' => '申込者氏名(ふりがな)',
         'is_travel_agency' => '旅行会社かどうか',
@@ -233,26 +243,32 @@ function validate_reservation_form($data) {
     }
     
     // 時間の形式・範囲チェック
-    if (!empty($data['visit_time_start']) && !empty($data['visit_time_end'])) {
-        $start_time = $data['visit_time_start'];
-        $end_time = $data['visit_time_end'];
+    $start_hour = isset($data['visit_time_start_hour']) ? intval($data['visit_time_start_hour']) : null;
+    $start_minute = isset($data['visit_time_start_minute']) ? intval($data['visit_time_start_minute']) : null;
+    $end_hour = isset($data['visit_time_end_hour']) ? intval($data['visit_time_end_hour']) : null;
+    $end_minute = isset($data['visit_time_end_minute']) ? intval($data['visit_time_end_minute']) : null;
+    
+    // 時間の範囲チェック
+    if ($start_hour !== null && ($start_hour < 0 || $start_hour > 23)) {
+        $add_field_error('visit_time_start_hour', '開始時間（時）は0〜23の範囲で入力してください。');
+    }
+    if ($start_minute !== null && ($start_minute < 0 || $start_minute > 59)) {
+        $add_field_error('visit_time_start_minute', '開始時間（分）は0〜59の範囲で入力してください。');
+    }
+    if ($end_hour !== null && ($end_hour < 0 || $end_hour > 23)) {
+        $add_field_error('visit_time_end_hour', '終了時間（時）は0〜23の範囲で入力してください。');
+    }
+    if ($end_minute !== null && ($end_minute < 0 || $end_minute > 59)) {
+        $add_field_error('visit_time_end_minute', '終了時間（分）は0〜59の範囲で入力してください。');
+    }
+    
+    // 開始時間と終了時間の比較
+    if ($start_hour !== null && $start_minute !== null && $end_hour !== null && $end_minute !== null) {
+        $start_total_minutes = $start_hour * 60 + $start_minute;
+        $end_total_minutes = $end_hour * 60 + $end_minute;
         
-        if (!preg_match('/^\d{2}:\d{2}$/', $start_time)) {
-            $add_field_error('visit_time_start', '見学開始時間の形式が正しくありません。');
-        }
-        if (!preg_match('/^\d{2}:\d{2}$/', $end_time)) {
-            $add_field_error('visit_time_end', '見学終了時間の形式が正しくありません。');
-        }
-        
-        if (preg_match('/^\d{2}:\d{2}$/', $start_time) && preg_match('/^\d{2}:\d{2}$/', $end_time)) {
-            $start_obj = DateTime::createFromFormat('H:i', $start_time);
-            $end_obj = DateTime::createFromFormat('H:i', $end_time);
-            
-            if (!$start_obj || !$end_obj) {
-                $add_field_error('visit_time_start', '見学時間が正しくありません。');
-            } elseif ($start_obj >= $end_obj) {
-                $add_field_error('visit_time_end', '見学終了時間は開始時間よりも後の時間を選択してください。');
-            }
+        if ($start_total_minutes >= $end_total_minutes) {
+            $add_field_error('visit_time_end_hour', '終了時間は開始時間よりも後の時間を入力してください。');
         }
     }
     
@@ -701,9 +717,23 @@ function reservation_management_admin_page() {
                                 見学時間帯 <span class="required">*</span>
                             </label>
                             <div class="time-range">
-                                <input type="time" name="visit_time_start" id="visit_time_start" class="time-input <?php echo get_field_error_class('visit_time_start', $field_errors); ?>" value="<?php echo get_form_value('visit_time_start', $form_data); ?>">
-                                <span>〜</span>
-                                <input type="time" name="visit_time_end" id="visit_time_end" class="time-input <?php echo get_field_error_class('visit_time_end', $field_errors); ?>" value="<?php echo get_form_value('visit_time_end', $form_data); ?>">
+                                <!-- 開始時間 -->
+                                <div style="display: inline-block;">
+                                    <input type="number" name="visit_time_start_hour" id="visit_time_start_hour" class="time-input <?php echo get_field_error_class('visit_time_start', $field_errors); ?>" 
+                                           min="0" max="23" placeholder="時" style="width: 50px;" value="<?php echo get_form_value('visit_time_start_hour', $form_data); ?>">
+                                    <span>:</span>
+                                    <input type="number" name="visit_time_start_minute" id="visit_time_start_minute" class="time-input <?php echo get_field_error_class('visit_time_start', $field_errors); ?>" 
+                                           min="0" max="59" placeholder="分" style="width: 50px;" value="<?php echo get_form_value('visit_time_start_minute', $form_data); ?>">
+                                </div>
+                                <span style="margin: 0 10px;">〜</span>
+                                <!-- 終了時間 -->
+                                <div style="display: inline-block;">
+                                    <input type="number" name="visit_time_end_hour" id="visit_time_end_hour" class="time-input <?php echo get_field_error_class('visit_time_end', $field_errors); ?>" 
+                                           min="0" max="23" placeholder="時" style="width: 50px;" value="<?php echo get_form_value('visit_time_end_hour', $form_data); ?>">
+                                    <span>:</span>
+                                    <input type="number" name="visit_time_end_minute" id="visit_time_end_minute" class="time-input <?php echo get_field_error_class('visit_time_end', $field_errors); ?>" 
+                                           min="0" max="59" placeholder="分" style="width: 50px;" value="<?php echo get_form_value('visit_time_end_minute', $form_data); ?>">
+                                </div>
                             </div>
                             <?php display_field_error('visit_time_start', $field_errors); ?>
                             <?php display_field_error('visit_time_end', $field_errors); ?>
@@ -1462,8 +1492,10 @@ function reservation_management_admin_page() {
         const requiredFields = [
             { id: 'factory_id', name: '見学工場' },
             { id: 'visit_date', name: '見学日' },
-            { id: 'visit_time_start', name: '見学開始時間' },
-            { id: 'visit_time_end', name: '見学終了時間' },
+            { id: 'visit_time_start_hour', name: '見学開始時間（時）' },
+            { id: 'visit_time_start_minute', name: '見学開始時間（分）' },
+            { id: 'visit_time_end_hour', name: '見学終了時間（時）' },
+            { id: 'visit_time_end_minute', name: '見学終了時間（分）' },
             { id: 'applicant_name', name: '申込者氏名' },
             { id: 'applicant_kana', name: '申込者氏名(ふりがな)' },
             { id: 'applicant_zip', name: '申込者郵便番号' },
@@ -1526,11 +1558,33 @@ function reservation_management_admin_page() {
         }
         
         // 時間の範囲チェック
-        const startTime = document.getElementById('visit_time_start');
-        const endTime = document.getElementById('visit_time_end');
-        if (startTime && endTime && startTime.value && endTime.value) {
-            if (startTime.value >= endTime.value) {
-                errors.push('見学終了時間は開始時間よりも後の時間を選択してください。');
+        const startHour = document.getElementById('visit_time_start_hour');
+        const startMinute = document.getElementById('visit_time_start_minute');
+        const endHour = document.getElementById('visit_time_end_hour');
+        const endMinute = document.getElementById('visit_time_end_minute');
+        
+        // 時間の範囲チェック
+        if (startHour && startHour.value && (parseInt(startHour.value) < 0 || parseInt(startHour.value) > 23)) {
+            errors.push('開始時間（時）は0〜23の範囲で入力してください。');
+        }
+        if (startMinute && startMinute.value && (parseInt(startMinute.value) < 0 || parseInt(startMinute.value) > 59)) {
+            errors.push('開始時間（分）は0〜59の範囲で入力してください。');
+        }
+        if (endHour && endHour.value && (parseInt(endHour.value) < 0 || parseInt(endHour.value) > 23)) {
+            errors.push('終了時間（時）は0〜23の範囲で入力してください。');
+        }
+        if (endMinute && endMinute.value && (parseInt(endMinute.value) < 0 || parseInt(endMinute.value) > 59)) {
+            errors.push('終了時間（分）は0〜59の範囲で入力してください。');
+        }
+        
+        // 開始時間と終了時間の比較
+        if (startHour && startMinute && endHour && endMinute && 
+            startHour.value && startMinute.value && endHour.value && endMinute.value) {
+            const startTotalMinutes = parseInt(startHour.value) * 60 + parseInt(startMinute.value);
+            const endTotalMinutes = parseInt(endHour.value) * 60 + parseInt(endMinute.value);
+            
+            if (startTotalMinutes >= endTotalMinutes) {
+                errors.push('終了時間は開始時間よりも後の時間を入力してください。');
             }
         }
         
