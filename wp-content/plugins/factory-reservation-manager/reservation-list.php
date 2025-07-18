@@ -232,29 +232,29 @@ function export_reservations_csv($conditions) {
     // データ行
     foreach ($reservations as $reservation) {
         $row = [
-            $reservation['id'],
-            $reservation['date'],
-            $reservation['time_slot'],
+            $reservation['id'] ?? '',
+            $reservation['date'] ?? '',
+            $reservation['time_slot'] ?? '',
             '60', // デフォルト値、実際のデータがあれば置換
-            $reservation['applicant_name'],
+            $reservation['applicant_name'] ?? '',
             $reservation['applicant_kana'] ?? '',
             $reservation['postal_code'] ?? '',
             ($reservation['applicant_prefecture'] ?? '') . ($reservation['applicant_city'] ?? '') . ($reservation['applicant_address'] ?? ''),
-            $reservation['phone'],
-            $reservation['email'],
-            $reservation['is_travel_agency'] ? 'はい' : 'いいえ',
+            $reservation['phone'] ?? '',
+            $reservation['email'] ?? '',
+            ($reservation['is_travel_agency'] ?? false) ? 'はい' : 'いいえ',
             $reservation['travel_agency_name'] ?? '',
             $reservation['visitor_type'] ?? '',
             $reservation['organization_name'] ?? '',
             $reservation['organization_kana'] ?? '',
             $reservation['representative_name'] ?? '',
-            $reservation['participant_count'],
-            $reservation['participants_child_count'],
-            $reservation['transportation_method'],
+            $reservation['participant_count'] ?? '',
+            $reservation['participants_child_count'] ?? '',
+            $reservation['transportation_method'] ?? '',
             $reservation['transportation_count'] ?? '',
-            $reservation['purpose'],
-            get_reservation_status_label($reservation['status']),
-            $reservation['created_at'],
+            $reservation['purpose'] ?? '',
+            get_reservation_status_label($reservation['status'] ?? ''),
+            $reservation['created_at'] ?? '',
             $reservation['updated_at'] ?? ''
         ];
         
@@ -433,12 +433,12 @@ function reservation_list_admin_page() {
                                 <td class="reservation-number">
                                     <a href="admin.php?page=reservation-management&reservation_id=<?php echo esc_attr($reservation['id']); ?>" 
                                        class="reservation-link">
-                                        <?php echo esc_html($reservation['id']); ?>
+                                        <?php echo esc_html($reservation['id'] ?? ''); ?>
                                     </a>
                                 </td>
                                 <td class="reservation-applicant">
                                     <div class="applicant-name">
-                                        <?php echo esc_html($reservation['applicant_name']); ?>
+                                        <?php echo esc_html($reservation['applicant_name'] ?? ''); ?>
                                     </div>
                                     <div class="applicant-address">
                                         <?php 
@@ -454,21 +454,21 @@ function reservation_list_admin_page() {
                                 </td>
                                 <td class="reservation-datetime">
                                     <div class="reservation-date">
-                                        <?php echo esc_html(date('Y年n月j日', strtotime($reservation['date']))); ?>
+                                        <?php echo esc_html($reservation['date'] ? date('Y年n月j日', strtotime($reservation['date'])) : ''); ?>
                                     </div>
                                     <div class="reservation-time">
-                                        <?php echo esc_html($reservation['time_slot']); ?>
+                                        <?php echo esc_html($reservation['time_slot'] ?? ''); ?>
                                     </div>
                                 </td>
                                 <td class="reservation-phone">
-                                    <?php echo esc_html($reservation['phone']); ?>
+                                    <?php echo esc_html($reservation['phone'] ?? ''); ?>
                                 </td>
                                 <td class="reservation-type">
                                     <?php echo esc_html($reservation['visitor_type'] ?? '一般'); ?>
                                 </td>
                                 <td class="reservation-status">
-                                    <span class="status-badge status-<?php echo esc_attr($reservation['status']); ?>">
-                                        <?php echo esc_html(get_reservation_status_label($reservation['status'])); ?>
+                                    <span class="status-badge status-<?php echo esc_attr($reservation['status'] ?? ''); ?>">
+                                        <?php echo esc_html(get_reservation_status_label($reservation['status'] ?? '')); ?>
                                     </span>
                                 </td>
                             </tr>
