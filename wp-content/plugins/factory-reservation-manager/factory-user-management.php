@@ -141,8 +141,8 @@ function factory_add_user_fields($user) {
     <?php endif; ?>
     
     <table class="form-table">
-        <?php if (!$is_factory_account): ?>
-            <!-- 管理者用：工場選択 -->
+        <?php if ($is_admin): ?>
+            <!-- 管理者のみ工場選択可能 -->
         <tr>
                 <th><label for="assigned_factory">担当工場</label></th>
             <td>
@@ -166,12 +166,16 @@ function factory_add_user_fields($user) {
                 </td>
             </tr>
         <?php else: ?>
-            <!-- 工場アカウント用：工場名表示のみ -->
+            <!-- 非管理者用：工場名表示のみ -->
             <tr>
                 <th><label>担当工場</label></th>
                 <td>
-                    <strong><?php echo esc_html($factory_name); ?></strong>
-                    <input type="hidden" name="assigned_factory" value="<?php echo esc_attr($current_factory); ?>" />
+                    <?php if ($current_factory): ?>
+                        <strong><?php echo esc_html($factory_name); ?></strong>
+                        <input type="hidden" name="assigned_factory" value="<?php echo esc_attr($current_factory); ?>" />
+                    <?php else: ?>
+                        <strong>未割り当て</strong>
+                    <?php endif; ?>
             </td>
         </tr>
         <?php endif; ?>
@@ -180,8 +184,8 @@ function factory_add_user_fields($user) {
         <tr>
             <th><label for="max_participants">予約可能人数</label></th>
             <td>
-                <?php if (!$is_factory_account): ?>
-                    <!-- 管理者用：編集可能 -->
+                <?php if ($is_admin): ?>
+                    <!-- 管理者のみ編集可能 -->
                     <?php if ($current_factory): ?>
                     <input type="number" 
                            name="max_participants" 
@@ -197,10 +201,9 @@ function factory_add_user_fields($user) {
                                min="1" 
                                style="width: 80px;" 
                                disabled />
-                        <p class="description">工場を選択してから予約可能人数を設定してください。</p>
                     <?php endif; ?>
                 <?php else: ?>
-                    <!-- 工場アカウント用：表示のみ -->
+                    <!-- 非管理者用：表示のみ -->
                     <strong><?php echo esc_html($max_participants ? $max_participants : '未設定'); ?>名</strong>
                 <?php endif; ?>
             </td>
@@ -226,9 +229,8 @@ function factory_add_user_fields($user) {
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <?php if ($current_factory): ?>
-                <?php else: ?>
-                    <p class="description">工場を選択すると見学時間帯が表示されます。</p>
+                <?php if (!$current_factory): ?>
+                    <p class="description">工場が割り当てられると見学時間帯が表示されます。</p>
                 <?php endif; ?>
             </td>
         </tr>
@@ -471,7 +473,7 @@ function factory_user_management_scripts($hook) {
                 // 工場が選択されていない場合
                 $participantsField.val(50);
                 $participantsField.prop("disabled", true);
-                $description.text("工場を選択してから予約可能人数を設定してください。");
+                $description.text("");
                 
                 // 見学時間帯をデフォルト値に戻す
                 resetTimeslots();
@@ -532,7 +534,7 @@ function factory_user_management_scripts($hook) {
             html += "</div>";
             html += "</div>";
             
-            html += "<p class=\"description\">工場を選択すると見学時間帯が表示されます。</p>";
+            html += "<p class=\"description\">工場が割り当てられると見学時間帯が表示されます。</p>";
             
             $container.html(html);
         }
