@@ -188,6 +188,14 @@ function get_factory_timeslots($factory_id) {
         return isset($duration_timeslots[$factory_id]) ? $duration_timeslots[$factory_id] : array('60min' => array('am' => [], 'pm' => []), '90min' => array('am' => [], 'pm' => []));
     } else {
         // AM/PMパターン（デフォルト）
+        // ただし、60分・90分のデータが定義されている場合は、そちらを優先表示
+        if (isset($duration_timeslots[$factory_id]) && 
+            (!empty($duration_timeslots[$factory_id]['60min']['am']) || 
+             !empty($duration_timeslots[$factory_id]['60min']['pm']) ||
+             !empty($duration_timeslots[$factory_id]['90min']['am']) || 
+             !empty($duration_timeslots[$factory_id]['90min']['pm']))) {
+            return $duration_timeslots[$factory_id];
+        }
         return isset($am_pm_timeslots[$factory_id]) ? $am_pm_timeslots[$factory_id] : array('am' => [], 'pm' => []);
     }
 }
@@ -347,7 +355,10 @@ function factory_add_user_fields($user) {
                     );
                     $timeslot_mode = $factory_data ? $factory_data->timeslot_mode : 'am_pm_only';
                     
-                    if ($timeslot_mode === 'duration_based') {
+                    // 60分・90分パターンが定義されているかチェック
+                    $has_duration_pattern = (isset($timeslots['60min']) || isset($timeslots['90min']));
+                    
+                    if ($timeslot_mode === 'duration_based' || $has_duration_pattern) {
                         // 60分・90分パターン
                         ?>
                         <div style="margin-bottom: 15px;">
@@ -749,31 +760,11 @@ function factory_user_management_scripts($hook) {
         // 見学時間帯をデフォルト値に戻す関数
         function resetTimeslots() {
             var $container = $("#timeslots-container");
-            var defaultTimeslots = {
-                am: ["9:00 - 10:00", "9:30 - 10:30", "11:00 - 12:00"],
-                pm: ["14:00 - 15:00", "14:30 - 15:30", "16:00 - 17:00"]
-            };
             
             var html = "";
-            html += "<div>";
-            html += "<strong>AM</strong><br>";
-            html += "<div id=\"am-timeslots\">";
-            for (var i = 0; i < defaultTimeslots.am.length; i++) {
-                html += defaultTimeslots.am[i] + "<br>";
-            }
-            html += "</div>";
-            html += "</div>";
-            
-            html += "<div style=\"margin-top: 15px;\">";
-            html += "<strong>PM</strong><br>";
-            html += "<div id=\"pm-timeslots\">";
-            for (var i = 0; i < defaultTimeslots.pm.length; i++) {
-                html += defaultTimeslots.pm[i] + "<br>";
-            }
-            html += "</div>";
-            html += "</div>";
-            
-            html += "<p class=\"description\">工場が割り当てられると見学時間帯が表示されます。</p>";
+            html += \"<div style=\\\"background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px;\\\">\";
+            html += \"<p class=\\\"description\\\">工場が割り当てられると見学時間帯が表示されます。</p>\";
+            html += \"</div>\";
             
             $container.html(html);
         }
