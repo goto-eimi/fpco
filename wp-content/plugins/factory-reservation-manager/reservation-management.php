@@ -306,7 +306,7 @@ function validate_reservation_form($data) {
     // 交通機関「その他」の場合の入力チェック
     if (isset($data['transportation']) && $data['transportation'] === 'other' && 
         (!isset($data['transportation_other_text']) || $data['transportation_other_text'] === '' || $data['transportation_other_text'] === null)) {
-        $add_field_error('transportation_other_text', '交通機関で「その他」を選択した場合は、内容を入力してください。'};
+        $add_field_error('transportation_other_text', '交通機関で「その他」を選択した場合は、内容を入力してください。');
     }
     
     // 旅行会社の場合の追加チェック
