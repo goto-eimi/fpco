@@ -172,7 +172,6 @@ function factory_add_user_fields($user) {
                 <td>
                     <strong><?php echo esc_html($factory_name); ?></strong>
                     <input type="hidden" name="assigned_factory" value="<?php echo esc_attr($current_factory); ?>" />
-                    <p class="description">担当工場は管理者のみが変更できます。</p>
             </td>
         </tr>
         <?php endif; ?>
@@ -204,7 +203,6 @@ function factory_add_user_fields($user) {
                 <?php else: ?>
                     <!-- 工場アカウント用：表示のみ -->
                     <strong><?php echo esc_html($max_participants ? $max_participants : '未設定'); ?>名</strong>
-                    <p class="description">予約可能人数は管理者のみが変更できます。</p>
                 <?php endif; ?>
             </td>
         </tr>
@@ -230,7 +228,6 @@ function factory_add_user_fields($user) {
                     </div>
                 </div>
                 <?php if ($current_factory): ?>
-                    <p class="description">選択された工場の見学時間帯です。</p>
                 <?php else: ?>
                     <p class="description">工場を選択すると見学時間帯が表示されます。</p>
                 <?php endif; ?>
@@ -505,7 +502,6 @@ function factory_user_management_scripts($hook) {
             html += "</div>";
             html += "</div>";
             
-            html += "<p class=\"description\">選択された工場の見学時間帯です。</p>";
             
             $container.html(html);
             }
