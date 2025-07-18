@@ -26,6 +26,7 @@ function factory_calendar_create_tables() {
         name varchar(255) NOT NULL,
         capacity int(11) NOT NULL DEFAULT 50,
         manager_user_id bigint(20) UNSIGNED DEFAULT NULL,
+        timeslot_mode varchar(20) NOT NULL DEFAULT 'am_pm_only',
         PRIMARY KEY (id),
         KEY idx_manager (manager_user_id)
     ) $charset_collate;";
