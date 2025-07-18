@@ -695,13 +695,15 @@ function reservation_management_admin_page() {
                                 予約番号
                             </label>
                             <?php
-                            // wp_reservationsテーブルから最新のIDを取得して次の番号を生成
-                            $next_id = $wpdb->get_var("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{$wpdb->prefix}reservations'");
-                            if (!$next_id) {
+                            // wp_reservationsテーブルから次の予約番号を取得
+                            $max_id = $wpdb->get_var("SELECT MAX(id) FROM {$wpdb->prefix}reservations");
+                            if ($max_id === null) {
                                 // テーブルが空の場合は1から開始
-                                $next_id = 1;
+                                $reservation_number = 1;
+                            } else {
+                                // 最大IDに1を追加
+                                $reservation_number = intval($max_id) + 1;
                             }
-                            $reservation_number = $next_id;
                             ?>
                             <span><?php echo esc_html($reservation_number); ?></span>
                             <input type="hidden" name="reservation_number" value="<?php echo esc_attr($reservation_number); ?>">
