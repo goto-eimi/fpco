@@ -85,16 +85,22 @@ function get_email_templates() {
  * プレースホルダー変数を実際の値に置換
  */
 function replace_placeholders($text, $reservation_data) {
+    // null値対策でデータを安全に取得
     $placeholders = [
-        '{申込者名}' => $reservation_data['applicant_name'],
-        '{見学日}' => date('Y年m月d日', strtotime($reservation_data['date'])),
-        '{時間帯}' => $reservation_data['time_slot'],
-        '{工場名}' => $reservation_data['factory_name'],
+        '{申込者名}' => $reservation_data['applicant_name'] ?? '',
+        '{見学日}' => !empty($reservation_data['date']) ? date('Y年m月d日', strtotime($reservation_data['date'])) : '',
+        '{時間帯}' => $reservation_data['time_slot'] ?? '',
+        '{工場名}' => $reservation_data['factory_name'] ?? '',
         '{見学時間}' => '60', // デフォルト、後で実際のデータに置換
-        '{見学者人数}' => $reservation_data['participant_count'],
-        '{予約番号}' => $reservation_data['id'],
+        '{見学者人数}' => $reservation_data['participant_count'] ?? '',
+        '{予約番号}' => $reservation_data['id'] ?? '',
         '{組織名}' => $reservation_data['organization_name'] ?? ''
     ];
+    
+    // nullでないことを確認してから置換
+    if ($text === null) {
+        return '';
+    }
     
     return str_replace(array_keys($placeholders), array_values($placeholders), $text);
 }
@@ -126,7 +132,11 @@ function send_reservation_email($reservation_id, $subject, $body, $template_type
     $final_body = replace_placeholders($body, $reservation);
     
     // 送信先設定
-    $to = $reservation['email'];
+    $to = $reservation['email'] ?? '';
+    if (empty($to)) {
+        return ['success' => false, 'message' => '送信先メールアドレスが設定されていません。'];
+    }
+    
     $headers = [
         'Content-Type: text/plain; charset=UTF-8',
         'Cc: admin@example.com', // 管理者メール（実際のメールアドレスに変更）
@@ -140,11 +150,11 @@ function send_reservation_email($reservation_id, $subject, $body, $template_type
         $wpdb->insert(
             $wpdb->prefix . 'email_logs',
             [
-                'reservation_id' => $reservation_id,
-                'sender_user_id' => get_current_user_id(),
-                'template_type' => $template_type,
-                'subject' => $final_subject,
-                'body' => $final_body,
+                'reservation_id' => intval($reservation_id),
+                'sender_user_id' => get_current_user_id() ?: 0,
+                'template_type' => $template_type ?? '',
+                'subject' => $final_subject ?? '',
+                'body' => $final_body ?? '',
                 'sent_at' => current_time('mysql'),
                 'status' => 'sent'
             ]
