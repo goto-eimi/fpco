@@ -211,7 +211,6 @@ function factory_add_user_fields($user) {
                            min="1" 
                            style="width: 80px;" 
                            disabled />
-                    <span> 名</span>
                 <?php endif; ?>
             </td>
         </tr>
