@@ -81,7 +81,7 @@ function get_factory_timeslots($factory_id) {
     
     // 60分・90分パターンの時間帯定義
     $duration_timeslots = array(
-        // 関東リサイクル工場
+        // 関東リサイクル工場 - 60分・90分両方あり（フルパターン）
         '1' => array(
             '60min' => array(
                 'am' => ['9:00 ~ 10:00', '9:30 ~ 10:30', '11:00 ~ 12:00'],
@@ -92,94 +92,75 @@ function get_factory_timeslots($factory_id) {
                 'pm' => ['13:00 ~ 14:30', '13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
             )
         ),
-        // 中部リサイクル工場
+        // 中部リサイクル工場 - 60分パターンのみ
         '2' => array(
             '60min' => array(
                 'am' => ['9:00 ~ 10:00', '9:30 ~ 10:30', '11:00 ~ 12:00'],
                 'pm' => ['14:00 ~ 15:00', '14:30 ~ 15:30', '16:00 ~ 17:00']
             ),
             '90min' => array(
-                'am' => ['9:00 ~ 10:30', '9:30 ~ 11:00', '10:00 ~ 11:30', '10:30 ~ 12:00'],
-                'pm' => ['13:00 ~ 14:30', '13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
+                'am' => [],
+                'pm' => []
             )
         ),
-        // 福山リサイクル工場
+        // 福山リサイクル工場 - 90分パターンのみ
         '3' => array(
             '60min' => array(
-                'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
-                'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
+                'am' => [],
+                'pm' => []
             ),
             '90min' => array(
                 'am' => ['8:30 ~ 10:00', '9:00 ~ 10:30', '9:30 ~ 11:00', '10:00 ~ 11:30'],
                 'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
             )
         ),
-        // 山形選別センター
-        '4' => array(
-            '60min' => array(
-                'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
-                'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
-            ),
-            '90min' => array(
-                'am' => ['8:30 ~ 10:00', '9:00 ~ 10:30', '9:30 ~ 11:00', '10:00 ~ 11:30'],
-                'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
-            )
-        ),
-        // 松本選別センター
+        // 山形選別センター - AM/PMパターンのみ（duration_timeslotsに定義しない）
+        
+        // 松本選別センター - 60分・90分両方あり（時間帯が異なる）
         '5' => array(
             '60min' => array(
-                'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
-                'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
+                'am' => ['8:00 ~ 9:00', '9:00 ~ 10:00', '10:00 ~ 11:00'],
+                'pm' => ['13:00 ~ 14:00', '14:00 ~ 15:00', '15:00 ~ 16:00']
             ),
             '90min' => array(
-                'am' => ['8:30 ~ 10:00', '9:00 ~ 10:30', '9:30 ~ 11:00', '10:00 ~ 11:30'],
-                'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
+                'am' => ['8:00 ~ 9:30', '8:30 ~ 10:00', '9:00 ~ 10:30', '9:30 ~ 11:00'],
+                'pm' => ['13:00 ~ 14:30', '13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00']
             )
         ),
-        // 西宮選別センター
+        // 西宮選別センター - 60分パターンのみ（午後のみ）
         '6' => array(
             '60min' => array(
-                'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
+                'am' => [],
                 'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
             ),
             '90min' => array(
-                'am' => ['8:30 ~ 10:00', '9:00 ~ 10:30', '9:30 ~ 11:00', '10:00 ~ 11:30'],
-                'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
+                'am' => [],
+                'pm' => []
             )
         ),
-        // 東海選別センター
+        // 東海選別センター - 90分パターンのみ（午前のみ）
         '7' => array(
             '60min' => array(
-                'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
-                'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
+                'am' => [],
+                'pm' => []
             ),
             '90min' => array(
                 'am' => ['8:30 ~ 10:00', '9:00 ~ 10:30', '9:30 ~ 11:00', '10:00 ~ 11:30'],
-                'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
+                'pm' => []
             )
         ),
-        // 金沢選別センター
+        // 金沢選別センター - 60分・90分両方あり（時間帯が限定的）
         '8' => array(
             '60min' => array(
-                'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
-                'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
+                'am' => ['9:00 ~ 10:00', '10:00 ~ 11:00'],
+                'pm' => ['14:00 ~ 15:00', '15:00 ~ 16:00']
             ),
             '90min' => array(
-                'am' => ['8:30 ~ 10:00', '9:00 ~ 10:30', '9:30 ~ 11:00', '10:00 ~ 11:30'],
-                'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
+                'am' => ['9:00 ~ 10:30', '9:30 ~ 11:00'],
+                'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30']
             )
         ),
-        // 九州選別センター
-        '9' => array(
-            '60min' => array(
-                'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
-                'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
-            ),
-            '90min' => array(
-                'am' => ['8:30 ~ 10:00', '9:00 ~ 10:30', '9:30 ~ 11:00', '10:00 ~ 11:30'],
-                'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30', '14:30 ~ 16:00', '15:00 ~ 16:30']
-            )
-        )
+        // 九州選別センター - AM/PMパターンのみ（duration_timeslotsに定義しない）
     );
     
     // モードに応じて時間帯を返す
@@ -361,9 +342,11 @@ function factory_add_user_fields($user) {
                     if ($timeslot_mode === 'duration_based' || $has_duration_pattern) {
                         // 60分・90分パターン
                         ?>
+                        <?php if (!empty($timeslots['60min']['am']) || !empty($timeslots['60min']['pm'])): ?>
                         <div style="margin-bottom: 15px;">
                             <strong>60分</strong>
                             <div style="margin-left: 10px; margin-top: 5px;">
+                                <?php if (!empty($timeslots['60min']['am'])): ?>
                                 <div style="margin-bottom: 10px;">
                                     <strong>AM</strong>
                                     <div style="margin-left: 10px; margin-top: 5px; line-height: 1.6;">
@@ -372,6 +355,8 @@ function factory_add_user_fields($user) {
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
+                                <?php endif; ?>
+                                <?php if (!empty($timeslots['60min']['pm'])): ?>
                                 <div>
                                     <strong>PM</strong>
                                     <div style="margin-left: 10px; margin-top: 5px; line-height: 1.6;">
@@ -380,12 +365,16 @@ function factory_add_user_fields($user) {
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
+                        <?php endif; ?>
                         
+                        <?php if (!empty($timeslots['90min']['am']) || !empty($timeslots['90min']['pm'])): ?>
                         <div>
                             <strong>90分</strong>
                             <div style="margin-left: 10px; margin-top: 5px;">
+                                <?php if (!empty($timeslots['90min']['am'])): ?>
                                 <div style="margin-bottom: 10px;">
                                     <strong>AM</strong>
                                     <div style="margin-left: 10px; margin-top: 5px; line-height: 1.6;">
@@ -394,6 +383,8 @@ function factory_add_user_fields($user) {
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
+                                <?php endif; ?>
+                                <?php if (!empty($timeslots['90min']['pm'])): ?>
                                 <div>
                                     <strong>PM</strong>
                                     <div style="margin-left: 10px; margin-top: 5px; line-height: 1.6;">
@@ -402,8 +393,10 @@ function factory_add_user_fields($user) {
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
+                        <?php endif; ?>
                         <?php
                     } else {
                         // AM/PMパターン
@@ -688,49 +681,72 @@ function factory_user_management_scripts($hook) {
             // 60分・90分パターンかAM/PMパターンかを判定
             if (timeslots.hasOwnProperty(\"60min\") && timeslots.hasOwnProperty(\"90min\")) {
                 // 60分・90分パターン
-                html += \"<div style=\\\"margin-bottom: 15px;\\\">\";
-                html += \"<strong>60分</strong>\";
-                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px;\\\">\";
-                html += \"<div style=\\\"margin-bottom: 10px;\\\">\";
-                html += \"<strong>AM</strong>\";
-                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
-                for (var i = 0; i < timeslots[\"60min\"].am.length; i++) {
-                    html += timeslots[\"60min\"].am[i] + \"<br>\";
-                }
-                html += \"</div>\";
-                html += \"</div>\";
-                html += \"<div>\";
-                html += \"<strong>PM</strong>\";
-                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
-                for (var i = 0; i < timeslots[\"60min\"].pm.length; i++) {
-                    html += timeslots[\"60min\"].pm[i] + \"<br>\";
-                }
-                html += \"</div>\";
-                html += \"</div>\";
-                html += \"</div>\";
-                html += \"</div>\";
                 
-                html += \"<div>\";
-                html += \"<strong>90分</strong>\";
-                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px;\\\">\";
-                html += \"<div style=\\\"margin-bottom: 10px;\\\">\";
-                html += \"<strong>AM</strong>\";
-                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
-                for (var i = 0; i < timeslots[\"90min\"].am.length; i++) {
-                    html += timeslots[\"90min\"].am[i] + \"<br>\";
+                // 60分パターンの表示
+                if ((timeslots[\"60min\"].am && timeslots[\"60min\"].am.length > 0) || 
+                    (timeslots[\"60min\"].pm && timeslots[\"60min\"].pm.length > 0)) {
+                    html += \"<div style=\\\"margin-bottom: 15px;\\\">\";
+                    html += \"<strong>60分</strong>\";
+                    html += \"<div style=\\\"margin-left: 10px; margin-top: 5px;\\\">\";
+                    
+                    if (timeslots[\"60min\"].am && timeslots[\"60min\"].am.length > 0) {
+                        html += \"<div style=\\\"margin-bottom: 10px;\\\">\";
+                        html += \"<strong>AM</strong>\";
+                        html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
+                        for (var i = 0; i < timeslots[\"60min\"].am.length; i++) {
+                            html += timeslots[\"60min\"].am[i] + \"<br>\";
+                        }
+                        html += \"</div>\";
+                        html += \"</div>\";
+                    }
+                    
+                    if (timeslots[\"60min\"].pm && timeslots[\"60min\"].pm.length > 0) {
+                        html += \"<div>\";
+                        html += \"<strong>PM</strong>\";
+                        html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
+                        for (var i = 0; i < timeslots[\"60min\"].pm.length; i++) {
+                            html += timeslots[\"60min\"].pm[i] + \"<br>\";
+                        }
+                        html += \"</div>\";
+                        html += \"</div>\";
+                    }
+                    
+                    html += \"</div>\";
+                    html += \"</div>\";
                 }
-                html += \"</div>\";
-                html += \"</div>\";
-                html += \"<div>\";
-                html += \"<strong>PM</strong>\";
-                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
-                for (var i = 0; i < timeslots[\"90min\"].pm.length; i++) {
-                    html += timeslots[\"90min\"].pm[i] + \"<br>\";
+                
+                // 90分パターンの表示
+                if ((timeslots[\"90min\"].am && timeslots[\"90min\"].am.length > 0) || 
+                    (timeslots[\"90min\"].pm && timeslots[\"90min\"].pm.length > 0)) {
+                    html += \"<div>\";
+                    html += \"<strong>90分</strong>\";
+                    html += \"<div style=\\\"margin-left: 10px; margin-top: 5px;\\\">\";
+                    
+                    if (timeslots[\"90min\"].am && timeslots[\"90min\"].am.length > 0) {
+                        html += \"<div style=\\\"margin-bottom: 10px;\\\">\";
+                        html += \"<strong>AM</strong>\";
+                        html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
+                        for (var i = 0; i < timeslots[\"90min\"].am.length; i++) {
+                            html += timeslots[\"90min\"].am[i] + \"<br>\";
+                        }
+                        html += \"</div>\";
+                        html += \"</div>\";
+                    }
+                    
+                    if (timeslots[\"90min\"].pm && timeslots[\"90min\"].pm.length > 0) {
+                        html += \"<div>\";
+                        html += \"<strong>PM</strong>\";
+                        html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
+                        for (var i = 0; i < timeslots[\"90min\"].pm.length; i++) {
+                            html += timeslots[\"90min\"].pm[i] + \"<br>\";
+                        }
+                        html += \"</div>\";
+                        html += \"</div>\";
+                    }
+                    
+                    html += \"</div>\";
+                    html += \"</div>\";
                 }
-                html += \"</div>\";
-                html += \"</div>\";
-                html += \"</div>\";
-                html += \"</div>\";
             } else {
                 // AM/PMパターン
                 html += \"<div style=\\\"margin-bottom: 15px;\\\">\";
