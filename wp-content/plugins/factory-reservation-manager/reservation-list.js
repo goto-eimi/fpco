@@ -248,19 +248,19 @@ jQuery(document).ready(function($) {
     
     $(window).on('resize', adjustTableColumns);
     adjustTableColumns();
+    
+    // 検索フォームクリア機能をグローバルに定義
+    window.clearSearchForm = function() {
+        // フォームの全入力項目をクリア
+        jQuery('.search-form input[type="text"]').val('');
+        jQuery('.search-form input[type="number"]').val('');
+        jQuery('.search-form input[type="date"]').val('');
+        jQuery('.search-form select').prop('selectedIndex', 0);
+        
+        // セッションストレージもクリア
+        sessionStorage.removeItem('reservation_search_conditions');
+        
+        // クリア後のページに遷移
+        window.location.href = '?page=reservation-list';
+    };
 });
-
-// 検索フォームクリア機能
-function clearSearchForm() {
-    // フォームの全入力項目をクリア
-    $('.search-form input[type="text"]').val('');
-    $('.search-form input[type="number"]').val('');
-    $('.search-form input[type="date"]').val('');
-    $('.search-form select').prop('selectedIndex', 0);
-    
-    // セッションストレージもクリア
-    sessionStorage.removeItem('reservation_search_conditions');
-    
-    // クリア後のページに遷移
-    window.location.href = '?page=reservation-list';
-}
