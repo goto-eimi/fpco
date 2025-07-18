@@ -21,48 +21,48 @@ function get_factory_timeslots($factory_id) {
     $factory_timeslots = array(
         // 関東リサイクル工場
         '1' => array(
-            'am' => ['9:00 - 10:00', '9:30 - 10:30', '10:00 - 11:00'],
-            'pm' => ['13:00 - 14:00', '13:30 - 14:30', '14:00 - 15:00']
+            'am' => ['9:00 ~ 10:00', '9:30 ~ 10:30', '10:00 ~ 11:00'],
+            'pm' => ['13:00 ~ 14:00', '13:30 ~ 14:30', '14:00 ~ 15:00']
         ),
         // 中部リサイクル工場
         '2' => array(
-            'am' => ['9:00 - 10:30', '10:30 - 12:00'],
-            'pm' => ['14:00 - 15:30', '15:30 - 17:00']
+            'am' => ['9:00 ~ 10:30', '10:30 ~ 12:00'],
+            'pm' => ['14:00 ~ 15:30', '15:30 ~ 17:00']
         ),
         // 福山リサイクル工場
         '3' => array(
-            'am' => ['8:30 - 9:30', '9:30 - 10:30', '10:30 - 11:30'],
-            'pm' => ['13:30 - 14:30', '14:30 - 15:30', '15:30 - 16:30']
+            'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
+            'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
         ),
         // 山形選別センター
         '4' => array(
-            'am' => ['8:30 - 9:30', '9:30 - 10:30', '10:30 - 11:30'],
-            'pm' => ['13:30 - 14:30', '14:30 - 15:30', '15:30 - 16:30']
+            'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
+            'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
         ),
         // 松本選別センター
         '5' => array(
-            'am' => ['8:30 - 9:30', '9:30 - 10:30', '10:30 - 11:30'],
-            'pm' => ['13:30 - 14:30', '14:30 - 15:30', '15:30 - 16:30']
+            'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
+            'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
         ),
         // 西宮選別センター
         '6' => array(
-            'am' => ['8:30 - 9:30', '9:30 - 10:30', '10:30 - 11:30'],
-            'pm' => ['13:30 - 14:30', '14:30 - 15:30', '15:30 - 16:30']
+            'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
+            'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
         ),
         // 東海選別センター
         '7' => array(
-            'am' => ['8:30 - 9:30', '9:30 - 10:30', '10:30 - 11:30'],
-            'pm' => ['13:30 - 14:30', '14:30 - 15:30', '15:30 - 16:30']
+            'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
+            'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
         ),
         // 金沢選別センター
         '8' => array(
-            'am' => ['8:30 - 9:30', '9:30 - 10:30', '10:30 - 11:30'],
-            'pm' => ['13:30 - 14:30', '14:30 - 15:30', '15:30 - 16:30']
+            'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
+            'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
         ),
         // 九州選別センター
         '9' => array(
-            'am' => ['8:30 - 9:30', '9:30 - 10:30', '10:30 - 11:30'],
-            'pm' => ['13:30 - 14:30', '14:30 - 15:30', '15:30 - 16:30']
+            'am' => ['8:30 ~ 9:30', '9:30 ~ 10:30', '10:30 ~ 11:30'],
+            'pm' => ['13:30 ~ 14:30', '14:30 ~ 15:30', '15:30 ~ 16:30']
         )
     );
     
@@ -210,30 +210,32 @@ function factory_add_user_fields($user) {
         </tr>
         
         <!-- 見学時間帯 -->
+        <?php if ($current_factory): ?>
         <tr>
             <th><label>見学時間帯</label></th>
             <td id="timeslots-container">
+                <div style="background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="margin-bottom: 15px;">
+                        <strong>AM</strong>
+                        <div id="am-timeslots" style="margin-left: 10px; margin-top: 5px; line-height: 1.6;">
+                            <?php foreach ($timeslots['am'] as $slot) : ?>
+                                <?php echo esc_html($slot); ?><br>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    
                     <div>
-                        <strong>AM</strong><br>
-                    <div id="am-timeslots">
-                        <?php foreach ($timeslots['am'] as $slot) : ?>
-                            <?php echo esc_html($slot); ?><br>
-                        <?php endforeach; ?>
+                        <strong>PM</strong>
+                        <div id="pm-timeslots" style="margin-left: 10px; margin-top: 5px; line-height: 1.6;">
+                            <?php foreach ($timeslots['pm'] as $slot) : ?>
+                                <?php echo esc_html($slot); ?><br>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </div>
-                    <div style="margin-top: 15px;">
-                        <strong>PM</strong><br>
-                    <div id="pm-timeslots">
-                        <?php foreach ($timeslots['pm'] as $slot) : ?>
-                            <?php echo esc_html($slot); ?><br>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php if (!$current_factory): ?>
-                    <p class="description">工場が割り当てられると見学時間帯が表示されます。</p>
-                <?php endif; ?>
             </td>
         </tr>
+        <?php endif; ?>
         
         <!-- 名前 -->
         <tr>
@@ -485,24 +487,25 @@ function factory_user_management_scripts($hook) {
             var $container = $("#timeslots-container");
             var html = "";
             
-            html += "<div>";
-            html += "<strong>AM</strong><br>";
-            html += "<div id=\"am-timeslots\">";
+            html += "<div style=\"background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px;\">";
+            html += "<div style=\"margin-bottom: 15px;\">";
+            html += "<strong>AM</strong>";
+            html += "<div id=\"am-timeslots\" style=\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\">";
             for (var i = 0; i < timeslots.am.length; i++) {
                 html += timeslots.am[i] + "<br>";
             }
             html += "</div>";
             html += "</div>";
             
-            html += "<div style=\"margin-top: 15px;\">";
-            html += "<strong>PM</strong><br>";
-            html += "<div id=\"pm-timeslots\">";
+            html += "<div>";
+            html += "<strong>PM</strong>";
+            html += "<div id=\"pm-timeslots\" style=\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\">";
             for (var i = 0; i < timeslots.pm.length; i++) {
                 html += timeslots.pm[i] + "<br>";
             }
             html += "</div>";
             html += "</div>";
-            
+            html += "</div>";
             
             $container.html(html);
             }
