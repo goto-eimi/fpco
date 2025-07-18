@@ -172,6 +172,17 @@ function handle_reservation_form_submission() {
     if ($transportation_input === 'other' && isset($_POST['transportation_other_text'])) {
         $transportation_other_text = sanitize_text_field($_POST['transportation_other_text']);
     }
+
+    // ステータス値の妥当性チェック
+    $valid_statuses = [
+        RESERVATION_STATUS_NEW,
+        RESERVATION_STATUS_PENDING,
+        RESERVATION_STATUS_APPROVED,
+        RESERVATION_STATUS_REJECTED,
+        RESERVATION_STATUS_CANCELLED
+    ];
+    $status_input = isset($_POST['reservation_status']) ? sanitize_text_field($_POST['reservation_status']) : RESERVATION_STATUS_NEW;
+    $status = in_array($status_input, $valid_statuses) ? $status_input : RESERVATION_STATUS_NEW;
     
     // 実際のテーブル構造に合わせたデータ
     $data = [
@@ -196,7 +207,7 @@ function handle_reservation_form_submission() {
         'purpose' => sanitize_textarea_field($_POST['visit_purpose']),
         'participant_count' => intval($_POST['total_visitors']),
         'participants_child_count' => intval($_POST['elementary_visitors']),
-        'status' => RESERVATION_STATUS_NEW
+        'status' => $status
     ];
     
     $format = [
@@ -254,6 +265,11 @@ function validate_reservation_form($data) {
         if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
             $add_field_error($field, $label . 'は必須項目です。');
         }
+    }
+
+    // ステータス値の妥当性チェック
+    if (isset($_POST['reservation_status']) && !in_array($_POST['reservation_status'], $valid_statuses)) {
+        $add_field_error('reservation_status', '無効な予約ステータスが選択されています。');
     }
 
     // 台数の条件付きバリデーション（車、貸切バス、タクシーの場合のみ必須）
@@ -1405,7 +1421,7 @@ function reservation_management_admin_page() {
                 <div class="form-section-content">
                     <select name="reservation_status" id="reservation_status" class="form-select status">
                         <option value="new">新規受付</option>
-                        <option value="checking">確認中</option>
+                        <option value="pending">確認中</option>
                         <option value="approved">承認</option>
                         <option value="rejected">否認</option>
                         <option value="cancelled">キャンセル</option>
