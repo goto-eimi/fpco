@@ -173,7 +173,7 @@ function handle_reservation_form_submission() {
         'purpose' => sanitize_textarea_field($_POST['visit_purpose']),
         'participant_count' => intval($_POST['total_visitors']),
         'participants_child_count' => intval($_POST['elementary_visitors']),
-        'status' => 'new'
+        'status' => 'pending'
     ];
     
     $format = [
