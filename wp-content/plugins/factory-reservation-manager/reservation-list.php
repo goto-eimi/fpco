@@ -387,7 +387,7 @@ function reservation_list_admin_page() {
                     <thead>
                         <tr>
                             <th class="sortable <?php echo $conditions['orderby'] === 'id' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
-                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['orderby' => 'id', 'order' => ($conditions['orderby'] === 'id' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
+                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'id', 'order' => ($conditions['orderby'] === 'id' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
                                     予約番号 
                                     <span class="sorting-indicator">
                                         <?php if ($conditions['orderby'] === 'id'): ?>
@@ -400,7 +400,7 @@ function reservation_list_admin_page() {
                             </th>
                             <th>予約者</th>
                             <th class="sortable <?php echo $conditions['orderby'] === 'date' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
-                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['orderby' => 'date', 'order' => ($conditions['orderby'] === 'date' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
+                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'date', 'order' => ($conditions['orderby'] === 'date' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
                                     予約日時
                                     <span class="sorting-indicator">
                                         <?php if ($conditions['orderby'] === 'date'): ?>
@@ -414,7 +414,7 @@ function reservation_list_admin_page() {
                             <th>電話番号</th>
                             <th>予約タイプ</th>
                             <th class="sortable <?php echo $conditions['orderby'] === 'status' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
-                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['orderby' => 'status', 'order' => ($conditions['orderby'] === 'status' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
+                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'status', 'order' => ($conditions['orderby'] === 'status' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
                                     ステータス
                                     <span class="sorting-indicator">
                                         <?php if ($conditions['orderby'] === 'status'): ?>

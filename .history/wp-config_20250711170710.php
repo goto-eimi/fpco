@@ -86,9 +86,6 @@ $table_prefix = 'wp_';
  * @link https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/
  */
 define( 'WP_DEBUG', true );
-define( 'WP_DEBUG_DISPLAY', false );
-define( 'WP_DEBUG_LOG', true );
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 
 /* Add any custom values between this line and the "stop editing" line. */
 
@@ -103,7 +100,3 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /** Sets up WordPress vars and included files. */
 require_once ABSPATH . 'wp-settings.php';
-
-// DeprecatedとNoticeを非表示にする（強制）
-@ini_set('display_errors', 0);
-@error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
