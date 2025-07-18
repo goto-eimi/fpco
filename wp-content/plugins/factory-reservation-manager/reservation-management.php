@@ -20,6 +20,19 @@ define('RESERVATION_STATUS_REJECTED', 'rejected'); // 否認
 define('RESERVATION_STATUS_CANCELLED', 'cancelled'); // キャンセル
 
 /**
+ * 有効なステータス値を取得
+ */
+function get_valid_reservation_statuses() {
+    return [
+        RESERVATION_STATUS_NEW,
+        RESERVATION_STATUS_PENDING,
+        RESERVATION_STATUS_APPROVED,
+        RESERVATION_STATUS_REJECTED,
+        RESERVATION_STATUS_CANCELLED
+    ];
+}
+
+/**
  * ステータス表示名を取得
  */
 function get_reservation_status_label($status) {
@@ -174,13 +187,7 @@ function handle_reservation_form_submission() {
     }
 
     // ステータス値の妥当性チェック
-    $valid_statuses = [
-        RESERVATION_STATUS_NEW,
-        RESERVATION_STATUS_PENDING,
-        RESERVATION_STATUS_APPROVED,
-        RESERVATION_STATUS_REJECTED,
-        RESERVATION_STATUS_CANCELLED
-    ];
+    $valid_statuses = get_valid_reservation_statuses();
     $status_input = isset($_POST['reservation_status']) ? sanitize_text_field($_POST['reservation_status']) : RESERVATION_STATUS_NEW;
     $status = in_array($status_input, $valid_statuses) ? $status_input : RESERVATION_STATUS_NEW;
     
@@ -268,6 +275,7 @@ function validate_reservation_form($data) {
     }
 
     // ステータス値の妥当性チェック
+    $valid_statuses = get_valid_reservation_statuses();
     if (isset($_POST['reservation_status']) && !in_array($_POST['reservation_status'], $valid_statuses)) {
         $add_field_error('reservation_status', '無効な予約ステータスが選択されています。');
     }
