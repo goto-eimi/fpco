@@ -672,76 +672,76 @@ function factory_user_management_scripts($hook) {
             var $container = $("#timeslots-container");
             var html = "";
             
-            html += "<div style=\"background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px;\">";
+            html += \"<div style=\\\"background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px;\\\">\";
             
             // 60分・90分パターンかAM/PMパターンかを判定
-            if (timeslots.hasOwnProperty('60min') && timeslots.hasOwnProperty('90min')) {
+            if (timeslots.hasOwnProperty(\"60min\") && timeslots.hasOwnProperty(\"90min\")) {
                 // 60分・90分パターン
-                html += "<div style=\"margin-bottom: 15px;\">";
-                html += "<strong>60分</strong>";
-                html += "<div style=\"margin-left: 10px; margin-top: 5px;\">";
-                html += "<div style=\"margin-bottom: 10px;\">";
-                html += "<strong>AM</strong>";
-                html += "<div style=\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\">";
-                for (var i = 0; i < timeslots['60min'].am.length; i++) {
-                    html += timeslots['60min'].am[i] + "<br>";
+                html += \"<div style=\\\"margin-bottom: 15px;\\\">\";
+                html += \"<strong>60分</strong>\";
+                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px;\\\">\";
+                html += \"<div style=\\\"margin-bottom: 10px;\\\">\";
+                html += \"<strong>AM</strong>\";
+                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
+                for (var i = 0; i < timeslots[\"60min\"].am.length; i++) {
+                    html += timeslots[\"60min\"].am[i] + \"<br>\";
                 }
-                html += "</div>";
-                html += "</div>";
-                html += "<div>";
-                html += "<strong>PM</strong>";
-                html += "<div style=\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\">";
-                for (var i = 0; i < timeslots['60min'].pm.length; i++) {
-                    html += timeslots['60min'].pm[i] + "<br>";
+                html += \"</div>\";
+                html += \"</div>\";
+                html += \"<div>\";
+                html += \"<strong>PM</strong>\";
+                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
+                for (var i = 0; i < timeslots[\"60min\"].pm.length; i++) {
+                    html += timeslots[\"60min\"].pm[i] + \"<br>\";
                 }
-                html += "</div>";
-                html += "</div>";
-                html += "</div>";
-                html += "</div>";
+                html += \"</div>\";
+                html += \"</div>\";
+                html += \"</div>\";
+                html += \"</div>\";
                 
-                html += "<div>";
-                html += "<strong>90分</strong>";
-                html += "<div style=\"margin-left: 10px; margin-top: 5px;\">";
-                html += "<div style=\"margin-bottom: 10px;\">";
-                html += "<strong>AM</strong>";
-                html += "<div style=\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\">";
-                for (var i = 0; i < timeslots['90min'].am.length; i++) {
-                    html += timeslots['90min'].am[i] + "<br>";
+                html += \"<div>\";
+                html += \"<strong>90分</strong>\";
+                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px;\\\">\";
+                html += \"<div style=\\\"margin-bottom: 10px;\\\">\";
+                html += \"<strong>AM</strong>\";
+                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
+                for (var i = 0; i < timeslots[\"90min\"].am.length; i++) {
+                    html += timeslots[\"90min\"].am[i] + \"<br>\";
                 }
-                html += "</div>";
-                html += "</div>";
-                html += "<div>";
-                html += "<strong>PM</strong>";
-                html += "<div style=\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\">";
-                for (var i = 0; i < timeslots['90min'].pm.length; i++) {
-                    html += timeslots['90min'].pm[i] + "<br>";
+                html += \"</div>\";
+                html += \"</div>\";
+                html += \"<div>\";
+                html += \"<strong>PM</strong>\";
+                html += \"<div style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
+                for (var i = 0; i < timeslots[\"90min\"].pm.length; i++) {
+                    html += timeslots[\"90min\"].pm[i] + \"<br>\";
                 }
-                html += "</div>";
-                html += "</div>";
-                html += "</div>";
-                html += "</div>";
+                html += \"</div>\";
+                html += \"</div>\";
+                html += \"</div>\";
+                html += \"</div>\";
             } else {
                 // AM/PMパターン
-                html += "<div style=\"margin-bottom: 15px;\">";
-                html += "<strong>AM</strong>";
-                html += "<div id=\"am-timeslots\" style=\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\">";
+                html += \"<div style=\\\"margin-bottom: 15px;\\\">\";
+                html += \"<strong>AM</strong>\";
+                html += \"<div id=\\\"am-timeslots\\\" style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
                 for (var i = 0; i < timeslots.am.length; i++) {
-                    html += timeslots.am[i] + "<br>";
+                    html += timeslots.am[i] + \"<br>\";
                 }
-                html += "</div>";
-                html += "</div>";
+                html += \"</div>\";
+                html += \"</div>\";
                 
-                html += "<div>";
-                html += "<strong>PM</strong>";
-                html += "<div id=\"pm-timeslots\" style=\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\">";
+                html += \"<div>\";
+                html += \"<strong>PM</strong>\";
+                html += \"<div id=\\\"pm-timeslots\\\" style=\\\"margin-left: 10px; margin-top: 5px; line-height: 1.6;\\\">\";
                 for (var i = 0; i < timeslots.pm.length; i++) {
-                    html += timeslots.pm[i] + "<br>";
+                    html += timeslots.pm[i] + \"<br>\";
                 }
-                html += "</div>";
-                html += "</div>";
+                html += \"</div>\";
+                html += \"</div>\";
             }
             
-            html += "</div>";
+            html += \"</div>\";
             
             $container.html(html);
             }
