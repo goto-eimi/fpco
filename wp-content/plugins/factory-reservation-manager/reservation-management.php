@@ -132,18 +132,34 @@ function handle_reservation_form_submission() {
     // 予約タイプごとのデータ処理
     $type_data = get_type_specific_data($_POST);
     
-    // 交通手段の処理
-    $transportation = isset($_POST['transportation']) ? sanitize_text_field($_POST['transportation']) : '';
-    $transportation_other = null;
-    if ($transportation === 'other' && isset($_POST['transportation_other_text'])) {
-        $transportation_other = sanitize_text_field($_POST['transportation_other_text']);
+    // 交通手段の処理（DBのenumに合わせる: car, bus, taxi, other）
+    $transportation_mapping = [
+        'car' => 'car',
+        'chartered_bus' => 'bus',
+        'local_bus' => 'bus', 
+        'taxi' => 'taxi',
+        'other' => 'other'
+    ];
+    
+    $transportation_input = isset($_POST['transportation']) ? sanitize_text_field($_POST['transportation']) : 'other';
+    $transportation = isset($transportation_mapping[$transportation_input]) ? $transportation_mapping[$transportation_input] : 'other';
+    
+    // 交通手段がその他の場合、詳細をtype_dataに含める
+    $transportation_other_text = '';
+    if ($transportation_input === 'other' && isset($_POST['transportation_other_text'])) {
+        $transportation_other_text = sanitize_text_field($_POST['transportation_other_text']);
     }
     
-    // 詳細データの準備（既存のテーブル構造に対応）
-    $details = [
+    // 実際のテーブル構造に合わせたデータ
+    $data = [
+        'factory_id' => intval($_POST['factory_id']),
+        'date' => sanitize_text_field($_POST['visit_date']),
+        'time_slot' => $time_slot,
+        'applicant_name' => sanitize_text_field($_POST['applicant_name']),
+        'applicant_kana' => sanitize_text_field($_POST['applicant_kana']),
         'is_travel_agency' => (isset($_POST['is_travel_agency']) && $_POST['is_travel_agency'] === 'yes') ? 1 : 0,
         'agency_data' => $agency_data,
-        'reservation_type' => isset($_POST['reservation_type']) ? sanitize_text_field($_POST['reservation_type']) : '',
+        'reservation_type' => get_reservation_type_enum($_POST),
         'type_data' => $type_data,
         'address_zip' => sanitize_text_field($_POST['applicant_zip']),
         'address_prefecture' => sanitize_text_field($_POST['applicant_prefecture']),
@@ -152,29 +168,18 @@ function handle_reservation_form_submission() {
         'phone' => sanitize_text_field($_POST['applicant_phone']),
         'day_of_contact' => sanitize_text_field($_POST['emergency_contact']),
         'email' => sanitize_email($_POST['applicant_email']),
-        'transportation' => $transportation,
-        'transportation_other' => $transportation_other,
+        'transportation_method' => $transportation,
         'transportation_count' => intval($_POST['vehicle_count']),
         'purpose' => sanitize_textarea_field($_POST['visit_purpose']),
-        'elementary_visitors' => intval($_POST['elementary_visitors'])
-    ];
-    
-    // 既存のテーブル構造に合わせたデータ
-    $data = [
-        'factory_id' => intval($_POST['factory_id']),
-        'date' => sanitize_text_field($_POST['visit_date']),
-        'time_slot' => $time_slot,
-        'applicant_name' => sanitize_text_field($_POST['applicant_name']),
-        'applicant_kana' => sanitize_text_field($_POST['applicant_kana']),
-        'applicant_type' => isset($_POST['reservation_type']) ? sanitize_text_field($_POST['reservation_type']) : 'individual',
-        'details' => json_encode($details, JSON_UNESCAPED_UNICODE),
-        'participants_total' => intval($_POST['total_visitors']),
-        'participants_child' => intval($_POST['elementary_visitors']),
-        'status' => 'pending'
+        'participant_count' => intval($_POST['total_visitors']),
+        'participants_child_count' => intval($_POST['elementary_visitors']),
+        'status' => 'new'
     ];
     
     $format = [
-        '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s'
+        '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', 
+        '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', 
+        '%s', '%d', '%d', '%s'
     ];
     
     $result = $wpdb->insert($table_name, $data, $format);
@@ -486,10 +491,33 @@ function validate_reservation_type_fields($data) {
 }
 
 /**
+ * 予約タイプをDBのenumに変換
+ */
+function get_reservation_type_enum($data) {
+    $type_mapping = [
+        'school' => 'school',
+        'student_recruit' => 'personal',
+        'family' => 'personal',
+        'company' => 'corporate',
+        'municipality' => 'municipal',
+        'other' => 'other'
+    ];
+    
+    $input_type = isset($data['reservation_type']) ? sanitize_text_field($data['reservation_type']) : 'other';
+    return isset($type_mapping[$input_type]) ? $type_mapping[$input_type] : 'other';
+}
+
+/**
  * 予約タイプごとのデータを取得
  */
 function get_type_specific_data($data) {
     $type_data = [];
+    
+    // 交通機関の「その他」詳細を含める
+    if (isset($data['transportation']) && $data['transportation'] === 'other' && 
+        isset($data['transportation_other_text']) && !empty($data['transportation_other_text'])) {
+        $type_data['transportation_other_detail'] = sanitize_text_field($data['transportation_other_text']);
+    }
     
     switch ($data['reservation_type']) {
         case 'school':
