@@ -115,7 +115,6 @@ function get_factory_timeslots($factory_id) {
             )
         ),
         // 山形選別センター - AM/PMパターンのみ（duration_timeslotsに定義しない）
-        
         // 松本選別センター - 60分・90分両方あり（時間帯が異なる）
         '5' => array(
             '60min' => array(
@@ -159,7 +158,7 @@ function get_factory_timeslots($factory_id) {
                 'am' => ['9:00 ~ 10:30', '9:30 ~ 11:00'],
                 'pm' => ['13:30 ~ 15:00', '14:00 ~ 15:30']
             )
-        ),
+        )
         // 九州選別センター - AM/PMパターンのみ（duration_timeslotsに定義しない）
     );
     
