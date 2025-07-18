@@ -213,7 +213,6 @@ function factory_add_user_fields($user) {
         <tr>
             <th><label>見学時間帯</label></th>
             <td id="timeslots-container">
-                <?php if ($current_factory): ?>
                     <div>
                         <strong>AM</strong><br>
                     <div id="am-timeslots">
@@ -230,6 +229,8 @@ function factory_add_user_fields($user) {
                         <?php endforeach; ?>
                     </div>
                 </div>
+                <?php if (!$current_factory): ?>
+                    <p class="description">工場が割り当てられると見学時間帯が表示されます。</p>
                 <?php endif; ?>
             </td>
         </tr>
@@ -506,11 +507,36 @@ function factory_user_management_scripts($hook) {
             $container.html(html);
             }
             
-        // 見学時間帯をクリアする関数
+        // 見学時間帯をデフォルト値に戻す関数
         function resetTimeslots() {
             var $container = $("#timeslots-container");
-            // 工場が選択されていない場合は時間帯を表示しない
-            $container.html("");
+            var defaultTimeslots = {
+                am: ["9:00 - 10:00", "9:30 - 10:30", "11:00 - 12:00"],
+                pm: ["14:00 - 15:00", "14:30 - 15:30", "16:00 - 17:00"]
+            };
+            
+            var html = "";
+            html += "<div>";
+            html += "<strong>AM</strong><br>";
+            html += "<div id=\"am-timeslots\">";
+            for (var i = 0; i < defaultTimeslots.am.length; i++) {
+                html += defaultTimeslots.am[i] + "<br>";
+            }
+            html += "</div>";
+            html += "</div>";
+            
+            html += "<div style=\"margin-top: 15px;\">";
+            html += "<strong>PM</strong><br>";
+            html += "<div id=\"pm-timeslots\">";
+            for (var i = 0; i < defaultTimeslots.pm.length; i++) {
+                html += defaultTimeslots.pm[i] + "<br>";
+            }
+            html += "</div>";
+            html += "</div>";
+            
+            html += "<p class=\"description\">工場が割り当てられると見学時間帯が表示されます。</p>";
+            
+            $container.html(html);
         }
     });
     ';
