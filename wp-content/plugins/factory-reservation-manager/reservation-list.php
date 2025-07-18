@@ -355,9 +355,9 @@ function reservation_list_admin_page() {
                     <button type="submit" class="button button-primary">
                         <span class="dashicons dashicons-search"></span> 絞り込み
                     </button>
-                    <a href="?page=reservation-list" class="button">
+                    <button type="button" class="button" onclick="clearSearchForm()">
                         <span class="dashicons dashicons-dismiss"></span> クリア
-                    </a>
+                    </button>
                 </div>
             </form>
         </div>

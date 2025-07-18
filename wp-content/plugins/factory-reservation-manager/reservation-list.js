@@ -249,3 +249,18 @@ jQuery(document).ready(function($) {
     $(window).on('resize', adjustTableColumns);
     adjustTableColumns();
 });
+
+// 検索フォームクリア機能
+function clearSearchForm() {
+    // フォームの全入力項目をクリア
+    $('.search-form input[type="text"]').val('');
+    $('.search-form input[type="number"]').val('');
+    $('.search-form input[type="date"]').val('');
+    $('.search-form select').prop('selectedIndex', 0);
+    
+    // セッションストレージもクリア
+    sessionStorage.removeItem('reservation_search_conditions');
+    
+    // クリア後のページに遷移
+    window.location.href = '?page=reservation-list';
+}
