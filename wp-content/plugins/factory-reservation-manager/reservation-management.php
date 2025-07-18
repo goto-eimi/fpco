@@ -140,10 +140,10 @@ function handle_reservation_form_submission() {
     
     // データの準備
     // 時間の組み立て
-    $start_hour = str_pad(sanitize_text_field($_POST['visit_time_start_hour']), 2, '0', STR_PAD_LEFT);
-    $start_minute = str_pad(sanitize_text_field($_POST['visit_time_start_minute']), 2, '0', STR_PAD_LEFT);
-    $end_hour = str_pad(sanitize_text_field($_POST['visit_time_end_hour']), 2, '0', STR_PAD_LEFT);
-    $end_minute = str_pad(sanitize_text_field($_POST['visit_time_end_minute']), 2, '0', STR_PAD_LEFT);
+    $start_hour = str_pad(sanitize_text_field($_POST['visit_time_start_hour'] ?? ''), 2, '0', STR_PAD_LEFT);
+    $start_minute = str_pad(sanitize_text_field($_POST['visit_time_start_minute'] ?? ''), 2, '0', STR_PAD_LEFT);
+    $end_hour = str_pad(sanitize_text_field($_POST['visit_time_end_hour'] ?? ''), 2, '0', STR_PAD_LEFT);
+    $end_minute = str_pad(sanitize_text_field($_POST['visit_time_end_minute'] ?? ''), 2, '0', STR_PAD_LEFT);
     
     $visit_time_start = $start_hour . ':' . $start_minute;
     $visit_time_end = $end_hour . ':' . $end_minute;
@@ -153,15 +153,15 @@ function handle_reservation_form_submission() {
     $agency_data = null;
     if (isset($_POST['is_travel_agency']) && $_POST['is_travel_agency'] === 'yes') {
         $agency_data = json_encode([
-            'name' => sanitize_text_field($_POST['travel_agency_name']),
-            'zip' => sanitize_text_field($_POST['travel_agency_zip']),
-            'prefecture' => sanitize_text_field($_POST['travel_agency_prefecture']),
-            'city' => sanitize_text_field($_POST['travel_agency_city']),
-            'address' => sanitize_text_field($_POST['travel_agency_address']),
-            'phone' => sanitize_text_field($_POST['travel_agency_phone']),
-            'fax' => sanitize_text_field($_POST['travel_agency_fax']),
-            'contact_mobile' => sanitize_text_field($_POST['contact_mobile']),
-            'contact_email' => sanitize_email($_POST['contact_email'])
+            'name' => sanitize_text_field($_POST['travel_agency_name'] ?? ''),
+            'zip' => sanitize_text_field($_POST['travel_agency_zip'] ?? ''),
+            'prefecture' => sanitize_text_field($_POST['travel_agency_prefecture'] ?? ''),
+            'city' => sanitize_text_field($_POST['travel_agency_city'] ?? ''),
+            'address' => sanitize_text_field($_POST['travel_agency_address'] ?? ''),
+            'phone' => sanitize_text_field($_POST['travel_agency_phone'] ?? ''),
+            'fax' => sanitize_text_field($_POST['travel_agency_fax'] ?? ''),
+            'contact_mobile' => sanitize_text_field($_POST['contact_mobile'] ?? ''),
+            'contact_email' => sanitize_email($_POST['contact_email'] ?? '')
         ], JSON_UNESCAPED_UNICODE);
     }
     
@@ -183,7 +183,7 @@ function handle_reservation_form_submission() {
     // 交通手段がその他の場合、詳細をtype_dataに含める
     $transportation_other_text = '';
     if ($transportation_input === 'other' && isset($_POST['transportation_other_text'])) {
-        $transportation_other_text = sanitize_text_field($_POST['transportation_other_text']);
+        $transportation_other_text = sanitize_text_field($_POST['transportation_other_text'] ?? '');
     }
 
     // ステータス値の妥当性チェック
@@ -193,27 +193,27 @@ function handle_reservation_form_submission() {
     
     // 実際のテーブル構造に合わせたデータ
     $data = [
-        'factory_id' => intval($_POST['factory_id']),
-        'date' => sanitize_text_field($_POST['visit_date']),
+        'factory_id' => intval($_POST['factory_id'] ?? 0),
+        'date' => sanitize_text_field($_POST['visit_date'] ?? ''),
         'time_slot' => $time_slot,
-        'applicant_name' => sanitize_text_field($_POST['applicant_name']),
-        'applicant_kana' => sanitize_text_field($_POST['applicant_kana']),
+        'applicant_name' => sanitize_text_field($_POST['applicant_name'] ?? ''),
+        'applicant_kana' => sanitize_text_field($_POST['applicant_kana'] ?? ''),
         'is_travel_agency' => (isset($_POST['is_travel_agency']) && $_POST['is_travel_agency'] === 'yes') ? 1 : 0,
         'agency_data' => $agency_data,
         'reservation_type' => get_reservation_type_enum($_POST),
         'type_data' => $type_data,
-        'address_zip' => sanitize_text_field($_POST['applicant_zip']),
-        'address_prefecture' => sanitize_text_field($_POST['applicant_prefecture']),
-        'address_city' => sanitize_text_field($_POST['applicant_city']),
-        'address_street' => sanitize_text_field($_POST['applicant_address']),
-        'phone' => sanitize_text_field($_POST['applicant_phone']),
-        'day_of_contact' => sanitize_text_field($_POST['emergency_contact']),
-        'email' => sanitize_email($_POST['applicant_email']),
+        'address_zip' => sanitize_text_field($_POST['applicant_zip'] ?? ''),
+        'address_prefecture' => sanitize_text_field($_POST['applicant_prefecture'] ?? ''),
+        'address_city' => sanitize_text_field($_POST['applicant_city'] ?? ''),
+        'address_street' => sanitize_text_field($_POST['applicant_address'] ?? ''),
+        'phone' => sanitize_text_field($_POST['applicant_phone'] ?? ''),
+        'day_of_contact' => sanitize_text_field($_POST['emergency_contact'] ?? ''),
+        'email' => sanitize_email($_POST['applicant_email'] ?? ''),
         'transportation_method' => $transportation,
-        'transportation_count' => intval($_POST['vehicle_count']),
-        'purpose' => sanitize_textarea_field($_POST['visit_purpose']),
-        'participant_count' => intval($_POST['total_visitors']),
-        'participants_child_count' => intval($_POST['elementary_visitors']),
+        'transportation_count' => intval($_POST['vehicle_count'] ?? 0),
+        'purpose' => sanitize_textarea_field($_POST['visit_purpose'] ?? ''),
+        'participant_count' => intval($_POST['total_visitors'] ?? 0),
+        'participants_child_count' => intval($_POST['elementary_visitors'] ?? 0),
         'status' => $status
     ];
     

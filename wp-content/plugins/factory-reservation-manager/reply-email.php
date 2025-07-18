@@ -179,10 +179,10 @@ function handle_email_form_submission() {
         return ['success' => false, 'message' => 'セキュリティチェックに失敗しました。'];
     }
     
-    $reservation_id = intval($_POST['reservation_id']);
-    $subject = sanitize_text_field($_POST['subject']);
-    $body = sanitize_textarea_field($_POST['body']);
-    $template_type = sanitize_text_field($_POST['template_type']);
+    $reservation_id = intval($_POST['reservation_id'] ?? 0);
+    $subject = sanitize_text_field($_POST['subject'] ?? '');
+    $body = sanitize_textarea_field($_POST['body'] ?? '');
+    $template_type = sanitize_text_field($_POST['template_type'] ?? '');
     
     // バリデーション
     if (empty($subject)) {
