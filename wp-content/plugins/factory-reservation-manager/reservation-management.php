@@ -646,8 +646,12 @@ function is_radio_checked($field_name, $value, $form_data) {
 /**
  * セレクトボックスの選択状態を取得するヘルパー関数
  */
-function is_option_selected($field_name, $value, $form_data) {
-    return isset($form_data[$field_name]) && $form_data[$field_name] === $value ? 'selected' : '';
+function is_option_selected($field_name, $value, $form_data, $default = '') {
+    if (isset($form_data[$field_name])) {
+        return $form_data[$field_name] === $value ? 'selected' : '';
+    }
+    // フォームデータがない場合はデフォルト値をチェック
+    return $value === $default ? 'selected' : '';
 }
 
 /**
@@ -1428,11 +1432,11 @@ function reservation_management_admin_page() {
                 </div>
                 <div class="form-section-content">
                     <select name="reservation_status" id="reservation_status" class="form-select status">
-                        <option value="new">新規受付</option>
-                        <option value="pending">確認中</option>
-                        <option value="approved">承認</option>
-                        <option value="rejected">否認</option>
-                        <option value="cancelled">キャンセル</option>
+                        <option value="new" <?php echo is_option_selected('reservation_status', 'new', $form_data, 'new'); ?>>新規受付</option>
+                        <option value="pending" <?php echo is_option_selected('reservation_status', 'pending', $form_data, 'new'); ?>>確認中</option>
+                        <option value="approved" <?php echo is_option_selected('reservation_status', 'approved', $form_data, 'new'); ?>>承認</option>
+                        <option value="rejected" <?php echo is_option_selected('reservation_status', 'rejected', $form_data, 'new'); ?>>否認</option>
+                        <option value="cancelled" <?php echo is_option_selected('reservation_status', 'cancelled', $form_data, 'new'); ?>>キャンセル</option>
                     </select>
                     
                     <button type="button" id="create_reply_email" class="btn-reply-email">
