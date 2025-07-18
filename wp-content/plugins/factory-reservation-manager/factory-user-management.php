@@ -324,7 +324,6 @@ function factory_add_user_fields($user) {
         <tr>
             <th><label>見学時間帯</label></th>
             <td id="timeslots-container">
-                <div style="background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px;">
                     <?php 
                     // 工場のtimeslot_modeを取得
                     $factory_data = $wpdb->get_row(
@@ -420,7 +419,6 @@ function factory_add_user_fields($user) {
                         <?php
                     }
                     ?>
-                </div>
             </td>
         </tr>
         <?php endif; ?>
@@ -675,8 +673,6 @@ function factory_user_management_scripts($hook) {
             var $container = $("#timeslots-container");
             var html = "";
             
-            html += \"<div style=\\\"background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px;\\\">\";
-            
             // 60分・90分パターンかAM/PMパターンかを判定
             if (timeslots.hasOwnProperty(\"60min\") && timeslots.hasOwnProperty(\"90min\")) {
                 // 60分・90分パターン
@@ -767,8 +763,6 @@ function factory_user_management_scripts($hook) {
                 html += \"</div>\";
             }
             
-            html += \"</div>\";
-            
             $container.html(html);
             }
             
@@ -777,9 +771,7 @@ function factory_user_management_scripts($hook) {
             var $container = $("#timeslots-container");
             
             var html = "";
-            html += \"<div style=\\\"background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px;\\\">\";
             html += \"<p class=\\\"description\\\">工場が割り当てられると見学時間帯が表示されます。</p>\";
-            html += \"</div>\";
             
             $container.html(html);
         }
