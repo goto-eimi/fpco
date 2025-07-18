@@ -1543,9 +1543,43 @@ function reservation_management_admin_page() {
             form.addEventListener('submit', function(e) {
                 if (!validateForm()) {
                     e.preventDefault();
+                } else {
+                    // フォーム送信が成功する場合は離脱確認を無効化
+                    window.formChanged = false;
                 }
             });
         }
+
+        // フォーム変更検知とページ離脱防止
+        let formChanged = false;
+        window.formChanged = false;
+
+        // フォーム要素の変更を監視
+        const formElements = form.querySelectorAll('input, select, textarea');
+        formElements.forEach(element => {
+            element.addEventListener('change', function() {
+                formChanged = true;
+                window.formChanged = true;
+            });
+            
+            // テキスト入力の場合はinputイベントも監視
+            if (element.type === 'text' || element.type === 'email' || element.type === 'tel' || element.type === 'number' || element.tagName === 'TEXTAREA') {
+                element.addEventListener('input', function() {
+                    formChanged = true;
+                    window.formChanged = true;
+                });
+            }
+        });
+
+        // ページ離脱・リロード時の確認
+        window.addEventListener('beforeunload', function(e) {
+            if (window.formChanged) {
+                const message = 'このページから離れてもよろしいですか？入力中のデータが失われる可能性があります。';
+                e.preventDefault();
+                e.returnValue = message;
+                return message;
+            }
+        });
     });
     
     // クライアントサイドバリデーション関数
