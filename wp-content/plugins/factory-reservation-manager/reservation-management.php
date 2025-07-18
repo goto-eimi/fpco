@@ -1998,12 +1998,18 @@ function reservation_management_admin_page() {
         function updateReplyEmailButton() {
             if (statusSelect && replyEmailBtn) {
                 const status = statusSelect.value;
+                // 管理画面では全てのステータスでボタンを表示し、
+                // 実際の送信可否は返信メール画面でチェック
+                replyEmailBtn.style.display = 'inline-block';
+                replyEmailBtn.disabled = false;
+                
+                // ステータスに応じてボタンのスタイルを変更
                 if (status === 'pending') {
-                    replyEmailBtn.style.display = 'inline-block';
-                    replyEmailBtn.disabled = false;
+                    replyEmailBtn.className = 'btn-reply-email btn-primary';
+                    replyEmailBtn.textContent = '返信メールを作成';
                 } else {
-                    replyEmailBtn.style.display = 'none';
-                    replyEmailBtn.disabled = true;
+                    replyEmailBtn.className = 'btn-reply-email btn-secondary';
+                    replyEmailBtn.textContent = '返信メールを作成';
                 }
             }
         }
