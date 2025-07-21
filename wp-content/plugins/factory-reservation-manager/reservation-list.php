@@ -300,7 +300,7 @@ function export_reservations_csv($conditions) {
             case 'school':
                 $organization_name = $type_data['school_name'] ?? '';
                 $organization_kana = $type_data['school_name_kana'] ?? '';
-                $representative_name = $type_data['teacher_name'] ?? '';
+                $representative_name = $type_data['teacher_name'] ?? $type_data['representative_name'] ?? '';
                 break;
             case 'corporate':
                 $organization_name = $type_data['company_name'] ?? '';
@@ -359,8 +359,9 @@ function export_reservations_csv($conditions) {
             $organization_name,
             $organization_kana,
             $representative_name,
-            $reservation['participant_count'] ?? '',
-            $reservation['participants_child_count'] ?? '',
+            // 見学者人数を取得（type_dataも考慮）
+            $reservation['participant_count'] ?? $type_data['adult_count'] ?? $type_data['supervisor_count'] ?? '',
+            $reservation['participants_child_count'] ?? $type_data['child_count'] ?? $type_data['student_count'] ?? '',
             $reservation['transportation_method'] ?? '',
             $reservation['transportation_count'] ?? '',
             $reservation['purpose'] ?? '',
