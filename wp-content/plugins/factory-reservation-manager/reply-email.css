@@ -50,55 +50,65 @@
 
 /* 新しい枠のスタイル */
 .email-section-box {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    background: #ffffff !important;
+    border: 3px solid #007cba !important;
+    border-radius: 10px !important;
+    margin-bottom: 25px !important;
+    box-shadow: 0 4px 8px rgba(0,123,186,0.2) !important;
+    overflow: hidden !important;
 }
 
 .section-title {
-    background: #007cba;
-    color: white;
-    margin: 0;
-    padding: 15px 20px;
-    border-radius: 8px 8px 0 0;
-    font-size: 16px;
-    font-weight: 600;
+    background: #007cba !important;
+    color: white !important;
+    margin: 0 !important;
+    padding: 15px 20px !important;
+    border-radius: 0 !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #005a87 !important;
 }
 
 .section-content {
-    padding: 20px;
+    padding: 25px !important;
+    background: #f8f9fa !important;
 }
 
 /* メール送信先の情報表示 */
 .recipients-info {
-    margin: 0;
+    margin: 0 !important;
 }
 
 .info-item {
-    display: flex;
-    margin-bottom: 12px;
-    align-items: center;
+    display: flex !important;
+    margin-bottom: 15px !important;
+    align-items: center !important;
+    background: white !important;
+    padding: 12px !important;
+    border-radius: 6px !important;
+    border: 1px solid #dee2e6 !important;
 }
 
 .info-item:last-child {
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
 }
 
 .info-item .label {
-    font-weight: 600;
-    color: #495057;
-    min-width: 140px;
-    margin-right: 10px;
+    font-weight: 600 !important;
+    color: #007cba !important;
+    min-width: 160px !important;
+    margin-right: 15px !important;
+    font-size: 14px !important;
 }
 
 .info-item .value {
-    color: #212529;
-    font-family: monospace;
-    background: #e9ecef;
-    padding: 4px 8px;
-    border-radius: 4px;
+    color: #212529 !important;
+    font-family: monospace !important;
+    background: #e3f2fd !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+    border: 1px solid #007cba !important;
+    font-weight: 500 !important;
 }
 
 .email-form-section h2 {
