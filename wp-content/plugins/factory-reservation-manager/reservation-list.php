@@ -506,8 +506,7 @@ function reservation_list_admin_page() {
         <!-- アクションボタンエリア -->
         <div class="action-buttons-area">
             <button id="export-csv-btn" class="button button-secondary" 
-                    data-nonce="<?php echo wp_create_nonce('reservation_list_nonce'); ?>"
-                    data-conditions="<?php echo esc_attr(json_encode($conditions)); ?>">
+                    data-nonce="<?php echo wp_create_nonce('reservation_list_nonce'); ?>">
                 <span class="dashicons dashicons-download"></span> CSV出力
             </button>
             <div class="items-count-and-pagination">
@@ -683,13 +682,26 @@ function reservation_list_admin_page() {
             e.preventDefault();
             
             const nonce = $(this).data('nonce');
-            const conditions = $(this).data('conditions');
             
-            // 検索条件を含むURLを構築
+            // 現在のページのURLパラメータから検索条件を取得
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchConditions = {};
+            
+            // 検索フォームから直接値を取得
+            searchConditions.reservation_number = $('#reservation_number').val() || '';
+            searchConditions.date_from = $('#date_from').val() || '';
+            searchConditions.date_to = $('#date_to').val() || '';
+            searchConditions.time_slot = $('#time_slot').val() || '';
+            searchConditions.status = $('#status').val() || '';
+            searchConditions.per_page = urlParams.get('per_page') || '20';
+            searchConditions.orderby = urlParams.get('orderby') || 'id';
+            searchConditions.order = urlParams.get('order') || 'DESC';
+            
+            // CSV出力用のパラメータを構築
             const params = new URLSearchParams({
                 action: 'export_reservations_csv',
                 nonce: nonce,
-                ...conditions
+                ...searchConditions
             });
             
             // CSVダウンロード用のURLを作成
