@@ -283,19 +283,29 @@ function reply_email_admin_page() {
             <?php wp_nonce_field('send_reservation_email'); ?>
             <input type="hidden" name="reservation_id" value="<?php echo esc_attr($reservation_id); ?>">
             
-            <div class="email-form-section">
-                <h2>メール送信先</h2>
-                
-                <!-- 送信先表示 -->
-                <div class="email-recipients">
+            <!-- 1つ目の枠：メール送信先 -->
+            <div class="email-section-box">
+                <h2 class="section-title">メール送信先</h2>
+                <div class="section-content">
                     <div class="recipients-info">
-                        <div><span><strong>予約番号</strong></span> <?php echo esc_html($reservation['id']); ?></div>
-                        <div><span><strong>送信先メールアドレス</strong></span> <?php echo esc_html($reservation['email']); ?></div>
+                        <div class="info-item">
+                            <span class="label">予約番号</span>
+                            <span class="value"><?php echo esc_html($reservation['id']); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">送信先メールアドレス</span>
+                            <span class="value"><?php echo esc_html($reservation['email']); ?></span>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- テンプレート選択 -->
-                <div class="template-section">
+            </div>
+            
+            <!-- 2つ目の枠：メール内容 -->
+            <div class="email-section-box">
+                <h2 class="section-title">メール内容</h2>
+                <div class="section-content">
+                    <!-- テンプレート選択 -->
+                    <div class="template-section">
                     <h3>テンプレート選択</h3>
                     <select name="template_type" id="template-select">
                         <option value="">選択してください</option>
@@ -334,10 +344,12 @@ function reply_email_admin_page() {
                         <div class="placeholder-item">{予約番号} - 予約番号</div>
                         <div class="placeholder-item">{組織名} - 学校・会社・団体名</div>
                     </div>
+                    </div>
                 </div>
+            </div>
                 
-                <!-- 送信ボタンエリア -->
-                <div class="submit-section">
+            <!-- 送信ボタンエリア -->
+            <div class="submit-section">
                     <button type="submit" name="send_email" class="button button-primary" 
                             onclick="return confirm('このメールを送信してもよろしいですか？');">
                         メールを送信
