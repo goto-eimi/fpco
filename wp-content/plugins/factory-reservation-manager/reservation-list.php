@@ -326,9 +326,9 @@ function export_reservations_csv($conditions) {
         if (empty($organization_name)) {
             $organization_name = $reservation['organization_name'] ?? '';
         }
-        if (empty($organization_kana)) {
-            $organization_kana = $reservation['organization_kana'] ?? '';
-        }
+        // organization_kanaは常にデータベースカラムから取得
+        $organization_kana = $reservation['organization_kana'] ?? '';
+        
         if (empty($representative_name)) {
             $representative_name = $reservation['representative_name'] ?? '';
         }
