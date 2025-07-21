@@ -308,13 +308,13 @@ function export_reservations_csv($conditions) {
                 $representative_name = $type_data['contact_person'] ?? '';
                 break;
             case 'municipal':
-                $organization_name = $type_data['organization_name'] ?? '';
-                $organization_kana = $type_data['organization_name_kana'] ?? '';
+                $organization_name = $type_data['organization_name'] ?? $type_data['company_name'] ?? '';
+                $organization_kana = $type_data['organization_name_kana'] ?? $type_data['company_name_kana'] ?? '';
                 $representative_name = $type_data['contact_person'] ?? '';
                 break;
             case 'other':
-                $organization_name = $type_data['organization_name'] ?? '';
-                $organization_kana = $type_data['organization_name_kana'] ?? '';
+                $organization_name = $type_data['organization_name'] ?? $type_data['company_name'] ?? '';
+                $organization_kana = $type_data['organization_name_kana'] ?? $type_data['company_name_kana'] ?? '';
                 $representative_name = $type_data['contact_person'] ?? '';
                 break;
             case 'personal':
