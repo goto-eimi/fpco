@@ -291,7 +291,7 @@ function export_reservations_csv($conditions) {
             $reservation['transportation_method'] ?? '',
             $reservation['transportation_count'] ?? '',
             $reservation['purpose'] ?? '',
-            get_reservation_status_label($reservation['status'] ?? ''),
+            ($reservation['status'] ?? ''),
             $reservation['created_at'] ?? '',
             $reservation['updated_at'] ?? ''
         ];
@@ -568,7 +568,7 @@ function reservation_list_admin_page() {
                                 </td>
                                 <td class="reservation-status">
                                     <span class="status-badge status-<?php echo esc_attr($reservation['status'] ?? ''); ?>">
-                                        <?php echo esc_html(get_reservation_status_label($reservation['status'] ?? '')); ?>
+                                        <?php echo esc_html($reservation['status'] ?? ''); ?>
                                     </span>
                                 </td>
                             </tr>
