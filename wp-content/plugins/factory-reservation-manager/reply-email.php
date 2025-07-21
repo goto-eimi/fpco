@@ -284,80 +284,87 @@ function reply_email_admin_page() {
             <input type="hidden" name="reservation_id" value="<?php echo esc_attr($reservation_id); ?>">
             
             <!-- 1つ目の枠：メール送信先 -->
-            <div style="border: 3px solid #007cba; border-radius: 10px; margin-bottom: 25px; background: white; box-shadow: 0 4px 8px rgba(0,123,186,0.2); overflow: hidden;">
-                <h2 style="background: #007cba; color: white; margin: 0; padding: 15px 20px; font-size: 18px; font-weight: 600; border-bottom: 2px solid #005a87;">メール送信先</h2>
-                <div style="padding: 25px; background: #f8f9fa;">
-                    <div style="margin: 0;">
-                        <div style="display: flex; margin-bottom: 15px; align-items: center; background: white; padding: 12px; border-radius: 6px; border: 1px solid #dee2e6;">
-                            <span style="font-weight: 600; color: #007cba; min-width: 160px; margin-right: 15px; font-size: 14px;">予約番号</span>
-                            <span style="color: #212529; font-family: monospace; background: #e3f2fd; padding: 8px 12px; border-radius: 4px; border: 1px solid #007cba; font-weight: 500;"><?php echo esc_html($reservation['id']); ?></span>
-                        </div>
-                        <div style="display: flex; align-items: center; background: white; padding: 12px; border-radius: 6px; border: 1px solid #dee2e6;">
-                            <span style="font-weight: 600; color: #007cba; min-width: 160px; margin-right: 15px; font-size: 14px;">送信先メールアドレス</span>
-                            <span style="color: #212529; font-family: monospace; background: #e3f2fd; padding: 8px 12px; border-radius: 4px; border: 1px solid #007cba; font-weight: 500;"><?php echo esc_html($reservation['email']); ?></span>
-                        </div>
+            <div style="border: 2px solid #007cba; margin-bottom: 20px; background: white;">
+                <h2 style="background: #007cba; color: white; margin: 0; padding: 12px 20px; font-size: 16px; font-weight: 600;">メール送信先</h2>
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 10px;">
+                        <span style="font-weight: 600; color: #333; margin-right: 10px;">予約番号:</span>
+                        <span style="color: #333;"><?php echo esc_html($reservation['id']); ?></span>
+                    </div>
+                    <div>
+                        <span style="font-weight: 600; color: #333; margin-right: 10px;">送信先メールアドレス:</span>
+                        <span style="color: #333;"><?php echo esc_html($reservation['email']); ?></span>
                     </div>
                 </div>
             </div>
             
             <!-- 2つ目の枠：メール内容 -->
-            <div style="border: 3px solid #007cba; border-radius: 10px; margin-bottom: 25px; background: white; box-shadow: 0 4px 8px rgba(0,123,186,0.2); overflow: hidden;">
-                <h2 style="background: #007cba; color: white; margin: 0; padding: 15px 20px; font-size: 18px; font-weight: 600; border-bottom: 2px solid #005a87;">メール内容</h2>
-                <div style="padding: 25px; background: #f8f9fa;">
-                    <!-- テンプレート選択 -->
-                    <div class="template-section">
-                    <h3>テンプレート選択</h3>
-                    <select name="template_type" id="template-select">
-                        <option value="">選択してください</option>
-                        <option value="approval">承認用テンプレート</option>
-                        <option value="rejection">否認用テンプレート</option>
-                    </select>
-                    <button type="button" id="apply-template" class="button">テンプレートを適用</button>
-                </div>
-                
-                <!-- 件名入力 -->
-                <div class="subject-section">
-                    <h3>件名 <span class="required">*</span></h3>
-                    <input type="text" name="subject" id="subject" maxlength="100" required 
-                           style="width: 100%;" placeholder="メール件名を入力してください">
-                    <div class="char-count">0/100文字</div>
-                </div>
-                
-                <!-- 本文入力 -->
-                <div class="body-section">
-                    <h3>本文 <span class="required">*</span></h3>
-                    <textarea name="body" id="body" rows="15" maxlength="5000" required 
-                              style="width: 100%;" placeholder="メール本文を入力してください"></textarea>
-                    <div class="char-count">0/5000文字</div>
-                </div>
-                
-                <!-- プレースホルダー一覧 -->
-                <div class="placeholders-section">
-                    <h3>使用可能なプレースホルダー</h3>
-                    <div class="placeholders-list">
-                        <div class="placeholder-item">{申込者名} - 申込者氏名</div>
-                        <div class="placeholder-item">{見学日} - 見学日（yyyy年mm月dd日形式）</div>
-                        <div class="placeholder-item">{時間帯} - 見学時間帯</div>
-                        <div class="placeholder-item">{工場名} - 見学工場名</div>
-                        <div class="placeholder-item">{見学時間} - 見学時間（60分/90分）</div>
-                        <div class="placeholder-item">{見学者人数} - 総見学者数</div>
-                        <div class="placeholder-item">{予約番号} - 予約番号</div>
-                        <div class="placeholder-item">{組織名} - 学校・会社・団体名</div>
+            <div style="border: 2px solid #007cba; margin-bottom: 20px; background: white;">
+                <h2 style="background: #007cba; color: white; margin: 0; padding: 12px 20px; font-size: 16px; font-weight: 600;">メール内容</h2>
+                <div style="padding: 20px;">
+                    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                        <!-- テンプレート選択 -->
+                        <div style="flex: 1;">
+                            <h3 style="margin-top: 0;">テンプレート選択</h3>
+                            <select name="template_type" id="template-select" style="width: 100%; margin-bottom: 10px;">
+                                <option value="">選択してください</option>
+                                <option value="approval">承認用テンプレート</option>
+                                <option value="rejection">否認用テンプレート</option>
+                            </select>
+                            <button type="button" id="apply-template" class="button">テンプレートを適用</button>
+                        </div>
+                        
+                        <!-- 件名入力 -->
+                        <div style="flex: 2;">
+                            <h3 style="margin-top: 0;">件名 <span class="required">*</span></h3>
+                            <input type="text" name="subject" id="subject" maxlength="100" required 
+                                   style="width: 100%;" placeholder="メール件名を入力してください">
+                            <div class="char-count">0/100文字</div>
+                        </div>
                     </div>
+                    
+                    <!-- 本文入力 -->
+                    <div>
+                        <h3 style="margin-top: 0;">本文 <span class="required">*</span></h3>
+                        <textarea name="body" id="body" rows="12" maxlength="5000" required 
+                                  style="width: 100%;" placeholder="メール本文を入力してください"></textarea>
+                        <div class="char-count">0/5000文字</div>
                     </div>
-                </div>
-            </div>
-                
-            <!-- 送信ボタンエリア -->
-            <div class="submit-section">
-                    <button type="submit" name="send_email" class="button button-primary" 
-                            onclick="return confirm('このメールを送信してもよろしいですか？');">
-                        メールを送信
-                    </button>
-                    <a href="admin.php?page=reservation-management" class="button">キャンセル</a>
+                    
+                    <!-- 送信ボタン -->
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button type="submit" name="send_email" class="button button-primary" 
+                                onclick="return confirm('このメールを送信してもよろしいですか？');">
+                            メールを送信
+                        </button>
+                        <a href="admin.php?page=reservation-management" class="button" style="margin-left: 10px;">キャンセル</a>
+                    </div>
                 </div>
             </div>
         </form>
+        
+        <!-- プレースホルダー一覧と説明（枠外） -->
+        <div style="margin-top: 30px;">
+            <h3>使用可能なプレースホルダー</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                <div>{申込者名} - 申込者氏名</div>
+                <div>{見学日} - 見学日（yyyy年mm月dd日形式）</div>
+                <div>{時間帯} - 見学時間帯</div>
+                <div>{工場名} - 見学工場名</div>
+                <div>{見学時間} - 見学時間（60分/90分）</div>
+                <div>{見学者人数} - 総見学者数</div>
+                <div>{予約番号} - 予約番号</div>
+                <div>{組織名} - 学校・会社・団体名</div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px;">
+                <p style="margin: 0; color: #666; font-size: 14px;">
+                    <strong>WordPressのご利用について:</strong><br>
+                    このメール送信機能はWordPressの管理画面から操作されています。
+                    メール送信後は予約管理画面に戻ります。
+                </p>
+            </div>
+        </div>
     </div>
     
     <script>
