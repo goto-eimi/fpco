@@ -821,8 +821,22 @@ function reservation_management_admin_page() {
         $result = handle_reservation_form_submission();
         if ($result['success']) {
             $success_message = $result['message'];
-            // 成功時はフォームデータをクリア
-            $form_data = [];
+            // 編集モードの場合は更新後に最新データを再取得、新規登録の場合はクリア
+            if ($is_edit_mode && $reservation_id) {
+                // 最新の予約データを再取得
+                $updated_reservation = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->prefix}reservations WHERE id = %d",
+                        $reservation_id
+                    ),
+                    ARRAY_A
+                );
+                if ($updated_reservation) {
+                    $form_data = convert_reservation_to_form_data($updated_reservation);
+                }
+            } else {
+                $form_data = [];
+            }
         } else {
             $errors = $result['errors'];
             $field_errors = $result['field_errors'];
