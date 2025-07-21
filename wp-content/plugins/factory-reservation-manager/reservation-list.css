@@ -156,6 +156,7 @@
 /* テーブルセル固有のスタイル */
 .reservation-number {
     font-weight: 600;
+    width: 10%;
     min-width: 80px;
 }
 
@@ -169,7 +170,8 @@
 }
 
 .reservation-applicant {
-    min-width: 200px;
+    width: 25%;
+    min-width: 180px;
 }
 
 .applicant-name {
@@ -183,22 +185,26 @@
 }
 
 .reservation-datetime {
-    min-width: 140px;
+    width: 20%;
+    min-width: 160px;
     font-size: 14px;
     white-space: nowrap;
 }
 
 .reservation-phone {
+    width: 15%;
     min-width: 120px;
     font-family: monospace;
 }
 
 .reservation-type {
-    min-width: 150px;
+    width: 20%;
+    min-width: 140px;
     font-size: 13px;
 }
 
 .reservation-status {
+    width: 10%;
     min-width: 100px;
 }
 
