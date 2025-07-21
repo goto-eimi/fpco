@@ -175,15 +175,15 @@ jQuery(document).ready(function($) {
     function adjustTableColumns() {
         if (window.innerWidth > 1200) {
             $('.wp-list-table').css('table-layout', 'fixed');
-            $('.wp-list-table th:nth-child(1)').css('width', '80px');  // 予約番号
-            $('.wp-list-table th:nth-child(2)').css('width', '250px'); // 予約者
-            $('.wp-list-table th:nth-child(3)').css('width', '160px'); // 予約日時
-            $('.wp-list-table th:nth-child(4)').css('width', '120px'); // 電話番号
-            $('.wp-list-table th:nth-child(5)').css('width', '150px'); // 予約タイプ
-            $('.wp-list-table th:nth-child(6)').css('width', '100px'); // ステータス
+            $('.wp-list-table th:nth-child(1), .wp-list-table td:nth-child(1)').css('width', '80px');  // 予約番号
+            $('.wp-list-table th:nth-child(2), .wp-list-table td:nth-child(2)').css('width', '100px'); // 予約者
+            $('.wp-list-table th:nth-child(3), .wp-list-table td:nth-child(3)').css('width', '180px'); // 予約日時
+            $('.wp-list-table th:nth-child(4), .wp-list-table td:nth-child(4)').css('width', '120px'); // 電話番号
+            $('.wp-list-table th:nth-child(5), .wp-list-table td:nth-child(5)').css('width', '140px'); // 予約タイプ
+            $('.wp-list-table th:nth-child(6), .wp-list-table td:nth-child(6)').css('width', '100px'); // ステータス
         } else {
             $('.wp-list-table').css('table-layout', 'auto');
-            $('.wp-list-table th').css('width', 'auto');
+            $('.wp-list-table th, .wp-list-table td').css('width', 'auto');
         }
     }
     
