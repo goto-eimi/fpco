@@ -285,25 +285,31 @@ function export_reservations_csv($conditions) {
     
     // データ行
     foreach ($reservations as $reservation) {
+        // 旅行会社データをデコード
+        $agency_data = !empty($reservation['agency_data']) ? json_decode($reservation['agency_data'], true) : [];
+        
+        // 組織データをデコード（type_dataから取得）
+        $type_data = !empty($reservation['type_data']) ? json_decode($reservation['type_data'], true) : [];
+        
         $row = [
             $reservation['id'] ?? '',
             $reservation['date'] ?? '',
             $reservation['time_slot'] ?? '',
             '60', // デフォルト値、実際のデータがあれば置換
             $reservation['applicant_name'] ?? '',
-            $reservation['applicant_kana'] ?? '',
-            $reservation['postal_code'] ?? '',
-            ($reservation['applicant_prefecture'] ?? '') . ($reservation['applicant_city'] ?? '') . ($reservation['applicant_address'] ?? ''),
+            $reservation['applicant_name_kana'] ?? '',
+            $reservation['address_zip'] ?? '',
+            ($reservation['address_prefecture'] ?? '') . ($reservation['address_city'] ?? '') . ($reservation['address_street'] ?? ''),
             $reservation['phone'] ?? '',
             $reservation['email'] ?? '',
             ($reservation['is_travel_agency'] ?? false) ? 'はい' : 'いいえ',
-            $reservation['travel_agency_name'] ?? '',
+            $agency_data['name'] ?? '',
             get_reservation_type_display_name($reservation['reservation_type'] ?? ''),
             $reservation['organization_name'] ?? '',
             $reservation['organization_kana'] ?? '',
-            $reservation['representative_name'] ?? '',
-            $reservation['participant_count'] ?? '',
-            $reservation['participants_child_count'] ?? '',
+            $type_data['representative_name'] ?? $reservation['representative_name'] ?? '',
+            $reservation['visitor_count'] ?? '',
+            $reservation['visitor_count_child'] ?? '',
             $reservation['transportation_method'] ?? '',
             $reservation['transportation_count'] ?? '',
             $reservation['purpose'] ?? '',
@@ -564,10 +570,10 @@ function reservation_list_admin_page() {
                                     <div class="applicant-address">
                                         <?php 
                                         $address_parts = array_filter([
-                                            $reservation['postal_code'] ? '〒' . $reservation['postal_code'] : '',
-                                            $reservation['applicant_prefecture'] ?? '',
-                                            $reservation['applicant_city'] ?? '',
-                                            $reservation['applicant_address'] ?? ''
+                                            $reservation['address_zip'] ? '〒' . $reservation['address_zip'] : '',
+                                            $reservation['address_prefecture'] ?? '',
+                                            $reservation['address_city'] ?? '',
+                                            $reservation['address_street'] ?? ''
                                         ]);
                                         echo esc_html(implode(' ', $address_parts));
                                         ?>
