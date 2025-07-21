@@ -291,6 +291,48 @@ function export_reservations_csv($conditions) {
         // 組織データをデコード（type_dataから取得）
         $type_data = !empty($reservation['type_data']) ? json_decode($reservation['type_data'], true) : [];
         
+        // 組織名を取得（タイプに応じて異なるキーから取得）
+        $organization_name = '';
+        $organization_kana = '';
+        $representative_name = '';
+        
+        switch ($reservation['reservation_type']) {
+            case 'school':
+                $organization_name = $type_data['school_name'] ?? '';
+                $organization_kana = $type_data['school_kana'] ?? '';
+                $representative_name = $type_data['teacher_name'] ?? '';
+                break;
+            case 'corporate':
+                $organization_name = $type_data['company_name'] ?? '';
+                $organization_kana = $type_data['company_kana'] ?? '';
+                $representative_name = $type_data['contact_person'] ?? '';
+                break;
+            case 'municipal':
+                $organization_name = $type_data['organization_name'] ?? '';
+                $organization_kana = $type_data['organization_kana'] ?? '';
+                $representative_name = $type_data['contact_person'] ?? '';
+                break;
+            case 'other':
+                $organization_name = $type_data['organization_name'] ?? '';
+                $organization_kana = $type_data['organization_kana'] ?? '';
+                $representative_name = $type_data['contact_person'] ?? '';
+                break;
+            default:
+                // personalの場合は組織名なし
+                break;
+        }
+        
+        // データベースのカラムからも取得を試みる（フォールバック）
+        if (empty($organization_name)) {
+            $organization_name = $reservation['organization_name'] ?? '';
+        }
+        if (empty($organization_kana)) {
+            $organization_kana = $reservation['organization_kana'] ?? '';
+        }
+        if (empty($representative_name)) {
+            $representative_name = $reservation['representative_name'] ?? '';
+        }
+        
         $row = [
             $reservation['id'] ?? '',
             $reservation['date'] ?? '',
@@ -305,9 +347,9 @@ function export_reservations_csv($conditions) {
             ($reservation['is_travel_agency'] ?? false) ? 'はい' : 'いいえ',
             $agency_data['name'] ?? '',
             get_reservation_type_display_name($reservation['reservation_type'] ?? ''),
-            $type_data['organization_name'] ?? $reservation['organization_name'] ?? '',
-            $type_data['organization_kana'] ?? $reservation['organization_kana'] ?? '',
-            $type_data['representative_name'] ?? $reservation['representative_name'] ?? '',
+            $organization_name,
+            $organization_kana,
+            $representative_name,
             $reservation['participant_count'] ?? '',
             $reservation['participants_child_count'] ?? '',
             $reservation['transportation_method'] ?? '',
