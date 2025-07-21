@@ -184,16 +184,8 @@
 
 .reservation-datetime {
     min-width: 140px;
-}
-
-.reservation-date {
-    font-weight: 600;
-    margin-bottom: 3px;
-}
-
-.reservation-time {
-    font-size: 12px;
-    color: #6c757d;
+    font-size: 14px;
+    white-space: nowrap;
 }
 
 .reservation-phone {

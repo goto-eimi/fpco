@@ -506,12 +506,11 @@ function reservation_list_admin_page() {
                                     </div>
                                 </td>
                                 <td class="reservation-datetime">
-                                    <div class="reservation-date">
-                                        <?php echo esc_html($reservation['date'] ? date('Y年n月j日', strtotime($reservation['date'])) : ''); ?>
-                                    </div>
-                                    <div class="reservation-time">
-                                        <?php echo esc_html($reservation['time_slot'] ?? ''); ?>
-                                    </div>
+                                    <?php 
+                                    $date_str = $reservation['date'] ? date('Y年n月j日', strtotime($reservation['date'])) : '';
+                                    $time_str = $reservation['time_slot'] ?? '';
+                                    echo esc_html($date_str . ' ' . $time_str);
+                                    ?>
                                 </td>
                                 <td class="reservation-phone">
                                     <?php echo esc_html($reservation['phone'] ?? ''); ?>
