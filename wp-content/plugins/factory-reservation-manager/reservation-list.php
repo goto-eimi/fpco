@@ -371,8 +371,47 @@ function reservation_list_admin_page() {
                class="button button-secondary">
                 <span class="dashicons dashicons-download"></span> CSV出力
             </a>
-            <div class="items-count">
-                <?php echo esc_html($pagination['total_items'] ?? 0); ?>個の項目
+            <div class="items-count-and-pagination">
+                <div class="items-count">
+                    <?php echo esc_html($pagination['total_items'] ?? 0); ?>個の項目
+                </div>
+                
+                <?php if ($pagination['total_pages'] > 1): ?>
+                    <div class="per-page-selector">
+                        <label for="per_page_top">表示件数:</label>
+                        <select name="per_page_top" id="per_page_top" onchange="changePage(1, this.value)">
+                            <option value="20" <?php selected($conditions['per_page'], 20); ?>>20件</option>
+                            <option value="50" <?php selected($conditions['per_page'], 50); ?>>50件</option>
+                            <option value="100" <?php selected($conditions['per_page'], 100); ?>>100件</option>
+                        </select>
+                    </div>
+                    
+                    <div class="page-navigation">
+                        <button onclick="changePage(1)" 
+                                <?php disabled($pagination['current_page'], 1); ?> 
+                                class="page-btn first-page">
+                            &lt;&lt;
+                        </button>
+                        <button onclick="changePage(<?php echo max(1, $pagination['current_page'] - 1); ?>)" 
+                                <?php disabled($pagination['current_page'], 1); ?> 
+                                class="page-btn prev-page">
+                            &lt;
+                        </button>
+                        <span class="page-info">
+                            <?php echo esc_html($pagination['current_page']); ?> / <?php echo esc_html($pagination['total_pages']); ?>
+                        </span>
+                        <button onclick="changePage(<?php echo min($pagination['total_pages'], $pagination['current_page'] + 1); ?>)" 
+                                <?php disabled($pagination['current_page'], $pagination['total_pages']); ?> 
+                                class="page-btn next-page">
+                            &gt;
+                        </button>
+                        <button onclick="changePage(<?php echo $pagination['total_pages']; ?>)" 
+                                <?php disabled($pagination['current_page'], $pagination['total_pages']); ?> 
+                                class="page-btn last-page">
+                            &gt;&gt;
+                        </button>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         
@@ -478,47 +517,6 @@ function reservation_list_admin_page() {
             <?php endif; ?>
         </div>
         
-        <!-- ページネーション -->
-        <?php if ($pagination['total_pages'] > 1): ?>
-            <div class="pagination-area">
-                <div class="pagination-controls">
-                    <div class="per-page-selector">
-                        <label for="per_page">表示件数:</label>
-                        <select name="per_page" id="per_page" onchange="changePage(1, this.value)">
-                            <option value="20" <?php selected($conditions['per_page'], 20); ?>>20件</option>
-                            <option value="50" <?php selected($conditions['per_page'], 50); ?>>50件</option>
-                            <option value="100" <?php selected($conditions['per_page'], 100); ?>>100件</option>
-                        </select>
-                    </div>
-                    
-                    <div class="page-navigation">
-                        <button onclick="changePage(1)" 
-                                <?php disabled($pagination['current_page'], 1); ?> 
-                                class="page-btn first-page">
-                            &lt;&lt;
-                        </button>
-                        <button onclick="changePage(<?php echo max(1, $pagination['current_page'] - 1); ?>)" 
-                                <?php disabled($pagination['current_page'], 1); ?> 
-                                class="page-btn prev-page">
-                            &lt;
-                        </button>
-                        <span class="page-info">
-                            <?php echo esc_html($pagination['current_page']); ?> / <?php echo esc_html($pagination['total_pages']); ?>
-                        </span>
-                        <button onclick="changePage(<?php echo min($pagination['total_pages'], $pagination['current_page'] + 1); ?>)" 
-                                <?php disabled($pagination['current_page'], $pagination['total_pages']); ?> 
-                                class="page-btn next-page">
-                            &gt;
-                        </button>
-                        <button onclick="changePage(<?php echo $pagination['total_pages']; ?>)" 
-                                <?php disabled($pagination['current_page'], $pagination['total_pages']); ?> 
-                                class="page-btn last-page">
-                            &gt;&gt;
-                        </button>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
     </div>
     
     <script>

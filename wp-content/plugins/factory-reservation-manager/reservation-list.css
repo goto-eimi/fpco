@@ -84,6 +84,12 @@
     font-size: 14px;
 }
 
+.items-count-and-pagination {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 .items-count {
     font-size: 14px;
     color: #6c757d;
@@ -238,17 +244,10 @@
 }
 
 /* ページネーション */
-.pagination-area {
-    display: flex;
-    justify-content: center;
-    padding: 20px 0;
-    border-top: 1px solid #dee2e6;
-}
-
-.pagination-controls {
+.items-count-and-pagination .per-page-selector,
+.items-count-and-pagination .page-navigation {
     display: flex;
     align-items: center;
-    gap: 20px;
 }
 
 .per-page-selector {
