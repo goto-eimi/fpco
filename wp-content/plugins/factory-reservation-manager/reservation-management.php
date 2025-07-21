@@ -741,8 +741,16 @@ function convert_reservation_to_form_data($reservation) {
         }
     }
     
-    // 予約タイプ
-    $form_data['reservation_type'] = $reservation['reservation_type'] ?? '';
+    // 予約タイプ（DB値をフォーム値に逆変換）
+    $reservation_type_reverse_mapping = [
+        'school' => 'school',
+        'personal' => 'family', // personalの場合は代表的なfamilyを使用
+        'corporate' => 'company',
+        'municipal' => 'municipality',
+        'other' => 'other'
+    ];
+    $db_type = $reservation['reservation_type'] ?? '';
+    $form_data['reservation_type'] = $reservation_type_reverse_mapping[$db_type] ?? 'other';
     
     // タイプ別データ
     if (!empty($reservation['type_data'])) {

@@ -149,6 +149,20 @@ function get_reservations($conditions) {
 }
 
 /**
+ * 予約タイプの表示名を取得
+ */
+function get_reservation_type_display_name($type) {
+    $type_names = [
+        'school' => '学校（小学校・中学校・大学）',
+        'personal' => '個人',
+        'corporate' => '企業',
+        'municipal' => '自治体',
+        'other' => 'その他'
+    ];
+    return isset($type_names[$type]) ? $type_names[$type] : '未設定';
+}
+
+/**
  * CSV出力
  */
 function export_reservations_csv($conditions) {
@@ -244,7 +258,7 @@ function export_reservations_csv($conditions) {
             $reservation['email'] ?? '',
             ($reservation['is_travel_agency'] ?? false) ? 'はい' : 'いいえ',
             $reservation['travel_agency_name'] ?? '',
-            $reservation['visitor_type'] ?? '',
+            get_reservation_type_display_name($reservation['reservation_type'] ?? ''),
             $reservation['organization_name'] ?? '',
             $reservation['organization_kana'] ?? '',
             $reservation['representative_name'] ?? '',
@@ -503,7 +517,7 @@ function reservation_list_admin_page() {
                                     <?php echo esc_html($reservation['phone'] ?? ''); ?>
                                 </td>
                                 <td class="reservation-type">
-                                    <?php echo esc_html($reservation['visitor_type'] ?? '一般'); ?>
+                                    <?php echo esc_html(get_reservation_type_display_name($reservation['reservation_type'] ?? '')); ?>
                                 </td>
                                 <td class="reservation-status">
                                     <span class="status-badge status-<?php echo esc_attr($reservation['status'] ?? ''); ?>">
