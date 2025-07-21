@@ -299,22 +299,22 @@ function export_reservations_csv($conditions) {
         switch ($reservation['reservation_type']) {
             case 'school':
                 $organization_name = $type_data['school_name'] ?? '';
-                $organization_kana = $type_data['school_kana'] ?? '';
+                $organization_kana = $type_data['school_name_kana'] ?? '';
                 $representative_name = $type_data['teacher_name'] ?? '';
                 break;
             case 'corporate':
                 $organization_name = $type_data['company_name'] ?? '';
-                $organization_kana = $type_data['company_kana'] ?? '';
+                $organization_kana = $type_data['company_name_kana'] ?? '';
                 $representative_name = $type_data['contact_person'] ?? '';
                 break;
             case 'municipal':
                 $organization_name = $type_data['organization_name'] ?? '';
-                $organization_kana = $type_data['organization_kana'] ?? '';
+                $organization_kana = $type_data['organization_name_kana'] ?? '';
                 $representative_name = $type_data['contact_person'] ?? '';
                 break;
             case 'other':
                 $organization_name = $type_data['organization_name'] ?? '';
-                $organization_kana = $type_data['organization_kana'] ?? '';
+                $organization_kana = $type_data['organization_name_kana'] ?? '';
                 $representative_name = $type_data['contact_person'] ?? '';
                 break;
             default:
@@ -326,8 +326,9 @@ function export_reservations_csv($conditions) {
         if (empty($organization_name)) {
             $organization_name = $reservation['organization_name'] ?? '';
         }
-        // organization_kanaは常にデータベースカラムから取得
-        $organization_kana = $reservation['organization_kana'] ?? '';
+        if (empty($organization_kana)) {
+            $organization_kana = $reservation['organization_kana'] ?? '';
+        }
         
         if (empty($representative_name)) {
             $representative_name = $reservation['representative_name'] ?? '';
