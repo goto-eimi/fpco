@@ -250,11 +250,6 @@ function reply_email_admin_page() {
         return;
     }
     
-    // ステータス警告（エラーにはしない）
-    $show_warning = false;
-    if ($reservation['status'] !== RESERVATION_STATUS_PENDING) {
-        $show_warning = true;
-    }
     
     // フォーム送信処理
     $result = null;
@@ -282,12 +277,6 @@ function reply_email_admin_page() {
             </div>
         <?php endif; ?>
         
-        <?php if ($show_warning): ?>
-            <div class="notice notice-warning">
-                <p><strong>注意:</strong> この予約のステータスは「<?php echo esc_html(function_exists('get_reservation_status_label') ? get_reservation_status_label($reservation['status'] ?? '') : ($reservation['status'] ?? '')); ?>」です。
-                通常、返信メールは「確認中」ステータスの予約に対して送信します。</p>
-            </div>
-        <?php endif; ?>
         
         <!-- メール作成エリア -->
         <form method="post" id="email-form">
