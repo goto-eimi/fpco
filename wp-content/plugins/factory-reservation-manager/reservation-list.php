@@ -35,15 +35,39 @@ function reservation_list_enqueue_scripts($hook) {
 add_action('admin_menu', 'reservation_list_admin_menu');
 
 function reservation_list_admin_menu() {
-    add_menu_page(
-        '予約一覧',
-        '予約一覧',
-        'manage_options',
-        'reservation-list',
-        'reservation_list_admin_page',
-        'dashicons-list-view',
-        25
-    );
+    // 現在のユーザーを取得
+    $current_user = wp_get_current_user();
+    
+    // 管理者またはfactoryロールのユーザーのみメニューを表示
+    $can_access = false;
+    
+    // 管理者チェック（ユーザーID：1またはuser_login：adminまたはmanage_options権限）
+    if ($current_user->ID == 1 || $current_user->user_login == 'admin' || current_user_can('manage_options')) {
+        $can_access = true;
+    }
+    
+    // factoryロールチェック
+    if (in_array('factory', $current_user->roles)) {
+        $can_access = true;
+    }
+    
+    // 工場が割り当てられているかチェック
+    $assigned_factory = get_user_meta($current_user->ID, 'assigned_factory', true);
+    if ($assigned_factory) {
+        $can_access = true;
+    }
+    
+    if ($can_access) {
+        add_menu_page(
+            '予約一覧',
+            '予約一覧',
+            'read',  // 権限を緩和
+            'reservation-list',
+            'reservation_list_admin_page',
+            'dashicons-list-view',
+            25
+        );
+    }
 }
 
 /**
@@ -284,6 +308,30 @@ function export_reservations_csv($conditions) {
  * 管理画面表示
  */
 function reservation_list_admin_page() {
+    // 権限チェック
+    $current_user = wp_get_current_user();
+    $can_access = false;
+    
+    // 管理者チェック（ユーザーID：1またはuser_login：adminまたはmanage_options権限）
+    if ($current_user->ID == 1 || $current_user->user_login == 'admin' || current_user_can('manage_options')) {
+        $can_access = true;
+    }
+    
+    // factoryロールチェック
+    if (in_array('factory', $current_user->roles)) {
+        $can_access = true;
+    }
+    
+    // 工場が割り当てられているかチェック
+    $assigned_factory = get_user_meta($current_user->ID, 'assigned_factory', true);
+    if ($assigned_factory) {
+        $can_access = true;
+    }
+    
+    if (!$can_access) {
+        wp_die(__('このページにアクセスする権限がありません。'));
+    }
+    
     // CSV出力処理
     if (isset($_GET['action']) && $_GET['action'] === 'export_csv') {
         $conditions = get_search_conditions();
