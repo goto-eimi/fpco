@@ -821,18 +821,26 @@ function reservation_management_admin_page() {
         $result = handle_reservation_form_submission();
         if ($result['success']) {
             $success_message = $result['message'];
+            
+            // フォーム送信時の編集モード判定（POSTデータから）
+            $post_is_edit_mode = isset($_POST['reservation_id']) && !empty($_POST['reservation_id']);
+            $post_reservation_id = $post_is_edit_mode ? intval($_POST['reservation_id']) : null;
+            
             // 編集モードの場合は更新後に最新データを再取得、新規登録の場合はクリア
-            if ($is_edit_mode && $reservation_id) {
+            if ($post_is_edit_mode && $post_reservation_id) {
                 // 最新の予約データを再取得
                 $updated_reservation = $wpdb->get_row(
                     $wpdb->prepare(
                         "SELECT * FROM {$wpdb->prefix}reservations WHERE id = %d",
-                        $reservation_id
+                        $post_reservation_id
                     ),
                     ARRAY_A
                 );
                 if ($updated_reservation) {
                     $form_data = convert_reservation_to_form_data($updated_reservation);
+                    // 編集モードの状態を維持
+                    $is_edit_mode = true;
+                    $reservation_id = $post_reservation_id;
                 }
             } else {
                 $form_data = [];
