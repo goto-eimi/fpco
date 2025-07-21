@@ -317,8 +317,16 @@ function export_reservations_csv($conditions) {
                 $organization_kana = $type_data['organization_name_kana'] ?? '';
                 $representative_name = $type_data['contact_person'] ?? '';
                 break;
+            case 'personal':
+                // 個人でもtype_dataに学校のような情報が入っている場合がある
+                if (!empty($type_data['school_name'])) {
+                    $organization_name = $type_data['school_name'] ?? '';
+                    $organization_kana = $type_data['school_name_kana'] ?? $type_data['department'] ?? '';
+                    $representative_name = $type_data['teacher_name'] ?? '';
+                }
+                break;
             default:
-                // personalの場合は組織名なし
+                // その他の場合
                 break;
         }
         
