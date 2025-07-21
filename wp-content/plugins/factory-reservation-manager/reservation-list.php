@@ -528,12 +528,6 @@ function reservation_list_admin_page() {
         }
         window.location.href = '?' + urlParams.toString();
     }
-    
-    // 自動更新機能（5分間隔）
-    setInterval(function() {
-        // 現在のページをリロード（検索条件を維持）
-        window.location.reload();
-    }, 5 * 60 * 1000);
     </script>
     
     <?php

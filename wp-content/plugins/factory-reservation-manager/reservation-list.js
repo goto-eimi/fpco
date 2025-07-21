@@ -113,25 +113,6 @@ jQuery(document).ready(function($) {
         $('.loading-overlay').remove();
     }
     
-    // 更新通知
-    function showUpdateNotification(message) {
-        const notification = $(`
-            <div style="position: fixed; top: 32px; left: 50%; transform: translateX(-50%); 
-                        background: #d4edda; color: #155724; padding: 10px 20px; 
-                        border: 1px solid #c3e6cb; border-radius: 4px; z-index: 9999;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                ${message}
-            </div>
-        `);
-        
-        $('body').append(notification);
-        
-        setTimeout(function() {
-            notification.fadeOut(function() {
-                notification.remove();
-            });
-        }, 3000);
-    }
     
     // 行のハイライト機能
     function highlightRow(reservationId) {
@@ -143,47 +124,7 @@ jQuery(document).ready(function($) {
         }
     }
     
-    // 自動更新機能のカスタマイズ
-    let autoUpdateEnabled = true;
-    let lastUpdateTime = Date.now();
     
-    // 5分間隔での自動更新
-    setInterval(function() {
-        if (autoUpdateEnabled && (Date.now() - lastUpdateTime) >= 5 * 60 * 1000) {
-            // ページの可視性をチェック
-            if (!document.hidden) {
-                showUpdateNotification('データを更新しています...');
-                window.location.reload();
-            }
-        }
-    }, 5 * 60 * 1000);
-    
-    // ページの可視性変更を監視
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            lastUpdateTime = Date.now();
-        }
-    });
-    
-    // 手動更新ボタン（必要に応じて追加）
-    function addManualUpdateButton() {
-        const updateButton = $(`
-            <button type="button" class="button button-secondary" id="manual-update-btn" 
-                    style="margin-left: 10px;">
-                <span class="dashicons dashicons-update"></span> 更新
-            </button>
-        `);
-        
-        $('.action-buttons-area').find('.button').last().after(updateButton);
-        
-        updateButton.on('click', function() {
-            showLoading('データを更新中...');
-            window.location.reload();
-        });
-    }
-    
-    // 手動更新ボタンを追加
-    addManualUpdateButton();
     
     // 検索条件の保存と復元
     function saveSearchConditions() {
