@@ -284,26 +284,26 @@ function reply_email_admin_page() {
             <input type="hidden" name="reservation_id" value="<?php echo esc_attr($reservation_id); ?>">
             
             <!-- 1つ目の枠：メール送信先 -->
-            <div class="email-section-box">
-                <h2 class="section-title">メール送信先</h2>
-                <div class="section-content">
-                    <div class="recipients-info">
-                        <div class="info-item">
-                            <span class="label">予約番号</span>
-                            <span class="value"><?php echo esc_html($reservation['id']); ?></span>
+            <div style="border: 3px solid #007cba; border-radius: 10px; margin-bottom: 25px; background: white; box-shadow: 0 4px 8px rgba(0,123,186,0.2); overflow: hidden;">
+                <h2 style="background: #007cba; color: white; margin: 0; padding: 15px 20px; font-size: 18px; font-weight: 600; border-bottom: 2px solid #005a87;">メール送信先</h2>
+                <div style="padding: 25px; background: #f8f9fa;">
+                    <div style="margin: 0;">
+                        <div style="display: flex; margin-bottom: 15px; align-items: center; background: white; padding: 12px; border-radius: 6px; border: 1px solid #dee2e6;">
+                            <span style="font-weight: 600; color: #007cba; min-width: 160px; margin-right: 15px; font-size: 14px;">予約番号</span>
+                            <span style="color: #212529; font-family: monospace; background: #e3f2fd; padding: 8px 12px; border-radius: 4px; border: 1px solid #007cba; font-weight: 500;"><?php echo esc_html($reservation['id']); ?></span>
                         </div>
-                        <div class="info-item">
-                            <span class="label">送信先メールアドレス</span>
-                            <span class="value"><?php echo esc_html($reservation['email']); ?></span>
+                        <div style="display: flex; align-items: center; background: white; padding: 12px; border-radius: 6px; border: 1px solid #dee2e6;">
+                            <span style="font-weight: 600; color: #007cba; min-width: 160px; margin-right: 15px; font-size: 14px;">送信先メールアドレス</span>
+                            <span style="color: #212529; font-family: monospace; background: #e3f2fd; padding: 8px 12px; border-radius: 4px; border: 1px solid #007cba; font-weight: 500;"><?php echo esc_html($reservation['email']); ?></span>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- 2つ目の枠：メール内容 -->
-            <div class="email-section-box">
-                <h2 class="section-title">メール内容</h2>
-                <div class="section-content">
+            <div style="border: 3px solid #007cba; border-radius: 10px; margin-bottom: 25px; background: white; box-shadow: 0 4px 8px rgba(0,123,186,0.2); overflow: hidden;">
+                <h2 style="background: #007cba; color: white; margin: 0; padding: 15px 20px; font-size: 18px; font-weight: 600; border-bottom: 2px solid #005a87;">メール内容</h2>
+                <div style="padding: 25px; background: #f8f9fa;">
                     <!-- テンプレート選択 -->
                     <div class="template-section">
                     <h3>テンプレート選択</h3>
