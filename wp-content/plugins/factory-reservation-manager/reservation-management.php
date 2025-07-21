@@ -127,6 +127,10 @@ function handle_reservation_form_submission() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'reservations';
     
+    // 編集モードかどうかチェック
+    $is_edit_mode = isset($_POST['reservation_id']) && !empty($_POST['reservation_id']);
+    $reservation_id = $is_edit_mode ? intval($_POST['reservation_id']) : null;
+    
     // バリデーション
     $validation_result = validate_reservation_form($_POST);
     
@@ -223,12 +227,30 @@ function handle_reservation_form_submission() {
         '%s', '%d', '%d', '%s'
     ];
     
-    $result = $wpdb->insert($table_name, $data, $format);
-    
-    if ($result === false) {
-        return ['success' => false, 'errors' => ['データベースへの保存に失敗しました。']];
+    if ($is_edit_mode) {
+        // 更新処理
+        $result = $wpdb->update(
+            $table_name, 
+            $data, 
+            ['id' => $reservation_id],
+            $format,
+            ['%d']
+        );
+        
+        if ($result === false) {
+            return ['success' => false, 'errors' => ['データベースへの更新に失敗しました。']];
+        } else {
+            return ['success' => true, 'message' => '予約を正常に更新しました。予約番号: ' . $reservation_id];
+        }
     } else {
-        return ['success' => true, 'message' => '予約を正常に登録しました。予約番号: ' . $wpdb->insert_id];
+        // 新規登録処理
+        $result = $wpdb->insert($table_name, $data, $format);
+        
+        if ($result === false) {
+            return ['success' => false, 'errors' => ['データベースへの保存に失敗しました。']];
+        } else {
+            return ['success' => true, 'message' => '予約を正常に登録しました。予約番号: ' . $wpdb->insert_id];
+        }
     }
 }
 
@@ -671,6 +693,87 @@ function get_field_error_class($field_name, $field_errors) {
 }
 
 /**
+ * 予約データをフォームデータに変換
+ */
+function convert_reservation_to_form_data($reservation) {
+    $form_data = [];
+    
+    // 基本情報
+    $form_data['factory_id'] = $reservation['factory_id'] ?? '';
+    $form_data['visit_date'] = $reservation['date'] ?? '';
+    $form_data['reservation_status'] = $reservation['status'] ?? 'new';
+    
+    // 時刻を分解
+    if (!empty($reservation['time_slot'])) {
+        if (preg_match('/(\d+):(\d+)-(\d+):(\d+)/', $reservation['time_slot'], $matches)) {
+            $form_data['visit_time_start_hour'] = $matches[1];
+            $form_data['visit_time_start_minute'] = $matches[2];
+            $form_data['visit_time_end_hour'] = $matches[3];
+            $form_data['visit_time_end_minute'] = $matches[4];
+        }
+    }
+    
+    // 申込者情報
+    $form_data['applicant_name'] = $reservation['applicant_name'] ?? '';
+    $form_data['applicant_kana'] = $reservation['applicant_kana'] ?? '';
+    $form_data['applicant_zip'] = $reservation['address_zip'] ?? '';
+    $form_data['applicant_prefecture'] = $reservation['address_prefecture'] ?? '';
+    $form_data['applicant_city'] = $reservation['address_city'] ?? '';
+    $form_data['applicant_address'] = $reservation['address_street'] ?? '';
+    $form_data['applicant_phone'] = $reservation['phone'] ?? '';
+    $form_data['emergency_contact'] = $reservation['day_of_contact'] ?? '';
+    $form_data['applicant_email'] = $reservation['email'] ?? '';
+    
+    // 旅行会社情報
+    $form_data['is_travel_agency'] = ($reservation['is_travel_agency'] ?? 0) ? 'yes' : 'no';
+    if (!empty($reservation['agency_data'])) {
+        $agency_data = json_decode($reservation['agency_data'], true);
+        if ($agency_data) {
+            $form_data['travel_agency_name'] = $agency_data['name'] ?? '';
+            $form_data['travel_agency_zip'] = $agency_data['zip'] ?? '';
+            $form_data['travel_agency_prefecture'] = $agency_data['prefecture'] ?? '';
+            $form_data['travel_agency_city'] = $agency_data['city'] ?? '';
+            $form_data['travel_agency_address'] = $agency_data['address'] ?? '';
+            $form_data['travel_agency_phone'] = $agency_data['phone'] ?? '';
+            $form_data['travel_agency_fax'] = $agency_data['fax'] ?? '';
+            $form_data['contact_mobile'] = $agency_data['contact_mobile'] ?? '';
+            $form_data['contact_email'] = $agency_data['contact_email'] ?? '';
+        }
+    }
+    
+    // 予約タイプ
+    $form_data['reservation_type'] = $reservation['reservation_type'] ?? '';
+    
+    // タイプ別データ
+    if (!empty($reservation['type_data'])) {
+        $type_data = json_decode($reservation['type_data'], true);
+        if ($type_data) {
+            // タイプごとのデータを展開
+            foreach ($type_data as $key => $value) {
+                $form_data[$key] = $value;
+            }
+        }
+    }
+    
+    // 交通手段
+    $transportation_reverse_mapping = [
+        'car' => 'car',
+        'bus' => 'chartered_bus',
+        'taxi' => 'taxi',
+        'other' => 'other'
+    ];
+    $form_data['transportation'] = $transportation_reverse_mapping[$reservation['transportation_method'] ?? ''] ?? 'other';
+    $form_data['vehicle_count'] = $reservation['transportation_count'] ?? '';
+    
+    // その他
+    $form_data['visit_purpose'] = $reservation['purpose'] ?? '';
+    $form_data['total_visitors'] = $reservation['participant_count'] ?? '';
+    $form_data['elementary_visitors'] = $reservation['participants_child_count'] ?? '';
+    
+    return $form_data;
+}
+
+/**
  * 予約管理画面の表示
  */
 function reservation_management_admin_page() {
@@ -680,6 +783,30 @@ function reservation_management_admin_page() {
     $field_errors = [];
     $success_message = '';
     $form_data = [];
+    $is_edit_mode = false;
+    $reservation_id = null;
+    
+    // 予約IDパラメータをチェック（編集モード）
+    if (isset($_GET['reservation_id']) && !empty($_GET['reservation_id'])) {
+        $reservation_id = intval($_GET['reservation_id']);
+        $is_edit_mode = true;
+        
+        // 予約データを取得
+        $reservation = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}reservations WHERE id = %d",
+                $reservation_id
+            ),
+            ARRAY_A
+        );
+        
+        if ($reservation) {
+            // 予約データをフォームデータに変換
+            $form_data = convert_reservation_to_form_data($reservation);
+        } else {
+            $errors[] = '指定された予約が見つかりません。';
+        }
+    }
     
     // フォーム送信処理
     if (isset($_POST['submit_reservation'])) {
@@ -734,7 +861,7 @@ function reservation_management_admin_page() {
     
     ?>
     <div class="wrap">
-        <h1>予約追加・編集</h1>
+        <h1><?php echo $is_edit_mode ? '予約編集' : '予約追加'; ?></h1>
         
         <!-- 予約フォーム -->
         <div class="reservation-form-container">
@@ -746,24 +873,31 @@ function reservation_management_admin_page() {
                 <div class="form-section-content">
                     <form method="post" action="<?php echo admin_url('admin.php?page=reservation-management'); ?>">
                         <?php wp_nonce_field('reservation_form', 'reservation_nonce'); ?>
+                        <?php if ($is_edit_mode && $reservation_id): ?>
+                            <input type="hidden" name="reservation_id" value="<?php echo esc_attr($reservation_id); ?>">
+                        <?php endif; ?>
                         <!-- 予約番号 -->
                         <div class="form-field">
                             <label for="reservation_number" class="form-label">
                                 予約番号
                             </label>
-                            <?php
-                            // wp_reservationsテーブルから次の予約番号を取得
-                            $max_id = $wpdb->get_var("SELECT MAX(id) FROM {$wpdb->prefix}reservations");
-                            if ($max_id === null) {
-                                // テーブルが空の場合は1から開始
-                                $reservation_number = 1;
-                            } else {
-                                // 最大IDに1を追加
-                                $reservation_number = intval($max_id) + 1;
-                            }
-                            ?>
-                            <span><?php echo esc_html($reservation_number ?? ''); ?></span>
-                            <input type="hidden" name="reservation_number" value="<?php echo esc_attr($reservation_number ?? ''); ?>">
+                            <?php if ($is_edit_mode && $reservation_id): ?>
+                                <span><?php echo esc_html($reservation_id); ?></span>
+                            <?php else: ?>
+                                <?php
+                                // wp_reservationsテーブルから次の予約番号を取得
+                                $max_id = $wpdb->get_var("SELECT MAX(id) FROM {$wpdb->prefix}reservations");
+                                if ($max_id === null) {
+                                    // テーブルが空の場合は1から開始
+                                    $reservation_number = 1;
+                                } else {
+                                    // 最大IDに1を追加
+                                    $reservation_number = intval($max_id) + 1;
+                                }
+                                ?>
+                                <span><?php echo esc_html($reservation_number ?? ''); ?></span>
+                                <input type="hidden" name="reservation_number" value="<?php echo esc_attr($reservation_number ?? ''); ?>">
+                            <?php endif; ?>
                         </div>
 
                         <!-- 見学工場 -->
@@ -1445,7 +1579,7 @@ function reservation_management_admin_page() {
                     
                     <div class="btn-register-container">
                         <button type="submit" name="submit_reservation" id="register_reservation" class="btn-register">
-                            登録
+                            <?php echo $is_edit_mode ? '更新' : '登録'; ?>
                         </button>
                     </div>
                 </div>
