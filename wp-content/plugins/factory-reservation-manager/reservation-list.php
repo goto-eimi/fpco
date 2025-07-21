@@ -293,6 +293,9 @@ function reservation_list_admin_page() {
     
     <div class="wrap">
         <h1 class="wp-heading-inline">予約一覧</h1>
+        <a href="admin.php?page=reservation-management" class="page-title-action">
+            <span class="dashicons dashicons-plus-alt"></span> 新規追加
+        </a>
         
         <!-- 検索・絞り込みエリア -->
         <div class="search-filters-area">
@@ -364,9 +367,6 @@ function reservation_list_admin_page() {
         
         <!-- アクションボタンエリア -->
         <div class="action-buttons-area">
-            <a href="admin.php?page=reservation-management" class="button button-primary">
-                <span class="dashicons dashicons-plus-alt"></span> 新規追加
-            </a>
             <a href="?page=reservation-list&action=export_csv&<?php echo http_build_query(array_filter($conditions, function($value) { return $value !== '' && $value !== null; })); ?>" 
                class="button button-secondary">
                 <span class="dashicons dashicons-download"></span> CSV出力
