@@ -308,7 +308,19 @@ function export_reservations_csv($conditions) {
  * 管理画面表示
  */
 function reservation_list_admin_page() {
-    // 権限チェック
+    // CSV出力処理（権限チェックの前に実行）
+    if (isset($_GET['action']) && $_GET['action'] === 'export_csv') {
+        // CSV出力用の権限チェック（よりシンプルに）
+        if (!current_user_can('read')) {
+            wp_die(__('このページにアクセスする権限がありません。'));
+        }
+        
+        $conditions = get_search_conditions();
+        export_reservations_csv($conditions);
+        return;
+    }
+    
+    // 通常の画面表示の権限チェック
     $current_user = wp_get_current_user();
     $can_access = false;
     
@@ -330,13 +342,6 @@ function reservation_list_admin_page() {
     
     if (!$can_access) {
         wp_die(__('このページにアクセスする権限がありません。'));
-    }
-    
-    // CSV出力処理
-    if (isset($_GET['action']) && $_GET['action'] === 'export_csv') {
-        $conditions = get_search_conditions();
-        export_reservations_csv($conditions);
-        return;
     }
     
     // 検索条件取得
