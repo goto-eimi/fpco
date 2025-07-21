@@ -274,7 +274,7 @@ function reply_email_admin_page() {
     ?>
     
     <div class="wrap">
-        <h1>予約返信メール作成</h1>
+        <h1>予約返信メール</h1>
         
         <?php if ($result && !$result['success']): ?>
             <div class="notice notice-error">
@@ -289,45 +289,19 @@ function reply_email_admin_page() {
             </div>
         <?php endif; ?>
         
-        <!-- 予約情報表示エリア -->
-        <div class="reservation-info-section">
-            <h2>予約情報</h2>
-            <div class="reservation-info">
-                <div class="info-row">
-                    <strong>予約番号:</strong> <?php echo esc_html($reservation['id']); ?>
-                </div>
-                <div class="info-row">
-                    <strong>工場名:</strong> <?php echo esc_html($reservation['factory_name']); ?>
-                </div>
-                <div class="info-row">
-                    <strong>見学日時:</strong> <?php echo esc_html(date('Y年m月d日', strtotime($reservation['date'])) . ' ' . $reservation['time_slot']); ?>
-                </div>
-                <div class="info-row">
-                    <strong>申込者氏名:</strong> <?php echo esc_html($reservation['applicant_name']); ?>
-                </div>
-                <div class="info-row">
-                    <strong>見学者分類:</strong> <?php echo esc_html($reservation['visitor_type'] ?? '一般'); ?>
-                </div>
-                <div class="info-row">
-                    <strong>見学者人数:</strong> <?php echo esc_html($reservation['participant_count']); ?>名
-                </div>
-            </div>
-        </div>
-        
         <!-- メール作成エリア -->
         <form method="post" id="email-form">
             <?php wp_nonce_field('send_reservation_email'); ?>
             <input type="hidden" name="reservation_id" value="<?php echo esc_attr($reservation_id); ?>">
             
             <div class="email-form-section">
-                <h2>メール作成</h2>
+                <h2>メール送信先</h2>
                 
                 <!-- 送信先表示 -->
                 <div class="email-recipients">
-                    <h3>送信先</h3>
                     <div class="recipients-info">
-                        <div><strong>TO:</strong> <?php echo esc_html($reservation['email']); ?></div>
-                        <div><strong>CC:</strong> admin@example.com（管理者控え）</div>
+                        <div><span><strong>予約番号</strong></span> <?php echo esc_html($reservation['id']); ?></div>
+                        <div><span><strong>送信先メールアドレス</strong></span> <?php echo esc_html($reservation['email']); ?></div>
                     </div>
                 </div>
                 
