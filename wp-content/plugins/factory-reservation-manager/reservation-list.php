@@ -15,6 +15,22 @@ if (!defined('ABSPATH')) {
  */
 add_action('admin_enqueue_scripts', 'reservation_list_enqueue_scripts');
 
+// CSV出力用のAjaxアクション
+add_action('wp_ajax_export_reservations_csv', 'ajax_export_reservations_csv');
+
+function ajax_export_reservations_csv() {
+    // Nonce検証
+    if (!isset($_GET['nonce']) || !wp_verify_nonce($_GET['nonce'], 'reservation_list_nonce')) {
+        wp_die('セキュリティチェックに失敗しました。');
+    }
+    
+    // 検索条件を取得
+    $conditions = get_search_conditions();
+    
+    // CSV出力を実行
+    export_reservations_csv($conditions);
+}
+
 function reservation_list_enqueue_scripts($hook) {
     if ($hook !== 'toplevel_page_reservation-list') {
         return;
@@ -308,17 +324,6 @@ function export_reservations_csv($conditions) {
  * 管理画面表示
  */
 function reservation_list_admin_page() {
-    // CSV出力処理（権限チェックの前に実行）
-    if (isset($_GET['action']) && $_GET['action'] === 'export_csv') {
-        // CSV出力用の権限チェック（よりシンプルに）
-        if (!current_user_can('read')) {
-            wp_die(__('このページにアクセスする権限がありません。'));
-        }
-        
-        $conditions = get_search_conditions();
-        export_reservations_csv($conditions);
-        return;
-    }
     
     // 通常の画面表示の権限チェック
     $current_user = wp_get_current_user();
@@ -434,10 +439,11 @@ function reservation_list_admin_page() {
         
         <!-- アクションボタンエリア -->
         <div class="action-buttons-area">
-            <a href="?page=reservation-list&action=export_csv&<?php echo http_build_query(array_filter($conditions, function($value) { return $value !== '' && $value !== null; })); ?>" 
-               class="button button-secondary">
+            <button id="export-csv-btn" class="button button-secondary" 
+                    data-nonce="<?php echo wp_create_nonce('reservation_list_nonce'); ?>"
+                    data-conditions="<?php echo esc_attr(json_encode($conditions)); ?>">
                 <span class="dashicons dashicons-download"></span> CSV出力
-            </a>
+            </button>
             <div class="items-count-and-pagination">
                 <div class="items-count">
                     <?php echo esc_html($pagination['total_items'] ?? 0); ?>個の項目
@@ -594,6 +600,29 @@ function reservation_list_admin_page() {
         }
         window.location.href = '?' + urlParams.toString();
     }
+    
+    // CSV出力処理
+    jQuery(document).ready(function($) {
+        $('#export-csv-btn').on('click', function(e) {
+            e.preventDefault();
+            
+            const nonce = $(this).data('nonce');
+            const conditions = $(this).data('conditions');
+            
+            // 検索条件を含むURLを構築
+            const params = new URLSearchParams({
+                action: 'export_reservations_csv',
+                nonce: nonce,
+                ...conditions
+            });
+            
+            // CSVダウンロード用のURLを作成
+            const downloadUrl = reservation_list_ajax.ajax_url + '?' + params.toString();
+            
+            // 新しいウィンドウで開く（ダウンロード）
+            window.location.href = downloadUrl;
+        });
+    });
     </script>
     
     <?php
