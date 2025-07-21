@@ -294,7 +294,7 @@ function reservation_list_admin_page() {
     <div class="wrap">
         <h1 class="wp-heading-inline">予約一覧</h1>
         <a href="admin.php?page=reservation-management" class="page-title-action">
-            <span class="dashicons dashicons-plus-alt" style="margin-top: 4px;"></span> 新規追加
+            <span class="dashicons dashicons-plus-alt"></span> 新規追加
         </a>
         
         <!-- 検索・絞り込みエリア -->
