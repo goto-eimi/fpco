@@ -307,7 +307,16 @@ function export_reservations_csv($conditions) {
             $reservation['transportation_method'] ?? '',
             $reservation['transportation_count'] ?? '',
             $reservation['purpose'] ?? '',
-            ($reservation['status'] ?? ''),
+            (function($status) {
+                $status_labels = [
+                    'new' => '新規受付',
+                    'pending' => '確認中',
+                    'approved' => '承認',
+                    'rejected' => '否認',
+                    'cancelled' => 'キャンセル'
+                ];
+                return $status_labels[$status] ?? $status;
+            })($reservation['status'] ?? ''),
             $reservation['created_at'] ?? '',
             $reservation['updated_at'] ?? ''
         ];
@@ -579,7 +588,17 @@ function reservation_list_admin_page() {
                                 </td>
                                 <td class="reservation-status">
                                     <span class="status-badge status-<?php echo esc_attr($reservation['status'] ?? ''); ?>">
-                                        <?php echo esc_html($reservation['status'] ?? ''); ?>
+                                        <?php 
+                                        $status = $reservation['status'] ?? '';
+                                        $status_labels = [
+                                            'new' => '新規受付',
+                                            'pending' => '確認中',
+                                            'approved' => '承認',
+                                            'rejected' => '否認',
+                                            'cancelled' => 'キャンセル'
+                                        ];
+                                        echo esc_html($status_labels[$status] ?? $status);
+                                        ?>
                                     </span>
                                 </td>
                             </tr>
