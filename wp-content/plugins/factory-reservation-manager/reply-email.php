@@ -144,7 +144,7 @@ function send_reservation_email($reservation_id, $subject, $body, $template_type
     
     $headers = [
         'Content-Type: text/plain; charset=UTF-8',
-        'Cc: admin@example.com', // 管理者メール（実際のメールアドレスに変更）
+        'Bcc: admin@example.com', // 管理者メール（実際のメールアドレスに変更）
     ];
     
     // メール送信
