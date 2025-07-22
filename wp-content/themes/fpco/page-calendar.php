@@ -395,22 +395,29 @@ get_header(); ?>
 }
 
 .legend-symbol {
-    font-size: 18px;
-    font-weight: bold;
-    width: 20px;
+    display: inline-block;
+    width: 75px;
+    height: 24px;
+    border-radius: 20px;
     text-align: center;
+    line-height: 24px;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .legend-symbol.available {
-    color: #28a745;
+    background-color: #1A76D2;
+    color: white;
 }
 
 .legend-symbol.adjusting {
-    color: #ffc107;
+    background-color: #25DF01;
+    color: white;
 }
 
 .legend-symbol.unavailable {
-    color: #6c757d;
+    background-color: #E0E0E0;
+    color: red;
 }
 
 /* モーダル */
