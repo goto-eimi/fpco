@@ -271,18 +271,6 @@ get_header(); ?>
     cursor: default;
 }
 
-/* 凡例のアイコン色 */
-.legend-symbol.available {
-    color: #1A76D2;
-}
-
-.legend-symbol.adjusting {
-    color: #25DF01;
-}
-
-.legend-symbol.unavailable {
-    color: #E0E0E0;
-}
 
 /* スマホ版リスト表示 */
 .calendar-list {
