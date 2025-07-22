@@ -112,16 +112,36 @@
     font-weight: bold;
 }
 
+/* 予約状況アイコンの正確な色設定 */
 .calendar-shortcode-container .status-symbol.available {
-    color: #28a745;
+    color: #007bff; /* 青い円 */
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .calendar-shortcode-container .status-symbol.adjusting {
-    color: #ffc107;
+    color: #28a745; /* 緑の三角形 */
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .calendar-shortcode-container .status-symbol.unavailable {
-    color: #6c757d;
+    color: #dc3545; /* 赤い点線 */
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* 凡例のアイコン色 */
+.calendar-shortcode-container .legend-symbol.available {
+    color: #007bff;
+}
+
+.calendar-shortcode-container .legend-symbol.adjusting {
+    color: #28a745;
+}
+
+.calendar-shortcode-container .legend-symbol.unavailable {
+    color: #dc3545;
 }
 
 /* スマホ版リスト表示 */

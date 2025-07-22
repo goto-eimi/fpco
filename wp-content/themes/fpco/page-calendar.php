@@ -10,12 +10,13 @@ get_header(); ?>
 <main id="main" class="wp-block-group">
     <div class="wp-block-group__inner-container">
         <header class="entry-header">
-            <h1 class="entry-title">工場見学予約状況</h1>
+            <h1 class="entry-title">[フロント]予約状況カレンダー</h1>
             <p class="calendar-description">
                 日付を選択し、表示されたポップアップよりご希望の時間帯を選択してください。
             </p>
         </header>
 
+        <div class="calendar-main-layout">
         <div class="calendar-container">
             <!-- 年月選択エリア -->
             <div class="calendar-controls">
@@ -72,12 +73,43 @@ get_header(); ?>
                 </div>
             </div>
 
+        </div>
+        
+        <!-- 右側の説明文セクション -->
+        <div class="calendar-sidebar">
+            <div class="calendar-info">
+                <h3>[フロント]予約状況カレンダー</h3>
+                <ul class="info-list">
+                    <li>各工場毎にカレンダーのページが存在する。</li>
+                    <li>URLにパラメータを付与し、その値から表示する工場のカレンダーの切り分けを行う</li>
+                    <li>予約状況によってそれぞれ日付に以下が表示される</li>
+                </ul>
+                
+                <div class="status-explanations">
+                    <div class="status-item">
+                        <span class="status-symbol available-blue">〇</span>
+                        <span class="status-text">：予約可（見学不可の場合）⇒ クリック可</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-symbol adjusting-green">△</span>
+                        <span class="status-text">：調整中（見学不可が設定されている）<br>且つ予約仮受付履歴、確認欄が入っている場合 ⇒ クリック不可</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-symbol unavailable-red">―</span>
+                        <span class="status-text">：見学不可（見学不可が設定されている ⇒ クリック不可</span>
+                    </div>
+                </div>
+                
+                <p class="additional-note">「〇」をクリックするとページを表示</p>
+                <p class="month-note">※1 今月～12ヶ月分の選択肢があり、変更時にカレンダーが切り替わる</p>
+            </div>
+            
             <!-- 凡例 -->
             <div class="calendar-legend">
                 <h3>凡例</h3>
                 <div class="legend-items">
                     <div class="legend-item">
-                        <span class="legend-symbol available">◯</span>
+                        <span class="legend-symbol available">〇</span>
                         <span class="legend-text">空きがあります。ご希望の日付をクリックしてください。(※ 50名まで可)</span>
                     </div>
                     <div class="legend-item">
@@ -90,6 +122,7 @@ get_header(); ?>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
 
         <!-- 時間帯選択モーダル -->
@@ -117,21 +150,114 @@ get_header(); ?>
 </main>
 
 <style>
-/* カレンダーの基本スタイル */
-.calendar-container {
-    max-width: 1200px;
+/* メインレイアウト（左右2列） */
+.calendar-main-layout {
+    max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* カレンダーの基本スタイル */
+.calendar-container {
+    flex: 2;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* サイドバー（右側の説明文） */
+.calendar-sidebar {
+    flex: 1;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.calendar-info h3 {
+    color: #495057;
+    border-bottom: 2px solid #007cba;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.info-list li {
+    padding: 5px 0;
+    border-left: 3px solid #007cba;
+    padding-left: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.status-explanations {
+    margin: 20px 0;
+}
+
+.status-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.status-symbol {
+    margin-right: 8px;
+    font-weight: bold;
+    min-width: 20px;
+}
+
+.available-blue {
+    color: #007bff;
+}
+
+.adjusting-green {
+    color: #28a745;
+}
+
+.unavailable-red {
+    color: #dc3545;
+}
+
+.additional-note, .month-note {
+    font-size: 12px;
+    color: #6c757d;
+    margin: 10px 0;
+    padding: 8px;
+    background: #ffffff;
+    border-radius: 4px;
+    border-left: 3px solid #17a2b8;
 }
 
 .calendar-controls {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 30px;
-    padding: 20px;
-    background: #f8f9fa;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 8px;
+    border: 1px solid #dee2e6;
+    gap: 30px;
+}
+
+.calendar-controls .month-selector {
+    text-align: center;
+}
+
+.calendar-controls .factory-selector {
+    text-align: center;
 }
 
 .month-selector select {
@@ -227,16 +353,36 @@ get_header(); ?>
     font-weight: bold;
 }
 
+/* 予約状況アイコンの正確な色設定 */
 .status-symbol.available {
-    color: #28a745;
+    color: #007bff; /* 青い円 */
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .status-symbol.adjusting {
-    color: #ffc107;
+    color: #28a745; /* 緑の三角形 */
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .status-symbol.unavailable {
-    color: #6c757d;
+    color: #dc3545; /* 赤い点線 */
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* 凡例のアイコン色 */
+.legend-symbol.available {
+    color: #007bff;
+}
+
+.legend-symbol.adjusting {
+    color: #28a745;
+}
+
+.legend-symbol.unavailable {
+    color: #dc3545;
 }
 
 /* スマホ版リスト表示 */
@@ -333,10 +479,11 @@ get_header(); ?>
 
 /* 凡例 */
 .calendar-legend {
-    margin-top: 40px;
+    margin-top: 20px;
     padding: 20px;
-    background: #f8f9fa;
+    background: white;
     border-radius: 8px;
+    border: 1px solid #dee2e6;
 }
 
 .calendar-legend h3 {
@@ -530,6 +677,11 @@ get_header(); ?>
         display: block !important;
     }
     
+    .calendar-main-layout {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
     .calendar-controls {
         flex-direction: column;
         gap: 15px;
@@ -549,6 +701,10 @@ get_header(); ?>
     /* スマホ版でのスクロール最適化 */
     .calendar-container {
         padding: 10px;
+    }
+    
+    .calendar-sidebar {
+        padding: 15px;
     }
     
     .selected-factory {

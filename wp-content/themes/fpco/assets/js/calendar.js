@@ -299,10 +299,12 @@ class ReservationCalendar {
             };
         }
         
-        // フォールバック: APIデータが取得できない場合のデフォルト値
+        // フォールバック: 仕様に基づくダミーデータ
         const date = new Date(dateStr);
+        const day = date.getDate();
         const weekday = date.getDay();
         
+        // 土日は受付不可
         if (weekday === 0 || weekday === 6) {
             return {
                 clickable: false,
@@ -311,10 +313,37 @@ class ReservationCalendar {
             };
         }
         
+        // 7日、14日、21日、28日は表示なし（受付対象外）
+        if (day === 7 || day === 14 || day === 21 || day === 28) {
+            return {
+                clickable: false,
+                am: { status: 'none', symbol: '' },
+                pm: { status: 'none', symbol: '' }
+            };
+        }
+        
+        // 仕様に基づくサンプルデータ
+        if (day === 1) {
+            return {
+                clickable: false,
+                am: { status: 'unavailable', symbol: '－' },
+                pm: { status: 'unavailable', symbol: '－' }
+            };
+        }
+        
+        if (day === 4) {
+            return {
+                clickable: true,
+                am: { status: 'available', symbol: '〇' },
+                pm: { status: 'adjusting', symbol: '△' }
+            };
+        }
+        
+        // その他の平日は基本的に空きあり
         return {
             clickable: true,
-            am: { status: 'available', symbol: '◯' },
-            pm: { status: 'available', symbol: '◯' }
+            am: { status: 'available', symbol: '〇' },
+            pm: { status: 'available', symbol: '〇' }
         };
     }
     
