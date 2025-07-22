@@ -96,7 +96,7 @@ get_header(); ?>
         <div id="timeslot-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>見学時間・時間帯の選択</h3>
+                    <h3>時間帯の指定</h3>
                     <button type="button" class="modal-close" aria-label="閉じる">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -162,8 +162,8 @@ get_header(); ?>
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 1px;
-    background: #ddd;
-    border: 1px solid #ddd;
+    background: #E0E0E0;
+    border: 2px solid #E0E0E0;
     border-radius: 8px;
     overflow: hidden;
 }
@@ -171,7 +171,7 @@ get_header(); ?>
 .calendar-day-header {
     background: #007cba;
     color: white;
-    padding: 15px 5px;
+    padding: 8px 5px;
     text-align: center;
     font-weight: bold;
 }
@@ -458,10 +458,13 @@ get_header(); ?>
     align-items: center;
     padding: 20px;
     border-bottom: 1px solid #ddd;
+    background: #8DC641;
+    color: white;
 }
 
 .modal-header h3 {
     margin: 0;
+    color: white;
 }
 
 .modal-close {
@@ -469,7 +472,7 @@ get_header(); ?>
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: #999;
+    color: white;
 }
 
 .modal-close:hover {
@@ -483,9 +486,11 @@ get_header(); ?>
 .selected-date {
     text-align: center;
     margin-bottom: 20px;
-    padding: 10px;
-    background: #f8f9fa;
+    padding: 10px 15px;
+    background: white;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    min-height: auto;
 }
 
 .timeslot-options {
@@ -565,19 +570,20 @@ get_header(); ?>
 }
 
 .duration-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 15px;
     margin-bottom: 20px;
 }
 
 .duration-option {
     padding: 20px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
     background: white;
+    text-align: center;
 }
 
 .duration-option:hover {
@@ -595,6 +601,21 @@ get_header(); ?>
     display: grid;
     gap: 10px;
     margin-bottom: 20px;
+}
+
+.duration-selection {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    padding: 15px;
+}
+
+.timeslot-selection {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    padding: 15px;
+    margin-top: 15px;
 }
 
 .timeslot-option {

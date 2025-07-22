@@ -356,12 +356,8 @@ class ReservationCalendar {
     }
     
     addDayClickEvents() {
-        document.querySelectorAll('.calendar-day.clickable').forEach(day => {
-            day.addEventListener('click', (e) => {
-                const date = day.getAttribute('data-date');
-                this.openTimeslotModal(date);
-            });
-        });
+        // ◯ボタン以外の部分はクリック無効化（この関数は使用しない）
+        // クリックイベントは個別のボタンで処理
     }
     
     addMobileClickEvents() {
@@ -400,13 +396,13 @@ class ReservationCalendar {
         // 60分・90分選択画面
         let html = `
             <div class="duration-selection">
-                <h4>見学時間を選択してください</h4>
+                <h4>ご希望の見学時間をクリックしてください</h4>
                 <div class="duration-options">
                     <div class="duration-option" data-duration="60">
-                        <div class="duration-label">60分コース</div>
+                        <div class="duration-label">60分</div>
                     </div>
                     <div class="duration-option" data-duration="90">
-                        <div class="duration-label">90分コース</div>
+                        <div class="duration-label">90分</div>
                     </div>
                 </div>
             </div>
@@ -532,10 +528,8 @@ class ReservationCalendar {
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
         const day = date.getDate();
-        const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-        const weekday = weekdays[date.getDay()];
         
-        return `${year}年${month}月${day}日（${weekday}）`;
+        return `${year}年${month}月${day}日`;
     }
     
     isSameDate(date1, date2) {
