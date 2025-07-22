@@ -242,37 +242,58 @@ get_header(); ?>
 /* スマホ版リスト表示 */
 .calendar-list {
     display: none;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    -webkit-overflow-scrolling: touch; /* iOS慣性スクロール */
 }
 
 .calendar-list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background: white;
-    border: 1px solid #ddd;
-    margin-bottom: 5px;
-    border-radius: 4px;
+    display: block;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-list-item:last-child {
+    border-bottom: none;
 }
 
 .calendar-list-item.clickable {
     cursor: pointer;
+    background: linear-gradient(90deg, #f8ffed 0%, #ffffff 50%);
 }
 
 .calendar-list-item.clickable:hover {
-    background: #f0f8ff;
+    background: linear-gradient(90deg, #e8f5d8 0%, #f0f8ff 50%);
+    transform: translateX(2px);
 }
 
-.list-date-info {
+.calendar-list-item.today {
+    background: linear-gradient(90deg, #fff3cd 0%, #ffffff 50%);
+    border-left: 4px solid #ffc107;
+}
+
+.calendar-list-item.past {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+/* SPECIFICATION.md準拠の1行レイアウト */
+.list-content {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    font-size: 16px;
 }
 
 .list-day-number {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
-    min-width: 40px;
+    min-width: 35px;
+    text-align: center;
 }
 
 .list-day-number.sunday {
@@ -285,18 +306,29 @@ get_header(); ?>
 
 .list-weekday {
     font-size: 16px;
+    min-width: 20px;
+    color: #495057;
 }
 
-.list-time-slots {
-    display: flex;
-    gap: 20px;
-}
-
-.list-time-slot {
+.list-am-slot, .list-pm-slot {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    min-width: 50px;
+}
+
+.slot-label {
     font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    min-width: 24px;
+}
+
+.list-content .status-symbol {
+    font-size: 18px;
+    font-weight: bold;
+    width: 20px;
+    text-align: center;
 }
 
 /* 凡例 */
@@ -502,10 +534,30 @@ get_header(); ?>
         flex-direction: column;
         gap: 15px;
         text-align: center;
+        padding: 15px;
+    }
+    
+    .calendar-list {
+        display: block !important;
+        margin: 20px 0;
     }
     
     .legend-items {
         grid-template-columns: 1fr;
+    }
+    
+    /* スマホ版でのスクロール最適化 */
+    .calendar-container {
+        padding: 10px;
+    }
+    
+    .selected-factory {
+        font-size: 16px;
+    }
+    
+    .month-selector select {
+        font-size: 14px;
+        padding: 6px 10px;
     }
 }
 

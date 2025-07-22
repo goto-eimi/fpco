@@ -171,6 +171,7 @@ class ReservationCalendar {
         
         let html = '';
         
+        // 全月の日付を表示（SPECIFICATION.mdに従い縦スクロール対応）
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const currentDate = new Date(year, month - 1, day);
             html += this.renderMobileListItem(currentDate, today);
@@ -178,8 +179,31 @@ class ReservationCalendar {
         
         calendarList.innerHTML = html;
         
+        // スクロール位置を保持
+        this.restoreScrollPosition(calendarList);
+        
         // クリックイベントを追加
         this.addMobileClickEvents();
+        
+        // スクロール位置を記録
+        this.saveScrollPosition(calendarList);
+    }
+    
+    saveScrollPosition(container) {
+        if (container) {
+            container.addEventListener('scroll', () => {
+                sessionStorage.setItem('calendar-scroll-position', container.scrollTop);
+            });
+        }
+    }
+    
+    restoreScrollPosition(container) {
+        if (container) {
+            const savedPosition = sessionStorage.getItem('calendar-scroll-position');
+            if (savedPosition) {
+                container.scrollTop = parseInt(savedPosition, 10);
+            }
+        }
     }
     
     renderDayCell(date, isOtherMonth, today) {
@@ -231,32 +255,34 @@ class ReservationCalendar {
         const weekday = date.getDay();
         const weekdayNames = ['日', '月', '火', '水', '木', '金', '土'];
         const isPast = date < today && !this.isSameDate(date, today);
+        const isToday = this.isSameDate(date, today);
         
         // デモデータ
         const dayData = this.getDayData(dateStr);
         
         let classes = ['calendar-list-item'];
         if (dayData.clickable && !isPast) classes.push('clickable');
+        if (isToday) classes.push('today');
+        if (isPast) classes.push('past');
         
         let dayNumberClass = 'list-day-number';
         if (weekday === 0) dayNumberClass += ' sunday';
         if (weekday === 6) dayNumberClass += ' saturday';
         
+        // SPECIFICATION.mdに基づく1行形式のレイアウト
         return `
             <div class="${classes.join(' ')}" data-date="${dateStr}">
-                <div class="list-date-info">
-                    <div class="${dayNumberClass}">${dayNumber}</div>
-                    <div class="list-weekday">${weekdayNames[weekday]}</div>
-                </div>
-                <div class="list-time-slots">
-                    <div class="list-time-slot">
-                        <span>AM</span>
+                <div class="list-content">
+                    <span class="${dayNumberClass}">${dayNumber}</span>
+                    <span class="list-weekday">${weekdayNames[weekday]}</span>
+                    <span class="list-am-slot">
+                        <span class="slot-label">AM</span>
                         <span class="status-symbol ${dayData.am.status}">${dayData.am.symbol}</span>
-                    </div>
-                    <div class="list-time-slot">
-                        <span>PM</span>
+                    </span>
+                    <span class="list-pm-slot">
+                        <span class="slot-label">PM</span>
                         <span class="status-symbol ${dayData.pm.status}">${dayData.pm.symbol}</span>
-                    </div>
+                    </span>
                 </div>
             </div>
         `;

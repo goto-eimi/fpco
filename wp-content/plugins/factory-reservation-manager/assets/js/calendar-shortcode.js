@@ -156,6 +156,7 @@ class ReservationCalendarShortcode extends ReservationCalendar {
         
         let html = '';
         
+        // 全月の日付を表示（SPECIFICATION.mdに従い縦スクロール対応）
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const currentDate = new Date(year, month - 1, day);
             html += this.renderMobileListItem(currentDate, today);
@@ -163,8 +164,33 @@ class ReservationCalendarShortcode extends ReservationCalendar {
         
         calendarList.innerHTML = html;
         
+        // スクロール位置を保持
+        this.restoreScrollPosition(calendarList);
+        
         // クリックイベントを追加
         this.addMobileClickEvents();
+        
+        // スクロール位置を記録
+        this.saveScrollPosition(calendarList);
+    }
+    
+    saveScrollPosition(container) {
+        if (container) {
+            const scrollKey = `calendar-scroll-${this.containerId}`;
+            container.addEventListener('scroll', () => {
+                sessionStorage.setItem(scrollKey, container.scrollTop);
+            });
+        }
+    }
+    
+    restoreScrollPosition(container) {
+        if (container) {
+            const scrollKey = `calendar-scroll-${this.containerId}`;
+            const savedPosition = sessionStorage.getItem(scrollKey);
+            if (savedPosition) {
+                container.scrollTop = parseInt(savedPosition, 10);
+            }
+        }
     }
     
     addDayClickEvents() {
