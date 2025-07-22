@@ -16,7 +16,6 @@ get_header(); ?>
             </p>
         </header>
 
-        <div class="calendar-main-layout">
         <div class="calendar-container">
             <!-- 年月選択エリア -->
             <div class="calendar-controls">
@@ -73,40 +72,8 @@ get_header(); ?>
                 </div>
             </div>
 
-        </div>
-        
-        <!-- 右側の説明文セクション -->
-        <div class="calendar-sidebar">
-            <div class="calendar-info">
-                <h3>[フロント]予約状況カレンダー</h3>
-                <ul class="info-list">
-                    <li>各工場毎にカレンダーのページが存在する。</li>
-                    <li>URLにパラメータを付与し、その値から表示する工場のカレンダーの切り分けを行う</li>
-                    <li>予約状況によってそれぞれ日付に以下が表示される</li>
-                </ul>
-                
-                <div class="status-explanations">
-                    <div class="status-item">
-                        <span class="status-symbol available-blue">〇</span>
-                        <span class="status-text">：予約可（見学不可の場合）⇒ クリック可</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-symbol adjusting-green">△</span>
-                        <span class="status-text">：調整中（見学不可が設定されている）<br>且つ予約仮受付履歴、確認欄が入っている場合 ⇒ クリック不可</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-symbol unavailable-red">―</span>
-                        <span class="status-text">：見学不可（見学不可が設定されている ⇒ クリック不可</span>
-                    </div>
-                </div>
-                
-                <p class="additional-note">「〇」をクリックするとページを表示</p>
-                <p class="month-note">※1 今月～12ヶ月分の選択肢があり、変更時にカレンダーが切り替わる</p>
-            </div>
-            
             <!-- 凡例 -->
             <div class="calendar-legend">
-                <h3>凡例</h3>
                 <div class="legend-items">
                     <div class="legend-item">
                         <span class="legend-symbol available">〇</span>
@@ -129,7 +96,7 @@ get_header(); ?>
         <div id="timeslot-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>時間帯を選択してください</h3>
+                    <h3>見学時間・時間帯の選択</h3>
                     <button type="button" class="modal-close" aria-label="閉じる">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -150,94 +117,11 @@ get_header(); ?>
 </main>
 
 <style>
-/* メインレイアウト（左右2列） */
-.calendar-main-layout {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    display: flex;
-    gap: 40px;
-    align-items: flex-start;
-}
-
 /* カレンダーの基本スタイル */
 .calendar-container {
-    flex: 2;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* サイドバー（右側の説明文） */
-.calendar-sidebar {
-    flex: 1;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.calendar-info h3 {
-    color: #495057;
-    border-bottom: 2px solid #007cba;
-    padding-bottom: 8px;
-    margin-bottom: 15px;
-}
-
-.info-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 20px 0;
-}
-
-.info-list li {
-    padding: 5px 0;
-    border-left: 3px solid #007cba;
-    padding-left: 10px;
-    margin-bottom: 8px;
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-.status-explanations {
-    margin: 20px 0;
-}
-
-.status-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 12px;
-    font-size: 13px;
-    line-height: 1.3;
-}
-
-.status-symbol {
-    margin-right: 8px;
-    font-weight: bold;
-    min-width: 20px;
-}
-
-.available-blue {
-    color: #007bff;
-}
-
-.adjusting-green {
-    color: #28a745;
-}
-
-.unavailable-red {
-    color: #dc3545;
-}
-
-.additional-note, .month-note {
-    font-size: 12px;
-    color: #6c757d;
-    margin: 10px 0;
-    padding: 8px;
-    background: #ffffff;
-    border-radius: 4px;
-    border-left: 3px solid #17a2b8;
 }
 
 .calendar-controls {
@@ -295,7 +179,7 @@ get_header(); ?>
 .calendar-day {
     background: white;
     min-height: 100px;
-    padding: 10px 5px;
+    padding: 0px 5px;
     position: relative;
     cursor: default;
 }
@@ -318,10 +202,11 @@ get_header(); ?>
 }
 
 .day-number {
-    position: absolute;
-    top: 5px;
-    left: 5px;
+    display: block;
+    text-align: center;
     font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
 }
 
 .day-number.sunday {
@@ -333,56 +218,74 @@ get_header(); ?>
 }
 
 .time-slots {
-    margin-top: 25px;
-    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 10px;
+    margin-bottom: 8px;
 }
 
 .time-slot {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
-    padding: 2px 0;
+    align-items: center;
 }
 
 .time-label {
     font-weight: bold;
+    font-size: 14px;
 }
 
-.status-symbol {
+.status-button {
+    display: inline-block;
+    width: 75px;
+    height: 24px;
+    border-radius: 20px;
+    text-align: center;
+    line-height: 24px;
     font-size: 16px;
     font-weight: bold;
+    cursor: default;
+    border: none;
+    text-decoration: none;
 }
 
-/* 予約状況アイコンの正確な色設定 */
-.status-symbol.available {
-    color: #007bff; /* 青い円 */
-    font-size: 18px;
-    font-weight: bold;
+.status-button.available {
+    background-color: #1A76D2;
+    color: white;
+    cursor: pointer;
 }
 
-.status-symbol.adjusting {
-    color: #28a745; /* 緑の三角形 */
-    font-size: 16px;
-    font-weight: bold;
+.status-button.available:hover {
+    background-color: #1565C0;
 }
 
-.status-symbol.unavailable {
-    color: #dc3545; /* 赤い点線 */
-    font-size: 16px;
-    font-weight: bold;
+.status-button.adjusting {
+    background-color: #25DF01;
+    color: white;
+}
+
+.status-button.unavailable {
+    background-color: #E0E0E0;
+    color: red;
+}
+
+.status-button.none {
+    background: transparent;
+    cursor: default;
 }
 
 /* 凡例のアイコン色 */
 .legend-symbol.available {
-    color: #007bff;
+    color: #1A76D2;
 }
 
 .legend-symbol.adjusting {
-    color: #28a745;
+    color: #25DF01;
 }
 
 .legend-symbol.unavailable {
-    color: #dc3545;
+    color: #E0E0E0;
 }
 
 /* スマホ版リスト表示 */
@@ -479,11 +382,16 @@ get_header(); ?>
 
 /* 凡例 */
 .calendar-legend {
-    margin-top: 20px;
+    margin-top: 40px;
     padding: 20px;
-    background: white;
+    background: #f8f9fa;
     border-radius: 8px;
-    border: 1px solid #dee2e6;
+}
+
+.calendar-legend .legend-items {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
 }
 
 .calendar-legend h3 {
@@ -645,6 +553,89 @@ get_header(); ?>
     cursor: not-allowed;
 }
 
+/* 見学時間・時間帯選択のスタイル */
+.duration-selection, .timeslot-selection {
+    text-align: center;
+}
+
+.duration-selection h4, .timeslot-selection h4 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.duration-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.duration-option {
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.duration-option:hover {
+    border-color: #007cba;
+    background: #f0f8ff;
+}
+
+.duration-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.timeslot-options-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.timeslot-option {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    background: white;
+}
+
+.timeslot-option:hover {
+    background: #f0f8ff;
+    border-color: #007cba;
+}
+
+.timeslot-option.selected {
+    background: #007cba;
+    color: white;
+}
+
+.timeslot-time {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.btn-back {
+    padding: 8px 16px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-back:hover {
+    background: #5a6268;
+}
+
 /* ローディング */
 .calendar-loading {
     grid-column: 1 / -1;
@@ -677,11 +668,6 @@ get_header(); ?>
         display: block !important;
     }
     
-    .calendar-main-layout {
-        flex-direction: column;
-        gap: 20px;
-    }
-    
     .calendar-controls {
         flex-direction: column;
         gap: 15px;
@@ -701,10 +687,6 @@ get_header(); ?>
     /* スマホ版でのスクロール最適化 */
     .calendar-container {
         padding: 10px;
-    }
-    
-    .calendar-sidebar {
-        padding: 15px;
     }
     
     .selected-factory {
@@ -729,6 +711,15 @@ get_header(); ?>
 </style>
 
 <script src="<?php echo get_template_directory_uri(); ?>/assets/js/calendar.js"></script>
+
+<script>
+// グローバル関数として定義（HTML内のonclickから呼び出せるように）
+function openTimeslotSelection(dateStr, period) {
+    if (window.reservationCalendar) {
+        window.reservationCalendar.openTimeslotModal(dateStr, period);
+    }
+}
+</script>
 
 <?php
 // 工場名を取得するヘルパー関数

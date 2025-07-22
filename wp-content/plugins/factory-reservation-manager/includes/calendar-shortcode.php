@@ -79,7 +79,6 @@ function render_reservation_calendar_shortcode($atts) {
             <?php if ($show_legend): ?>
             <!-- 凡例 -->
             <div class="calendar-legend">
-                <h3>凡例</h3>
                 <div class="legend-items">
                     <div class="legend-item">
                         <span class="legend-symbol available">◯</span>

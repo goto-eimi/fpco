@@ -54,7 +54,7 @@
 .calendar-shortcode-container .calendar-day {
     background: white;
     min-height: 100px;
-    padding: 10px 5px;
+    padding: 0px 5px;
     position: relative;
     cursor: default;
 }
@@ -77,10 +77,11 @@
 }
 
 .calendar-shortcode-container .day-number {
-    position: absolute;
-    top: 5px;
-    left: 5px;
+    display: block;
+    text-align: center;
     font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
 }
 
 .calendar-shortcode-container .day-number.sunday {
@@ -92,24 +93,60 @@
 }
 
 .calendar-shortcode-container .time-slots {
-    margin-top: 25px;
-    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 10px;
+    margin-bottom: 8px;
 }
 
 .calendar-shortcode-container .time-slot {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
-    padding: 2px 0;
+    align-items: center;
 }
 
 .calendar-shortcode-container .time-label {
     font-weight: bold;
 }
 
-.calendar-shortcode-container .status-symbol {
+.calendar-shortcode-container .status-button {
+    display: inline-block;
+    width: 75px;
+    height: 24px;
+    border-radius: 20px;
+    text-align: center;
+    line-height: 24px;
     font-size: 16px;
     font-weight: bold;
+    cursor: default;
+    border: none;
+    text-decoration: none;
+}
+
+.calendar-shortcode-container .status-button.available {
+    background-color: #1A76D2;
+    color: white;
+    cursor: pointer;
+}
+
+.calendar-shortcode-container .status-button.available:hover {
+    background-color: #1565C0;
+}
+
+.calendar-shortcode-container .status-button.adjusting {
+    background-color: #25DF01;
+    color: white;
+}
+
+.calendar-shortcode-container .status-button.unavailable {
+    background-color: #E0E0E0;
+    color: red;
+}
+
+.calendar-shortcode-container .status-button.none {
+    background: transparent;
+    cursor: default;
 }
 
 /* 予約状況アイコンの正確な色設定 */
@@ -244,10 +281,6 @@
     border-radius: 8px;
 }
 
-.calendar-shortcode-container .calendar-legend h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-}
 
 .calendar-shortcode-container .legend-items {
     display: grid;

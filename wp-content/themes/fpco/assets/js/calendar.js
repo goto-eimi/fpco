@@ -227,15 +227,23 @@ class ReservationCalendar {
         
         let timeSlotsHtml = '';
         if (!isOtherMonth && !isPast) {
+            const amButton = dayData.am.status === 'available' 
+                ? `<button class="status-button available" data-date="${dateStr}" data-period="am" onclick="openTimeslotSelection('${dateStr}', 'am')">${dayData.am.symbol}</button>`
+                : `<span class="status-button ${dayData.am.status}">${dayData.am.symbol}</span>`;
+                
+            const pmButton = dayData.pm.status === 'available'
+                ? `<button class="status-button available" data-date="${dateStr}" data-period="pm" onclick="openTimeslotSelection('${dateStr}', 'pm')">${dayData.pm.symbol}</button>`
+                : `<span class="status-button ${dayData.pm.status}">${dayData.pm.symbol}</span>`;
+                
             timeSlotsHtml = `
                 <div class="time-slots">
                     <div class="time-slot">
                         <span class="time-label">AM</span>
-                        <span class="status-symbol ${dayData.am.status}">${dayData.am.symbol}</span>
+                        ${amButton}
                     </div>
                     <div class="time-slot">
                         <span class="time-label">PM</span>
-                        <span class="status-symbol ${dayData.pm.status}">${dayData.pm.symbol}</span>
+                        ${pmButton}
                     </div>
                 </div>
             `;
@@ -365,17 +373,20 @@ class ReservationCalendar {
         });
     }
     
-    openTimeslotModal(dateStr) {
+    openTimeslotModal(dateStr, period = null) {
         this.selectedDate = dateStr;
+        this.selectedPeriod = period;
         this.selectedTimeslot = null;
+        this.selectedDuration = null;
         
         const date = new Date(dateStr);
         const displayDate = this.formatDisplayDate(date);
+        const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
         
-        document.getElementById('modal-selected-date').textContent = displayDate;
+        document.getElementById('modal-selected-date').textContent = displayDate + periodLabel;
         
         // 時間帯選択肢を生成
-        this.renderTimeslotOptions(dateStr);
+        this.renderDurationOptions(dateStr, period);
         
         document.getElementById('timeslot-modal').style.display = 'flex';
         
@@ -383,29 +394,72 @@ class ReservationCalendar {
         document.querySelector('.btn-proceed').disabled = true;
     }
     
-    renderTimeslotOptions(dateStr) {
+    renderDurationOptions(dateStr, period) {
         const optionsContainer = document.getElementById('timeslot-options');
         
-        // TODO: 工場の時間帯設定に基づいて動的に生成
-        // デモとして固定の時間帯を表示
-        const timeslots = [
-            { id: 'am', label: 'AM（午前）', times: ['9:00〜10:00', '10:30〜11:30'] },
-            { id: 'pm', label: 'PM（午後）', times: ['14:00〜15:00', '15:30〜16:30'] }
-        ];
+        // 60分・90分選択画面
+        let html = `
+            <div class="duration-selection">
+                <h4>見学時間を選択してください</h4>
+                <div class="duration-options">
+                    <div class="duration-option" data-duration="60">
+                        <div class="duration-label">60分コース</div>
+                    </div>
+                    <div class="duration-option" data-duration="90">
+                        <div class="duration-label">90分コース</div>
+                    </div>
+                </div>
+            </div>
+        `;
         
-        let html = '';
+        optionsContainer.innerHTML = html;
+        
+        // 60分・90分選択のクリックイベント
+        document.querySelectorAll('.duration-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const duration = option.getAttribute('data-duration');
+                this.selectedDuration = duration;
+                this.renderTimeslotOptions(dateStr, period, duration);
+            });
+        });
+    }
+    
+    renderTimeslotOptions(dateStr, period, duration) {
+        const optionsContainer = document.getElementById('timeslot-options');
+        
+        // 期間と時間に基づく具体的な時間帯選択肢
+        const timeslots = this.getTimeslotsForPeriodAndDuration(period, duration);
+        
+        let html = `
+            <div class="timeslot-selection">
+                <h4>${duration}分コース - ${period === 'am' ? '午前' : '午後'}の時間帯を選択</h4>
+                <div class="timeslot-options-grid">
+        `;
+        
         timeslots.forEach(slot => {
             html += `
                 <div class="timeslot-option" data-timeslot="${slot.id}">
-                    <div class="timeslot-label">${slot.label}</div>
-                    <div class="timeslot-times">${slot.times.join(', ')}</div>
+                    <div class="timeslot-time">${slot.time}</div>
                 </div>
             `;
         });
         
+        html += `
+                </div>
+                <div class="back-to-duration">
+                    <button type="button" class="btn-back">← 時間選択に戻る</button>
+                </div>
+            </div>
+        `;
+        
         optionsContainer.innerHTML = html;
         
-        // クリックイベントを追加
+        // 戻るボタンのイベント
+        document.querySelector('.btn-back').addEventListener('click', () => {
+            this.renderDurationOptions(dateStr, period);
+        });
+        
+        // 時間帯選択のクリックイベント
         document.querySelectorAll('.timeslot-option').forEach(option => {
             option.addEventListener('click', (e) => {
                 document.querySelectorAll('.timeslot-option').forEach(opt => {
@@ -417,6 +471,33 @@ class ReservationCalendar {
                 document.querySelector('.btn-proceed').disabled = false;
             });
         });
+    }
+    
+    getTimeslotsForPeriodAndDuration(period, duration) {
+        const timeslots = {
+            am: {
+                60: [
+                    { id: 'am-60-1', time: '9:00〜10:00' },
+                    { id: 'am-60-2', time: '10:30〜11:30' }
+                ],
+                90: [
+                    { id: 'am-90-1', time: '9:00〜10:30' },
+                    { id: 'am-90-2', time: '10:00〜11:30' }
+                ]
+            },
+            pm: {
+                60: [
+                    { id: 'pm-60-1', time: '14:00〜15:00' },
+                    { id: 'pm-60-2', time: '15:30〜16:30' }
+                ],
+                90: [
+                    { id: 'pm-90-1', time: '14:00〜15:30' },
+                    { id: 'pm-90-2', time: '15:00〜16:30' }
+                ]
+            }
+        };
+        
+        return timeslots[period]?.[duration] || [];
     }
     
     closeModal() {
