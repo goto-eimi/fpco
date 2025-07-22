@@ -27,8 +27,6 @@ class ReservationCalendar {
         
         // モーダル関連
         document.querySelector('.modal-close').addEventListener('click', () => this.closeModal());
-        document.querySelector('.btn-cancel').addEventListener('click', () => this.closeModal());
-        document.querySelector('.btn-proceed').addEventListener('click', () => this.proceedToReservation());
         
         // オーバーレイクリックで閉じる
         document.getElementById('timeslot-modal').addEventListener('click', (e) => {
@@ -386,8 +384,7 @@ class ReservationCalendar {
         
         document.getElementById('timeslot-modal').style.display = 'flex';
         
-        // 進むボタンを無効化
-        document.querySelector('.btn-proceed').disabled = true;
+        // モーダル表示のみ（ボタン関連の処理削除）
     }
     
     renderDurationOptions(dateStr, period) {
@@ -428,7 +425,7 @@ class ReservationCalendar {
         
         let html = `
             <div class="timeslot-selection">
-                <h4>${duration}分コース - ${period === 'am' ? '午前' : '午後'}の時間帯を選択</h4>
+                <h4>ご希望の時間帯をクリックしてください</h4>
                 <div class="timeslot-options-grid">
         `;
         
@@ -464,7 +461,10 @@ class ReservationCalendar {
                 option.classList.add('selected');
                 
                 this.selectedTimeslot = option.getAttribute('data-timeslot');
-                document.querySelector('.btn-proceed').disabled = false;
+                // 時間帯選択後、自動的にモーダルを閉じる
+                setTimeout(() => {
+                    this.closeModal();
+                }, 500);
             });
         });
     }

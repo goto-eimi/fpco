@@ -107,10 +107,6 @@ get_header(); ?>
                         <!-- JavaScriptで動的に生成 -->
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel">キャンセル</button>
-                    <button type="button" class="btn-proceed">予約フォームへ進む</button>
-                </div>
             </div>
         </div>
     </div>
@@ -465,6 +461,8 @@ get_header(); ?>
 .modal-header h3 {
     margin: 0;
     color: white;
+    text-align: center;
+    width: 100%;
 }
 
 .modal-close {
@@ -517,46 +515,6 @@ get_header(); ?>
     color: white;
 }
 
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 20px;
-    border-top: 1px solid #ddd;
-}
-
-.btn-cancel, .btn-proceed {
-    padding: 10px 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-cancel {
-    background: white;
-    color: #333;
-}
-
-.btn-cancel:hover {
-    background: #f8f9fa;
-}
-
-.btn-proceed {
-    background: #007cba;
-    color: white;
-    border-color: #007cba;
-}
-
-.btn-proceed:hover {
-    background: #005a87;
-}
-
-.btn-proceed:disabled {
-    background: #ccc;
-    border-color: #ccc;
-    cursor: not-allowed;
-}
 
 /* 見学時間・時間帯選択のスタイル */
 .duration-selection, .timeslot-selection {
