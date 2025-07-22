@@ -511,7 +511,6 @@ class ReservationCalendar {
                 timeslot: this.selectedTimeslot
             });
             
-            // TODO: 実際の予約フォームURLに変更
             window.location.href = `/reservation-form?${params.toString()}`;
         }
     }
