@@ -1,0 +1,406 @@
+/* カレンダーショートコード用スタイル */
+.calendar-shortcode-container {
+    margin: 20px 0;
+}
+
+.calendar-shortcode-container .calendar-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.calendar-shortcode-container .calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.calendar-shortcode-container .month-selector select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.calendar-shortcode-container .selected-factory {
+    font-weight: bold;
+    color: #007cba;
+    font-size: 18px;
+}
+
+/* PC版カレンダーグリッド */
+.calendar-shortcode-container .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #ddd;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-shortcode-container .calendar-day-header {
+    background: #007cba;
+    color: white;
+    padding: 15px 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.calendar-shortcode-container .calendar-day {
+    background: white;
+    min-height: 100px;
+    padding: 10px 5px;
+    position: relative;
+    cursor: default;
+}
+
+.calendar-shortcode-container .calendar-day.clickable {
+    cursor: pointer;
+}
+
+.calendar-shortcode-container .calendar-day.clickable:hover {
+    background: #f0f8ff;
+}
+
+.calendar-shortcode-container .calendar-day.today {
+    background: #fff3cd;
+}
+
+.calendar-shortcode-container .calendar-day.other-month {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.calendar-shortcode-container .day-number {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-weight: bold;
+}
+
+.calendar-shortcode-container .day-number.sunday {
+    color: #dc3545;
+}
+
+.calendar-shortcode-container .day-number.saturday {
+    color: #0066cc;
+}
+
+.calendar-shortcode-container .time-slots {
+    margin-top: 25px;
+    font-size: 14px;
+}
+
+.calendar-shortcode-container .time-slot {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    padding: 2px 0;
+}
+
+.calendar-shortcode-container .time-label {
+    font-weight: bold;
+}
+
+.calendar-shortcode-container .status-symbol {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.calendar-shortcode-container .status-symbol.available {
+    color: #28a745;
+}
+
+.calendar-shortcode-container .status-symbol.adjusting {
+    color: #ffc107;
+}
+
+.calendar-shortcode-container .status-symbol.unavailable {
+    color: #6c757d;
+}
+
+/* スマホ版リスト表示 */
+.calendar-shortcode-container .calendar-list {
+    display: none;
+}
+
+.calendar-shortcode-container .calendar-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.calendar-shortcode-container .calendar-list-item.clickable {
+    cursor: pointer;
+}
+
+.calendar-shortcode-container .calendar-list-item.clickable:hover {
+    background: #f0f8ff;
+}
+
+.calendar-shortcode-container .list-date-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.calendar-shortcode-container .list-day-number {
+    font-size: 24px;
+    font-weight: bold;
+    min-width: 40px;
+}
+
+.calendar-shortcode-container .list-day-number.sunday {
+    color: #dc3545;
+}
+
+.calendar-shortcode-container .list-day-number.saturday {
+    color: #0066cc;
+}
+
+.calendar-shortcode-container .list-weekday {
+    font-size: 16px;
+}
+
+.calendar-shortcode-container .list-time-slots {
+    display: flex;
+    gap: 20px;
+}
+
+.calendar-shortcode-container .list-time-slot {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+/* 凡例 */
+.calendar-shortcode-container .calendar-legend {
+    margin-top: 40px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.calendar-shortcode-container .calendar-legend h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.calendar-shortcode-container .legend-items {
+    display: grid;
+    gap: 10px;
+}
+
+.calendar-shortcode-container .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.calendar-shortcode-container .legend-symbol {
+    font-size: 18px;
+    font-weight: bold;
+    width: 20px;
+    text-align: center;
+}
+
+.calendar-shortcode-container .legend-symbol.available {
+    color: #28a745;
+}
+
+.calendar-shortcode-container .legend-symbol.adjusting {
+    color: #ffc107;
+}
+
+.calendar-shortcode-container .legend-symbol.unavailable {
+    color: #6c757d;
+}
+
+/* モーダル */
+.calendar-shortcode-container .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.calendar-shortcode-container .modal-content {
+    background: white;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.calendar-shortcode-container .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.calendar-shortcode-container .modal-header h3 {
+    margin: 0;
+}
+
+.calendar-shortcode-container .modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+}
+
+.calendar-shortcode-container .modal-close:hover {
+    color: #333;
+}
+
+.calendar-shortcode-container .modal-body {
+    padding: 20px;
+}
+
+.calendar-shortcode-container .selected-date {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.calendar-shortcode-container .timeslot-options {
+    display: grid;
+    gap: 10px;
+}
+
+.calendar-shortcode-container .timeslot-option {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.calendar-shortcode-container .timeslot-option:hover {
+    background: #f0f8ff;
+    border-color: #007cba;
+}
+
+.calendar-shortcode-container .timeslot-option.selected {
+    background: #007cba;
+    color: white;
+}
+
+.calendar-shortcode-container .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.calendar-shortcode-container .btn-cancel,
+.calendar-shortcode-container .btn-proceed {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-shortcode-container .btn-cancel {
+    background: white;
+    color: #333;
+}
+
+.calendar-shortcode-container .btn-cancel:hover {
+    background: #f8f9fa;
+}
+
+.calendar-shortcode-container .btn-proceed {
+    background: #007cba;
+    color: white;
+    border-color: #007cba;
+}
+
+.calendar-shortcode-container .btn-proceed:hover {
+    background: #005a87;
+}
+
+.calendar-shortcode-container .btn-proceed:disabled {
+    background: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* ローディング */
+.calendar-shortcode-container .calendar-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+}
+
+.calendar-shortcode-container .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007cba;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+    .calendar-shortcode-container .desktop-only {
+        display: none !important;
+    }
+    
+    .calendar-shortcode-container .mobile-only {
+        display: block !important;
+    }
+    
+    .calendar-shortcode-container .calendar-controls {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .calendar-shortcode-container .legend-items {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 769px) {
+    .calendar-shortcode-container .mobile-only {
+        display: none !important;
+    }
+    
+    .calendar-shortcode-container .desktop-only {
+        display: block !important;
+    }
+}
