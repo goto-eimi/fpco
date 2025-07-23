@@ -285,7 +285,7 @@ get_header(); ?>
 
 .calendar-list-item {
     display: block;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid black;
     transition: background-color 0.2s ease;
 }
 
@@ -315,7 +315,7 @@ get_header(); ?>
     padding: 12px 8px;
     text-align: center;
     min-width: 50px;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid black;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -327,7 +327,7 @@ get_header(); ?>
     padding: 12px 8px;
     text-align: center;
     min-width: 40px;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid black;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -368,7 +368,7 @@ get_header(); ?>
 .list-weekday {
     font-size: 14px;
     color: black;
-    font-weight: normal;
+    font-weight: bold;
 }
 
 .list-am-slot, .list-pm-slot {
