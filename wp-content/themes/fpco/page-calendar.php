@@ -372,7 +372,7 @@ get_header(); ?>
 }
 
 .list-am-slot, .list-pm-slot {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: #495057;
 }
@@ -380,12 +380,12 @@ get_header(); ?>
 /* スマホ版ボタンスタイル */
 .mobile-status-button {
     display: inline-block;
-    width: 50px;
-    height: 20px;
-    border-radius: 15px;
+    width: 70px;
+    height: 25px;
+    border-radius: 18px;
     text-align: center;
-    line-height: 20px;
-    font-size: 14px;
+    line-height: 25px;
+    font-size: 16px;
     font-weight: bold;
     cursor: default;
     border: none;
