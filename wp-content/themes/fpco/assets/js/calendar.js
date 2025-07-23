@@ -293,13 +293,9 @@ class ReservationCalendar {
                     <div class="list-weekday-section">
                         <span class="list-weekday">${weekdayNames[weekday]}</span>
                     </div>
-                    <div class="list-am-section">
-                        <span class="slot-label">AM</span>
-                        ${amButton}
-                    </div>
-                    <div class="list-pm-section">
-                        <span class="slot-label">PM</span>
-                        ${pmButton}
+                    <div class="list-time-section">
+                        <div class="list-am-slot">AM ${amButton}</div>
+                        <div class="list-pm-slot">PM ${pmButton}</div>
                     </div>
                 </div>
             </div>

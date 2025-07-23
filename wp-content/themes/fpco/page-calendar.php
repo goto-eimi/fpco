@@ -333,21 +333,22 @@ get_header(); ?>
     justify-content: center;
 }
 
-.list-am-section, .list-pm-section {
+.list-time-section {
     background: white;
     padding: 8px;
-    text-align: center;
-    min-width: 70px;
-    border-right: 1px solid #ddd;
     display: flex;
-    flex-direction: column;
+    flex: 1;
     align-items: center;
-    justify-content: center;
-    gap: 4px;
+    justify-content: space-around;
+    gap: 20px;
 }
 
-.list-pm-section {
-    border-right: none;
+.list-am-slot, .list-pm-slot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
 }
 
 .list-day-number {
@@ -370,11 +371,10 @@ get_header(); ?>
     font-weight: normal;
 }
 
-.slot-label {
-    font-size: 12px;
+.list-am-slot, .list-pm-slot {
+    font-size: 14px;
     font-weight: 600;
     color: #495057;
-    margin-bottom: 2px;
 }
 
 /* スマホ版ボタンスタイル */
@@ -709,8 +709,7 @@ get_header(); ?>
     
     .list-date-section,
     .list-weekday-section,
-    .list-am-section,
-    .list-pm-section {
+    .list-time-section {
         min-height: 45px;
     }
     
@@ -722,9 +721,8 @@ get_header(); ?>
         min-width: 35px;
     }
     
-    .list-am-section,
-    .list-pm-section {
-        min-width: 65px;
+    .list-time-section {
+        min-width: 140px;
     }
     
     .legend-items {
