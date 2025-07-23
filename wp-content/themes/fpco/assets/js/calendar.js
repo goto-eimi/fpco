@@ -275,20 +275,32 @@ class ReservationCalendar {
         if (weekday === 0) dayNumberClass += ' sunday';
         if (weekday === 6) dayNumberClass += ' saturday';
         
-        // SPECIFICATION.mdに基づく1行形式のレイアウト
+        // スマホ版カレンダーの新デザイン
+        const amButton = dayData.am.status === 'available' && !isPast
+            ? `<button class="mobile-status-button available" data-date="${dateStr}" data-period="am" onclick="openTimeslotSelection('${dateStr}', 'am')">${dayData.am.symbol}</button>`
+            : `<span class="mobile-status-button ${dayData.am.status}">${dayData.am.symbol}</span>`;
+            
+        const pmButton = dayData.pm.status === 'available' && !isPast
+            ? `<button class="mobile-status-button available" data-date="${dateStr}" data-period="pm" onclick="openTimeslotSelection('${dateStr}', 'pm')">${dayData.pm.symbol}</button>`
+            : `<span class="mobile-status-button ${dayData.pm.status}">${dayData.pm.symbol}</span>`;
+        
         return `
             <div class="${classes.join(' ')}" data-date="${dateStr}">
                 <div class="list-content">
-                    <span class="${dayNumberClass}">${dayNumber}</span>
-                    <span class="list-weekday">${weekdayNames[weekday]}</span>
-                    <span class="list-am-slot">
+                    <div class="list-date-section">
+                        <span class="${dayNumberClass}">${dayNumber}</span>
+                    </div>
+                    <div class="list-weekday-section">
+                        <span class="list-weekday">${weekdayNames[weekday]}</span>
+                    </div>
+                    <div class="list-am-section">
                         <span class="slot-label">AM</span>
-                        <span class="status-symbol ${dayData.am.status}">${dayData.am.symbol}</span>
-                    </span>
-                    <span class="list-pm-slot">
+                        ${amButton}
+                    </div>
+                    <div class="list-pm-section">
                         <span class="slot-label">PM</span>
-                        <span class="status-symbol ${dayData.pm.status}">${dayData.pm.symbol}</span>
-                    </span>
+                        ${pmButton}
+                    </div>
                 </div>
             </div>
         `;
@@ -359,12 +371,8 @@ class ReservationCalendar {
     }
     
     addMobileClickEvents() {
-        document.querySelectorAll('.calendar-list-item.clickable').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const date = item.getAttribute('data-date');
-                this.openTimeslotModal(date);
-            });
-        });
+        // モバイル版では個別ボタンのクリックで処理
+        // ボタンのクリックイベントは、HTMLのonclick属性で処理される
     }
     
     openTimeslotModal(dateStr, period = null) {

@@ -285,8 +285,7 @@ get_header(); ?>
 
 .calendar-list-item {
     display: block;
-    padding: 12px 16px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #ddd;
     transition: background-color 0.2s ease;
 }
 
@@ -294,74 +293,128 @@ get_header(); ?>
     border-bottom: none;
 }
 
-.calendar-list-item.clickable {
-    cursor: pointer;
-    background: linear-gradient(90deg, #f8ffed 0%, #ffffff 50%);
-}
-
-.calendar-list-item.clickable:hover {
-    background: linear-gradient(90deg, #e8f5d8 0%, #f0f8ff 50%);
-    transform: translateX(2px);
-}
-
 .calendar-list-item.today {
     background: linear-gradient(90deg, #fff3cd 0%, #ffffff 50%);
-    border-left: 4px solid #ffc107;
 }
 
 .calendar-list-item.past {
-    background: #f8f9fa;
-    color: #6c757d;
+    opacity: 0.6;
 }
 
-/* SPECIFICATION.md準拠の1行レイアウト */
+/* 新しいスマホ版レイアウト - 縦線区切り */
 .list-content {
     display: flex;
     align-items: center;
-    gap: 12px;
     font-size: 16px;
+    min-height: 50px;
+}
+
+.list-date-section {
+    background: #BAB6AD;
+    color: white;
+    padding: 12px 8px;
+    text-align: center;
+    min-width: 50px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.list-weekday-section {
+    background: white;
+    color: black;
+    padding: 12px 8px;
+    text-align: center;
+    min-width: 40px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.list-am-section, .list-pm-section {
+    background: white;
+    padding: 8px;
+    text-align: center;
+    min-width: 70px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.list-pm-section {
+    border-right: none;
 }
 
 .list-day-number {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
-    min-width: 35px;
-    text-align: center;
+    color: white;
 }
 
 .list-day-number.sunday {
-    color: #dc3545;
+    color: #ffcdd2;
 }
 
 .list-day-number.saturday {
-    color: #0066cc;
+    color: #bbdefb;
 }
 
 .list-weekday {
-    font-size: 16px;
-    min-width: 20px;
-    color: #495057;
-}
-
-.list-am-slot, .list-pm-slot {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 50px;
+    font-size: 14px;
+    color: black;
+    font-weight: normal;
 }
 
 .slot-label {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: #495057;
-    min-width: 24px;
+    margin-bottom: 2px;
 }
 
-.list-content .status-symbol {
-    font-size: 18px;
-    font-weight: bold;
-    width: 20px;
+/* スマホ版ボタンスタイル */
+.mobile-status-button {
+    display: inline-block;
+    width: 50px;
+    height: 20px;
+    border-radius: 15px;
     text-align: center;
+    line-height: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: default;
+    border: none;
+    text-decoration: none;
+}
+
+.mobile-status-button.available {
+    background-color: #1A76D2;
+    color: white;
+    cursor: pointer;
+}
+
+.mobile-status-button.available:hover {
+    background-color: #1565C0;
+}
+
+.mobile-status-button.adjusting {
+    background-color: #25DF01;
+    color: white;
+}
+
+.mobile-status-button.unavailable {
+    background-color: #E0E0E0;
+    color: red;
+}
+
+.mobile-status-button.none {
+    background: transparent;
+    cursor: default;
 }
 
 /* 凡例 */
@@ -652,6 +705,26 @@ get_header(); ?>
     .calendar-list {
         display: block !important;
         margin: 20px 0;
+    }
+    
+    .list-date-section,
+    .list-weekday-section,
+    .list-am-section,
+    .list-pm-section {
+        min-height: 45px;
+    }
+    
+    .list-date-section {
+        min-width: 45px;
+    }
+    
+    .list-weekday-section {
+        min-width: 35px;
+    }
+    
+    .list-am-section,
+    .list-pm-section {
+        min-width: 65px;
     }
     
     .legend-items {
