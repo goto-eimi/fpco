@@ -217,6 +217,7 @@ class ReservationCalendar {
         let classes = ['calendar-day'];
         if (isOtherMonth) classes.push('other-month');
         if (isToday) classes.push('today');
+        if (isPast) classes.push('past');
         if (dayData.clickable && !isPast) classes.push('clickable');
         
         let dayNumberClass = 'day-number';
@@ -224,14 +225,19 @@ class ReservationCalendar {
         if (weekday === 6) dayNumberClass += ' saturday';
         
         let timeSlotsHtml = '';
-        if (!isOtherMonth && !isPast) {
-            const amButton = dayData.am.status === 'available' 
-                ? `<button class="status-button available" data-date="${dateStr}" data-period="am" onclick="openTimeslotSelection('${dateStr}', 'am')">${dayData.am.symbol}</button>`
-                : `<span class="status-button ${dayData.am.status}">${dayData.am.symbol}</span>`;
+        if (!isOtherMonth) {
+            // 過去の日付の場合はAM/PM両方とも「－」にする
+            const amButton = isPast 
+                ? `<span class="status-button unavailable">－</span>`
+                : dayData.am.status === 'available' 
+                    ? `<button class="status-button available" data-date="${dateStr}" data-period="am" onclick="openTimeslotSelection('${dateStr}', 'am')">${dayData.am.symbol}</button>`
+                    : `<span class="status-button ${dayData.am.status}">${dayData.am.symbol}</span>`;
                 
-            const pmButton = dayData.pm.status === 'available'
-                ? `<button class="status-button available" data-date="${dateStr}" data-period="pm" onclick="openTimeslotSelection('${dateStr}', 'pm')">${dayData.pm.symbol}</button>`
-                : `<span class="status-button ${dayData.pm.status}">${dayData.pm.symbol}</span>`;
+            const pmButton = isPast 
+                ? `<span class="status-button unavailable">－</span>`
+                : dayData.pm.status === 'available'
+                    ? `<button class="status-button available" data-date="${dateStr}" data-period="pm" onclick="openTimeslotSelection('${dateStr}', 'pm')">${dayData.pm.symbol}</button>`
+                    : `<span class="status-button ${dayData.pm.status}">${dayData.pm.symbol}</span>`;
                 
             timeSlotsHtml = `
                 <div class="time-slots">
@@ -276,13 +282,18 @@ class ReservationCalendar {
         if (weekday === 6) dayNumberClass += ' saturday';
         
         // スマホ版カレンダーの新デザイン
-        const amButton = dayData.am.status === 'available' && !isPast
-            ? `<button class="mobile-status-button available" data-date="${dateStr}" data-period="am" onclick="openTimeslotSelection('${dateStr}', 'am')">${dayData.am.symbol}</button>`
-            : `<span class="mobile-status-button ${dayData.am.status}">${dayData.am.symbol}</span>`;
+        // 過去の日付の場合はAM/PM両方とも「－」にする
+        const amButton = isPast 
+            ? `<span class="mobile-status-button unavailable">－</span>`
+            : dayData.am.status === 'available'
+                ? `<button class="mobile-status-button available" data-date="${dateStr}" data-period="am" onclick="openTimeslotSelection('${dateStr}', 'am')">${dayData.am.symbol}</button>`
+                : `<span class="mobile-status-button ${dayData.am.status}">${dayData.am.symbol}</span>`;
             
-        const pmButton = dayData.pm.status === 'available' && !isPast
-            ? `<button class="mobile-status-button available" data-date="${dateStr}" data-period="pm" onclick="openTimeslotSelection('${dateStr}', 'pm')">${dayData.pm.symbol}</button>`
-            : `<span class="mobile-status-button ${dayData.pm.status}">${dayData.pm.symbol}</span>`;
+        const pmButton = isPast 
+            ? `<span class="mobile-status-button unavailable">－</span>`
+            : dayData.pm.status === 'available'
+                ? `<button class="mobile-status-button available" data-date="${dateStr}" data-period="pm" onclick="openTimeslotSelection('${dateStr}', 'pm')">${dayData.pm.symbol}</button>`
+                : `<span class="mobile-status-button ${dayData.pm.status}">${dayData.pm.symbol}</span>`;
         
         return `
             <div class="${classes.join(' ')}" data-date="${dateStr}">

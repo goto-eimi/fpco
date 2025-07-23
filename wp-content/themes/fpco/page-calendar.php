@@ -154,18 +154,24 @@ get_header(); ?>
 }
 
 /* PC版カレンダーグリッド */
+.calendar-grid-container {
+    border: 1px solid black;
+    border-radius: 8px;
+    background: #E0E0E0;
+    padding: 20px;
+}
+
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 1px;
-    background: #E0E0E0;
-    border: 2px solid #E0E0E0;
-    border-radius: 8px;
+    background: black;
+    border: 1px solid black;
     overflow: hidden;
 }
 
 .calendar-day-header {
-    background: #007cba;
+    background: #BAB6AD;
     color: white;
     padding: 8px 5px;
     text-align: center;
@@ -197,11 +203,14 @@ get_header(); ?>
     color: #999;
 }
 
+.calendar-day.past {
+    background: #EFEFEF;
+}
+
 .day-number {
     display: block;
     text-align: center;
-    font-weight: bold;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid black;
     margin-bottom: 10px;
 }
 
@@ -262,7 +271,7 @@ get_header(); ?>
 }
 
 .status-button.unavailable {
-    background-color: #E0E0E0;
+    background-color: #FBF7F5;
     color: red;
 }
 
@@ -277,10 +286,10 @@ get_header(); ?>
     display: none;
     max-height: 400px;
     overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid black;
     background: white;
     -webkit-overflow-scrolling: touch; /* iOS慣性スクロール */
+    margin: 20px 20px;
 }
 
 .calendar-list-item {
@@ -408,7 +417,7 @@ get_header(); ?>
 }
 
 .mobile-status-button.unavailable {
-    background-color: #E0E0E0;
+    background-color: #FBF7F5;
     color: red;
 }
 
@@ -444,7 +453,12 @@ get_header(); ?>
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
+}
+
+.legend-text {
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 .legend-symbol {
@@ -469,7 +483,7 @@ get_header(); ?>
 }
 
 .legend-symbol.unavailable {
-    background-color: #E0E0E0;
+    background-color: #FBF7F5;
     color: red;
 }
 
@@ -704,7 +718,14 @@ get_header(); ?>
     
     .calendar-list {
         display: block !important;
-        margin: 20px 0;
+    }
+    
+    .calendar-list-container.mobile-only {
+        border: 1px solid black;
+        border-radius: 8px;
+        background: #E0E0E0;
+        margin: 0;
+        padding: 0;
     }
     
     .list-date-section,
@@ -727,6 +748,19 @@ get_header(); ?>
     
     .legend-items {
         grid-template-columns: 1fr;
+    }
+    
+    /* スマホ版での凡例シンボル調整 */
+    .calendar-legend .legend-symbol {
+        width: 70px !important;
+        height: 25px !important;
+        border-radius: 18px !important;
+        line-height: 25px !important;
+    }
+    
+    /* スマホ版での凡例テキスト */
+    .legend-text {
+        font-size: 12px;
     }
     
     /* スマホ版でのスクロール最適化 */
