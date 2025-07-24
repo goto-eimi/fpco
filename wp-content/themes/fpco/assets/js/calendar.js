@@ -476,9 +476,9 @@ class ReservationCalendar {
                 option.classList.add('selected');
                 
                 this.selectedTimeslot = option.getAttribute('data-timeslot');
-                // 時間帯選択後、自動的にモーダルを閉じる
+                // 時間帯選択後、自動的に予約フォームへ遷移
                 setTimeout(() => {
-                    this.closeModal();
+                    this.proceedToReservation();
                 }, 500);
             });
         });
@@ -526,7 +526,7 @@ class ReservationCalendar {
                 timeslot: this.selectedTimeslot
             });
             
-            window.location.href = `/reservation-form?${params.toString()}`;
+            window.location.href = `/reservation-form/?${params.toString()}`;
         }
     }
     

@@ -44,290 +44,338 @@ $timeslot_info = parse_timeslot($timeslot);
             </div>
         </div>
 
-        <header class="entry-header">
-            <h1 class="entry-title">予約フォーム（見学者情報入力）</h1>
-        </header>
-
         <form id="reservation-form" class="reservation-form" method="post" action="<?php echo home_url('/reservation-confirm/'); ?>">
             <!-- 予約基本情報（非表示フィールド） -->
             <input type="hidden" name="factory_id" value="<?php echo esc_attr($factory_id); ?>">
             <input type="hidden" name="date" value="<?php echo esc_attr($date); ?>">
             <input type="hidden" name="timeslot" value="<?php echo esc_attr($timeslot); ?>">
 
-            <!-- 予約内容表示 -->
-            <div class="reservation-summary">
-                <h2>ご予約内容</h2>
-                <dl>
-                    <dt>見学工場</dt>
-                    <dd><?php echo esc_html($factory_name); ?>工場</dd>
-                    <dt>見学日</dt>
-                    <dd><?php echo esc_html(format_display_date($date)); ?></dd>
-                    <dt>見学時間帯</dt>
-                    <dd><?php echo esc_html($timeslot_info['display']); ?></dd>
-                    <dt>見学時間</dt>
-                    <dd><?php echo esc_html($timeslot_info['duration']); ?>分</dd>
-                </dl>
-            </div>
-
-            <!-- 申込者情報 -->
-            <section class="form-section">
-                <h2>申込者様情報</h2>
-                
-                <div class="form-group required">
-                    <label for="applicant_name_kana">申込者様氏名（ふりがな）</label>
-                    <input type="text" id="applicant_name_kana" name="applicant_name_kana" placeholder="やまだ たろう" required>
-                    <span class="error-message"></span>
+            <!-- 予約情報表示部分 -->
+            <div class="reservation-info-box">
+                <div class="info-row">
+                    <span class="info-label">見学日</span>
+                    <span class="info-value"><?php echo esc_html(format_display_date($date)); ?></span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="applicant_name">申込者様氏名</label>
-                    <input type="text" id="applicant_name" name="applicant_name" placeholder="山田 太郎" required>
-                    <span class="error-message"></span>
+                <div class="info-row">
+                    <span class="info-label">見学時間</span>
+                    <span class="info-value"><?php echo esc_html($timeslot_info['duration']); ?>分</span>
                 </div>
-
-                <div class="form-group">
-                    <label>申込者様は旅行会社の方ですか？</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="is_travel_agency" value="no" checked>
-                            <span>いいえ</span>
-                        </label>
-                        <label class="radio-label">
+                <div class="info-row">
+                    <span class="info-label">見学時間帯</span>
+                    <span class="info-value"><?php echo esc_html($timeslot_info['display']); ?></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">申込者様氏名</span>
+                    <span class="info-input">
+                        <input type="text" id="applicant_name" name="applicant_name" placeholder="" required>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">申込者氏名(ふりがな)</span>
+                    <span class="info-input">
+                        <input type="text" id="applicant_name_kana" name="applicant_name_kana" placeholder="" required>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">申込者様は旅行会社の方ですか？</span>
+                    <span class="info-input">
+                        <label class="radio-inline">
                             <input type="radio" name="is_travel_agency" value="yes">
                             <span>はい</span>
                         </label>
-                    </div>
+                        <label class="radio-inline">
+                            <input type="radio" name="is_travel_agency" value="no" checked>
+                            <span>いいえ</span>
+                        </label>
+                    </span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="postal_code">郵便番号</label>
-                    <div class="postal-code-group">
-                        <input type="text" id="postal_code" name="postal_code" placeholder="7218607" maxlength="7" required>
-                        <button type="button" class="btn-postal-search">住所検索</button>
-                    </div>
-                    <span class="error-message"></span>
+                <!-- 旅行会社情報（条件付き表示） -->
+                <div class="conditional" id="travel-agency-section" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">旅行会社名</span>
+                    <span class="info-input">
+                        <input type="text" id="agency_name" name="agency_name" placeholder="" required>
+                    </span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="prefecture">都道府県</label>
-                    <select id="prefecture" name="prefecture" required>
-                        <option value="">都道府県を選択</option>
-                        <?php foreach (get_prefectures() as $pref): ?>
-                            <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <span class="error-message"></span>
+                <div class="info-row">
+                    <span class="info-label">旅行会社電話番号</span>
+                    <span class="info-input">
+                        <input type="tel" id="agency_phone" name="agency_phone" placeholder="" required>
+                    </span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="city">市区町村</label>
-                    <input type="text" id="city" name="city" placeholder="福山市" required>
-                    <span class="error-message"></span>
+                <div class="info-row address-row">
+                    <span class="info-label">旅行会社住所</span>
+                    <span class="info-input address-input">
+                        <div class="postal-code-group">
+                            <span class="postal-prefix">〒</span>
+                            <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" required>
+                            <button type="button" class="btn-postal-search" data-target="agency">住所検索</button>
+                        </div>
+                        <div class="address-fields-row">
+                            <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select" required>
+                                <option value="">都道府県</option>
+                                <?php foreach (get_prefectures() as $pref): ?>
+                                    <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="text" id="agency_city" name="agency_city" placeholder="市区町村" class="city-input" required>
+                            <input type="text" id="agency_address" name="agency_address" placeholder="番地・建物名" class="address-input-field" required>
+                            <input type="hidden" id="agency_building" name="agency_building" value="">
+                        </div>
+                    </span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="address">番地</label>
-                    <input type="text" id="address" name="address" placeholder="曙町1-13-15" required>
-                    <span class="error-message"></span>
+                <div class="info-row">
+                    <span class="info-label">旅行会社FAX番号</span>
+                    <span class="info-input">
+                        <input type="tel" id="agency_fax" name="agency_fax" placeholder="">
+                    </span>
                 </div>
-
-                <div class="form-group">
-                    <label for="building">建物名・部屋番号</label>
-                    <input type="text" id="building" name="building" placeholder="エフピコビル5F">
+                <div class="info-row">
+                    <span class="info-label">担当者携帯番号</span>
+                    <span class="info-input">
+                        <input type="tel" id="agency_contact_mobile" name="agency_contact_mobile" placeholder="">
+                    </span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="phone">申込者様電話番号</label>
-                    <input type="tel" id="phone" name="phone" placeholder="08412345678" required>
-                    <span class="error-message"></span>
+                <div class="info-row">
+                    <span class="info-label">担当者メールアドレス</span>
+                    <span class="info-input">
+                        <input type="email" id="agency_contact_email" name="agency_contact_email" placeholder="" required>
+                    </span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="mobile">申込者様携帯番号</label>
-                    <input type="tel" id="mobile" name="mobile" placeholder="08012345678" required>
-                    <span class="error-message"></span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="email">申込者様メールアドレス</label>
-                    <input type="email" id="email" name="email" placeholder="user@example.com" required>
-                    <span class="error-message"></span>
+                <!-- 申込者情報続き -->
+                <div class="info-row address-row">
+                    <span class="info-label">申込者様住所</span>
+                    <span class="info-input address-input">
+                        <div class="postal-code-group">
+                            <span class="postal-prefix">〒</span>
+                            <input type="text" id="postal_code" name="postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" required>
+                            <button type="button" class="btn-postal-search" data-target="applicant">住所検索</button>
+                        </div>
+                        <div class="address-fields-row">
+                            <select id="prefecture" name="prefecture" class="prefecture-select" required>
+                                <option value="">都道府県</option>
+                                <?php foreach (get_prefectures() as $pref): ?>
+                                    <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="text" id="city" name="city" placeholder="市区町村" class="city-input" required>
+                            <input type="text" id="address" name="address" placeholder="番地・建物名" class="address-input-field" required>
+                            <input type="hidden" id="building" name="building" value="">
+                        </div>
+                    </span>
                 </div>
-
-                <div class="form-group required">
-                    <label>ご利用の交通機関</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
+                <div class="info-row">
+                    <span class="info-label">申込者様電話番号</span>
+                    <span class="info-input">
+                        <input type="tel" id="phone" name="phone" placeholder="" required>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">申込者様携帯番号</span>
+                    <span class="info-input">
+                        <input type="tel" id="mobile" name="mobile" placeholder="" required>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">申込者様メールアドレス</span>
+                    <span class="info-input">
+                        <input type="email" id="email" name="email" placeholder="" required>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ご利用の交通機関</span>
+                    <span class="info-input">
+                        <label class="radio-inline">
                             <input type="radio" name="transportation" value="car" required>
                             <span>車</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="transportation" value="chartered_bus">
                             <span>貸切バス</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="transportation" value="route_bus">
                             <span>路線バス</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="transportation" value="taxi">
                             <span>タクシー</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="transportation" value="other">
                             <span>その他</span>
                         </label>
-                    </div>
-                    <span class="error-message"></span>
+                    </span>
                 </div>
-
-                <div class="form-group conditional" id="transportation-other-group" style="display: none;">
-                    <label for="transportation_other">その他の交通機関</label>
-                    <input type="text" id="transportation_other" name="transportation_other" placeholder="詳細を入力">
+                <div class="info-row conditional" id="transportation-other-row" style="display: none;">
+                    <span class="info-label">その他の交通機関</span>
+                    <span class="info-input">
+                        <input type="text" id="transportation_other" name="transportation_other" placeholder="">
+                    </span>
                 </div>
-
-                <div class="form-group conditional" id="vehicle-count-group" style="display: none;">
-                    <label for="vehicle_count">台数</label>
-                    <div class="input-with-unit">
+                <div class="info-row conditional" id="vehicle-count-row" style="display: none;">
+                    <span class="info-label">台数</span>
+                    <span class="info-input">
                         <input type="number" id="vehicle_count" name="vehicle_count" min="1" max="99">
                         <span class="unit">台</span>
-                    </div>
-                    <span class="error-message"></span>
+                    </span>
                 </div>
-
-                <div class="form-group required">
-                    <label for="purpose">見学目的</label>
-                    <textarea id="purpose" name="purpose" rows="5" maxlength="500" required></textarea>
-                    <span class="char-counter">0 / 500</span>
-                    <span class="error-message"></span>
+                <div class="info-row">
+                    <span class="info-label">見学目的</span>
+                    <span class="info-input">
+                        <textarea id="purpose" name="purpose" rows="3" maxlength="500" required></textarea>
+                    </span>
                 </div>
-            </section>
-
-            <!-- 旅行会社情報（条件付き表示） -->
-            <section class="form-section conditional" id="travel-agency-section" style="display: none;">
-                <h2>旅行会社情報</h2>
-                
-                <div class="form-group required">
-                    <label for="agency_name">旅行会社名</label>
-                    <input type="text" id="agency_name" name="agency_name" placeholder="株式会社ABC旅行">
-                    <span class="error-message"></span>
-                </div>
-
-                <div class="form-group required">
-                    <label for="agency_phone">旅行会社電話番号</label>
-                    <input type="tel" id="agency_phone" name="agency_phone" placeholder="0841234567">
-                    <span class="error-message"></span>
-                </div>
-
-                <div class="form-group required">
-                    <label for="agency_postal_code">郵便番号</label>
-                    <div class="postal-code-group">
-                        <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="7218607" maxlength="7">
-                        <button type="button" class="btn-postal-search">住所検索</button>
-                    </div>
-                    <span class="error-message"></span>
-                </div>
-
-                <div class="form-group required">
-                    <label for="agency_prefecture">都道府県</label>
-                    <select id="agency_prefecture" name="agency_prefecture">
-                        <option value="">都道府県を選択</option>
-                        <?php foreach (get_prefectures() as $pref): ?>
-                            <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <span class="error-message"></span>
-                </div>
-
-                <div class="form-group required">
-                    <label for="agency_city">市区町村</label>
-                    <input type="text" id="agency_city" name="agency_city" placeholder="福山市">
-                    <span class="error-message"></span>
-                </div>
-
-                <div class="form-group required">
-                    <label for="agency_address">番地</label>
-                    <input type="text" id="agency_address" name="agency_address" placeholder="曙町1-13-15">
-                    <span class="error-message"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="agency_building">建物名・部屋番号</label>
-                    <input type="text" id="agency_building" name="agency_building" placeholder="旅行ビル3F">
-                </div>
-
-                <div class="form-group">
-                    <label for="agency_fax">旅行会社FAX番号</label>
-                    <input type="tel" id="agency_fax" name="agency_fax" placeholder="0841112222">
-                </div>
-
-                <div class="form-group">
-                    <label for="agency_contact_mobile">担当者携帯番号</label>
-                    <input type="tel" id="agency_contact_mobile" name="agency_contact_mobile" placeholder="08012345678">
-                </div>
-
-                <div class="form-group required">
-                    <label for="agency_contact_email">担当者メールアドレス</label>
-                    <input type="email" id="agency_contact_email" name="agency_contact_email" placeholder="tantou@example.com">
-                    <span class="error-message"></span>
-                </div>
-            </section>
-
-            <!-- 見学者様の分類 -->
-            <section class="form-section">
-                <h2>見学者様の分類</h2>
-                
-                <div class="form-group required">
-                    <label>見学者様の分類を選択してください</label>
-                    <div class="radio-group vertical">
-                        <label class="radio-label">
+                <!-- 見学者様の分類 -->
+                <div class="info-row">
+                    <span class="info-label">見学者様の分類</span>
+                    <span class="info-input">
+                        <label class="radio-inline">
                             <input type="radio" name="visitor_category" value="school" required>
                             <span>小学校・中学校・大学</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="visitor_category" value="recruit">
                             <span>個人(大学生・高校生のリクルート)</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="visitor_category" value="family">
                             <span>個人・親子見学・ご家族など</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="visitor_category" value="company">
                             <span>企業(研修など)</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="visitor_category" value="government">
                             <span>自治体主体ツアーなど</span>
                         </label>
-                        <label class="radio-label">
+                        <label class="radio-inline">
                             <input type="radio" name="visitor_category" value="other">
                             <span>その他(グループ・団体)</span>
                         </label>
-                    </div>
-                    <span class="error-message"></span>
+                    </span>
                 </div>
-            </section>
-
-            <!-- 分類別入力項目 -->
-            <section class="form-section conditional" id="category-details" style="display: none;">
-                <!-- JavaScriptで動的に生成 -->
-            </section>
-
-            <!-- 見学者様人数（統合表示） -->
-            <section class="form-section">
-                <div class="visitor-count-summary">
-                    <h3>見学者様人数</h3>
-                    <div id="total-visitor-count">
-                        <span class="count-label">合計</span>
-                        <span class="count-value">0</span>
-                        <span class="count-unit">名</span>
-                    </div>
-                    <div class="count-warning" style="display: none;">
-                        <p>予約可能人数（50名）を超えています</p>
-                    </div>
+                <!-- 分類別詳細情報（条件付き表示） -->
+                <div class="conditional" id="school-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">学校名</span>
+                    <span class="info-input">
+                        <input type="text" id="school_name" name="school_name" placeholder="">
+                    </span>
                 </div>
-            </section>
+                <div class="info-row">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="grade" name="grade" placeholder="">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者人数</span>
+                    <span class="info-input">
+                        <input type="number" id="school_visitor_count" name="school_visitor_count" min="1" max="50" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">小学生以下の人数</span>
+                    <span class="info-input">
+                        <input type="number" id="school_child_count" name="school_child_count" min="0" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="recruit-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">見学者人数</span>
+                    <span class="info-input">
+                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="family-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">見学者人数</span>
+                    <span class="info-input">
+                        <input type="number" id="family_visitor_count" name="family_visitor_count" min="1" max="50" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">小学生以下の人数</span>
+                    <span class="info-input">
+                        <input type="number" id="family_child_count" name="family_child_count" min="0" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="company-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">会社名</span>
+                    <span class="info-input">
+                        <input type="text" id="company_name" name="company_name" placeholder="">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者人数</span>
+                    <span class="info-input">
+                        <input type="number" id="company_visitor_count" name="company_visitor_count" min="1" max="50" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="government-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">団体名</span>
+                    <span class="info-input">
+                        <input type="text" id="government_name" name="government_name" placeholder="">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者人数</span>
+                    <span class="info-input">
+                        <input type="number" id="government_visitor_count" name="government_visitor_count" min="1" max="50" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">小学生以下の人数</span>
+                    <span class="info-input">
+                        <input type="number" id="government_child_count" name="government_child_count" min="0" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="other-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">団体名</span>
+                    <span class="info-input">
+                        <input type="text" id="other_group_name" name="other_group_name" placeholder="">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者人数</span>
+                    <span class="info-input">
+                        <input type="number" id="other_visitor_count" name="other_visitor_count" min="1" max="50" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">小学生以下の人数</span>
+                    <span class="info-input">
+                        <input type="number" id="other_child_count" name="other_child_count" min="0" placeholder="">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                </div>
+            </div>
 
             <!-- 送信ボタン -->
             <div class="form-actions">
@@ -343,11 +391,14 @@ $timeslot_info = parse_timeslot($timeslot);
 /* 予約フォームのスタイル */
 .breadcrumb {
     margin-bottom: 20px;
-    color: #666;
+    color: #797369;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 70px;
 }
 
 .breadcrumb a {
-    color: #007cba;
+    color: #797369;
     text-decoration: none;
 }
 
@@ -364,29 +415,30 @@ $timeslot_info = parse_timeslot($timeslot);
 
 .step {
     display: flex;
+    flex-direction: column;
     align-items: center;
     position: relative;
-    padding: 0 20px;
+    padding: 0 40px;
 }
 
 .step:not(:last-child)::after {
     content: '';
     position: absolute;
-    right: -20px;
-    width: 40px;
+    left: calc(50% + 15px);
+    width: calc(80px - -70px);
     height: 2px;
     background: #ddd;
-    top: 50%;
+    top: 15px;
     transform: translateY(-50%);
 }
 
 .step.active .step-number {
-    background: #007cba;
+    background: #5C5548;
     color: white;
 }
 
 .step.active .step-label {
-    color: #007cba;
+    color: #5C5548;
     font-weight: bold;
 }
 
@@ -394,17 +446,19 @@ $timeslot_info = parse_timeslot($timeslot);
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: #ddd;
-    color: #666;
+    background: #DFDCDC;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 10px;
+    margin-bottom: 5px;
     font-weight: bold;
 }
 
 .step-label {
-    color: #666;
+    color: #DFDCDC;
+    text-align: center;
+    font-size: 14px;
 }
 
 .reservation-form {
@@ -412,34 +466,239 @@ $timeslot_info = parse_timeslot($timeslot);
     margin: 0 auto;
 }
 
-.reservation-summary {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
+/* 予約情報ボックススタイル */
+.reservation-info-box {
+    border: 2px solid #4A4A4A;
+    border-radius: 0;
+    background: #fff;
+    margin-bottom: 0;
 }
 
-.reservation-summary h2 {
-    margin-top: 0;
-    font-size: 20px;
-    color: #333;
+.reservation-info-box + .reservation-info-box {
+    border-top: none;
 }
 
-.reservation-summary dl {
-    display: grid;
-    grid-template-columns: 120px 1fr;
-    gap: 10px;
-    margin: 0;
+/* 最初のボックス以外の上部ボーダーを削除 */
+.reservation-info-box:not(:first-of-type) {
+    border-top: none;
 }
 
-.reservation-summary dt {
+/* 最後のボックス以外の下部ボーダーを削除 */
+.reservation-info-box:not(:last-of-type) {
+    border-bottom: none;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    min-height: 92px;
+    padding: 0 20px;
+    position: relative;
+}
+
+.info-row:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: #E0E0E0;
+}
+
+.info-label {
+    flex: 0 0 180px;
+    padding: 15px 0;
+    background: transparent;
     font-weight: bold;
-    color: #666;
+    font-size: 15px;
+    color: #5C5548;
+    display: flex;
+    align-items: center;
 }
 
-.reservation-summary dd {
-    margin: 0;
-    color: #333;
+.info-value {
+    flex: 1;
+    padding: 15px 0 15px 20px;
+    color: #5C5548;
+    font-weight: normal;
+    font-size: 15px;
+}
+
+.info-input {
+    flex: 1;
+    padding: 10px 0 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-input input[type="text"],
+.info-input input[type="email"],
+.info-input input[type="tel"],
+.info-input input[type="number"],
+.info-input select {
+    flex: 1;
+    padding: 9px 12px;
+    border: 3px solid #5E4037;
+    border-radius: 0;
+    font-size: 14px;
+    height: auto;
+    line-height: normal;
+}
+
+.info-input textarea {
+    flex: 1;
+    padding: 9px 12px;
+    border: 3px solid #5E4037;
+    border-radius: 0;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.info-input input:focus,
+.info-input select:focus,
+.info-input textarea:focus {
+    outline: none;
+    border-color: #5E4037;
+}
+
+/* ラジオボタンのインラインスタイル */
+.radio-inline {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 15px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.radio-inline input[type="radio"] {
+    margin-right: 5px;
+    flex: none;
+    accent-color: #000;
+    width: 16px;
+    height: 16px;
+}
+
+.radio-inline span {
+    white-space: nowrap;
+}
+
+/* 住所入力行のスタイル */
+.address-row .address-input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.postal-code-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.address-fields-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.postal-prefix {
+    font-size: 16px;
+    color: #5C5548;
+    font-weight: normal;
+}
+
+.postal-code-input {
+    width: 100px !important;
+    flex: none !important;
+}
+
+.prefecture-select {
+    width: 130px !important;
+    flex: none !important;
+}
+
+.city-input {
+    width: 150px !important;
+    flex: none !important;
+}
+
+.address-input-field {
+    flex: 1 !important;
+    min-width: 200px;
+}
+
+/* 住所検索ボタン */
+.btn-postal-search {
+    padding: 8px 16px;
+    background: #007cba;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    flex: none;
+}
+
+.btn-postal-search:hover {
+    background: #0056a3;
+}
+
+/* 単位表示 */
+.unit {
+    margin-left: 5px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 条件付き表示 */
+.conditional {
+    display: none;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .info-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .info-label {
+        flex: none;
+        border-right: none;
+        border-bottom: 1px solid #000;
+        padding: 10px 15px;
+    }
+    
+    .info-value,
+    .info-input {
+        padding: 10px 15px;
+    }
+    
+    .radio-inline {
+        margin-right: 10px;
+        margin-bottom: 5px;
+    }
+    
+    /* 住所入力行のレスポンシブ対応 */
+    .address-row .address-input {
+        flex-direction: column;
+    }
+    
+    .postal-code-group {
+        margin-bottom: 10px;
+    }
+    
+    .prefecture-select,
+    .city-input,
+    .address-input-field {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
 }
 
 .form-section {
