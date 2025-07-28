@@ -465,12 +465,8 @@ $timeslot_info = parse_timeslot($timeslot);
                                     <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
-                        <div class="address-fields-row">
                             <span class="required-label">必須</span>
                             <input type="text" id="city" name="city" placeholder="市区町村" class="city-input" required>
-                        </div>
-                        <div class="address-fields-row">
                             <span class="required-label">必須</span>
                             <input type="text" id="address" name="address" placeholder="番地・建物名" class="address-input-field" required>
                             <input type="hidden" id="building" name="building" value="">
