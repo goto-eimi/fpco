@@ -156,10 +156,10 @@ $timeslot_info = parse_timeslot($timeslot);
                 <!-- 見学者様の分類 -->
                 <div class="info-row-separator"></div>
                 <div class="info-row">
-                    <span class="info-label">見学者様の分類</span>
+                    <span class="info-label">見学者様の分類<br><span style="font-size: 14px; color: #666; font-weight: normal;">(当てはまるものを選択してください)</span></span>
                     <span class="info-input radio-group-grid">
-                        <span class="required-label">必須</span>
                         <div class="radio-row">
+                            <span class="required-label">必須</span>
                             <label class="radio-inline">
                                 <input type="radio" name="visitor_category" value="school" required>
                                 <span>小学校・中学校・大学</span>
@@ -170,6 +170,7 @@ $timeslot_info = parse_timeslot($timeslot);
                             </label>
                         </div>
                         <div class="radio-row">
+                            <span style="visibility: hidden;" class="required-label">必須</span>
                             <label class="radio-inline">
                                 <input type="radio" name="visitor_category" value="family">
                                 <span>個人・親子見学・ご家族など</span>
@@ -180,6 +181,7 @@ $timeslot_info = parse_timeslot($timeslot);
                             </label>
                         </div>
                         <div class="radio-row">
+                            <span style="visibility: hidden;" class="required-label">必須</span>
                             <label class="radio-inline">
                                 <input type="radio" name="visitor_category" value="government">
                                 <span>自治体主体ツアーなど</span>
@@ -189,7 +191,6 @@ $timeslot_info = parse_timeslot($timeslot);
                                 <span>その他(グループ・団体)</span>
                             </label>
                         </div>
-                        <div style="margin-top: 8px; font-size: 14px; color: #666;">(当てはまるものを選択してください)</div>
                     </span>
                 </div>
                 <!-- 分類別詳細情報（条件付き表示） -->
@@ -450,20 +451,27 @@ $timeslot_info = parse_timeslot($timeslot);
                 <div class="info-row address-row">
                     <span class="info-label">申込者様住所</span>
                     <span class="info-input address-input">
-                        <span class="required-label">必須</span>
                         <div class="postal-code-group">
+                            <span class="required-label">必須</span>
                             <span class="postal-prefix">〒</span>
                             <input type="text" id="postal_code" name="postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="applicant" required>
                             <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
                         <div class="address-fields-row">
+                            <span class="required-label">必須</span>
                             <select id="prefecture" name="prefecture" class="prefecture-select" required>
                                 <option value="">都道府県</option>
                                 <?php foreach (get_prefectures() as $pref): ?>
                                     <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="address-fields-row">
+                            <span class="required-label">必須</span>
                             <input type="text" id="city" name="city" placeholder="市区町村" class="city-input" required>
+                        </div>
+                        <div class="address-fields-row">
+                            <span class="required-label">必須</span>
                             <input type="text" id="address" name="address" placeholder="番地・建物名" class="address-input-field" required>
                             <input type="hidden" id="building" name="building" value="">
                         </div>
