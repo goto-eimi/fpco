@@ -67,12 +67,14 @@ $timeslot_info = parse_timeslot($timeslot);
                 <div class="info-row">
                     <span class="info-label">申込者様氏名</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <input type="text" id="applicant_name" name="applicant_name" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">申込者氏名(ふりがな)</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <input type="text" id="applicant_name_kana" name="applicant_name_kana" placeholder="" required>
                     </span>
                 </div>
@@ -94,22 +96,25 @@ $timeslot_info = parse_timeslot($timeslot);
                 <div class="info-row">
                     <span class="info-label">旅行会社名</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <input type="text" id="agency_name" name="agency_name" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">旅行会社電話番号</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <input type="tel" id="agency_phone" name="agency_phone" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row address-row">
                     <span class="info-label">旅行会社住所</span>
                     <span class="info-input address-input">
+                        <span class="required-label">必須</span>
                         <div class="postal-code-group">
                             <span class="postal-prefix">〒</span>
-                            <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" required>
-                            <button type="button" class="btn-postal-search" data-target="agency">住所検索</button>
+                            <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="agency" required>
+                            <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
                         <div class="address-fields-row">
                             <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select" required>
@@ -139,18 +144,311 @@ $timeslot_info = parse_timeslot($timeslot);
                 <div class="info-row">
                     <span class="info-label">担当者メールアドレス</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <input type="email" id="agency_contact_email" name="agency_contact_email" placeholder="" required>
                     </span>
                 </div>
                 </div>
+                <!-- 見学者様の分類 -->
+                <div class="info-row">
+                    <span class="info-label">見学者様の分類</span>
+                    <span class="info-input radio-group-grid">
+                        <span class="required-label">必須</span>
+                        <div class="radio-row">
+                            <label class="radio-inline">
+                                <input type="radio" name="visitor_category" value="school" required>
+                                <span>小学校・中学校・大学</span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="visitor_category" value="recruit">
+                                <span>個人(大学生・高校生のリクルート)</span>
+                            </label>
+                        </div>
+                        <div class="radio-row">
+                            <label class="radio-inline">
+                                <input type="radio" name="visitor_category" value="family">
+                                <span>個人・親子見学・ご家族など</span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="visitor_category" value="company">
+                                <span>企業(研修など)</span>
+                            </label>
+                        </div>
+                        <div class="radio-row">
+                            <label class="radio-inline">
+                                <input type="radio" name="visitor_category" value="government">
+                                <span>自治体主体ツアーなど</span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="visitor_category" value="other">
+                                <span>その他(グループ・団体)</span>
+                            </label>
+                        </div>
+                    </span>
+                </div>
+                <!-- 分類別詳細情報（条件付き表示） -->
+                <div class="conditional" id="school-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">学校・団体名</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="school_name" name="school_name" placeholder="ABC小学校" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">学校・団体名（ふりがな）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="school_kana" name="school_kana" placeholder="えーびーしーしょうがっこう" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">代表者様氏名</span>
+                    <span class="info-input">
+                        <input type="text" id="school_representative_name" name="school_representative_name" placeholder="山田 太郎">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">代表者様氏名（ふりがな）</span>
+                    <span class="info-input">
+                        <input type="text" id="school_representative_kana" name="school_representative_kana" placeholder="やまだ たろう">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="grade" name="grade" placeholder="" class="required">
+                        <span class="unit">年生</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">クラス数</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="class_count" name="class_count" placeholder="" class="required">
+                        <span class="unit">クラス</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（児童・生徒）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="school_student_count" name="school_student_count" min="1" max="50" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（引率）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="school_supervisor_count" name="school_supervisor_count" min="1" max="50" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="recruit-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">学校名</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="recruit_school_name" name="recruit_school_name" placeholder="ABC大学" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="recruit_grade" name="recruit_grade" placeholder="" class="required">
+                        <span class="unit">年生</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">学部</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="recruit_department" name="recruit_department" placeholder="工学部" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div id="companion-fields">
+                    <!-- 同行者フィールドは人数に応じて動的に追加 -->
+                </div>
+                </div>
+
+                <div class="conditional" id="family-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">会社・団体名</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="family_organization_name" name="family_organization_name" placeholder="株式会社エフピコ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">会社・団体名（ふりがな）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="family_organization_kana" name="family_organization_kana" placeholder="かぶしきかいしゃえふぴこ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（大人）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="family_adult_count" name="family_adult_count" min="1" max="50" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（子ども）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="family_child_count" name="family_child_count" min="0" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row conditional-child-grade" style="display: none;">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="family_child_grade" name="family_child_grade" placeholder="例：小学3年生、小学5年生">
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="company-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">会社・団体名</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="company_name" name="company_name" placeholder="株式会社エフピコ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">会社・団体名（ふりがな）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="company_kana" name="company_kana" placeholder="かぶしきかいしゃえふぴこ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（大人）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="company_adult_count" name="company_adult_count" min="1" max="50" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（子ども）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="company_child_count" name="company_child_count" min="0" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row conditional-child-grade" style="display: none;">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="company_child_grade" name="company_child_grade" placeholder="例：小学3年生、小学5年生">
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="government-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">会社・団体名</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="government_name" name="government_name" placeholder="株式会社エフピコ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">会社・団体名（ふりがな）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="government_kana" name="government_kana" placeholder="かぶしきかいしゃえふぴこ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（大人）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="50" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（子ども）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="government_child_count" name="government_child_count" min="0" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row conditional-child-grade" style="display: none;">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="government_child_grade" name="government_child_grade" placeholder="例：小学3年生、小学5年生">
+                    </span>
+                </div>
+                </div>
+
+                <div class="conditional" id="other-details" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">会社・団体名</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="other_group_name" name="other_group_name" placeholder="株式会社エフピコ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">会社・団体名（ふりがな）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="other_group_kana" name="other_group_kana" placeholder="かぶしきかいしゃえふぴこ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（大人）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="50" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（子ども）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="other_child_count" name="other_child_count" min="0" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row conditional-child-grade" style="display: none;">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="other_child_grade" name="other_child_grade" placeholder="例：小学3年生、小学5年生">
+                    </span>
+                </div>
+                </div>
+                <div class="info-row-separator"></div>
                 <!-- 申込者情報続き -->
                 <div class="info-row address-row">
                     <span class="info-label">申込者様住所</span>
                     <span class="info-input address-input">
+                        <span class="required-label">必須</span>
                         <div class="postal-code-group">
                             <span class="postal-prefix">〒</span>
-                            <input type="text" id="postal_code" name="postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" required>
-                            <button type="button" class="btn-postal-search" data-target="applicant">住所検索</button>
+                            <input type="text" id="postal_code" name="postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="applicant" required>
+                            <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
                         <div class="address-fields-row">
                             <select id="prefecture" name="prefecture" class="prefecture-select" required>
@@ -168,120 +466,142 @@ $timeslot_info = parse_timeslot($timeslot);
                 <div class="info-row">
                     <span class="info-label">申込者様電話番号</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <input type="tel" id="phone" name="phone" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">申込者様携帯番号</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <input type="tel" id="mobile" name="mobile" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">申込者様メールアドレス</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <input type="email" id="email" name="email" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">ご利用の交通機関</span>
-                    <span class="info-input">
-                        <label class="radio-inline">
-                            <input type="radio" name="transportation" value="car" required>
-                            <span>車</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="transportation" value="chartered_bus">
-                            <span>貸切バス</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="transportation" value="route_bus">
-                            <span>路線バス</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="transportation" value="taxi">
-                            <span>タクシー</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="transportation" value="other">
-                            <span>その他</span>
-                        </label>
-                    </span>
-                </div>
-                <div class="info-row conditional" id="transportation-other-row" style="display: none;">
-                    <span class="info-label">その他の交通機関</span>
-                    <span class="info-input">
-                        <input type="text" id="transportation_other" name="transportation_other" placeholder="">
-                    </span>
-                </div>
-                <div class="info-row conditional" id="vehicle-count-row" style="display: none;">
-                    <span class="info-label">台数</span>
-                    <span class="info-input">
-                        <input type="number" id="vehicle_count" name="vehicle_count" min="1" max="99">
-                        <span class="unit">台</span>
+                    <span class="info-input radio-group-grid">
+                        <span class="required-label">必須</span>
+                        <div class="radio-row">
+                            <label class="radio-inline">
+                                <input type="radio" name="transportation" value="car" required>
+                                <span>車</span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="transportation" value="chartered_bus">
+                                <span>貸切バス</span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="transportation" value="route_bus">
+                                <span>路線バス</span>
+                            </label>
+                        </div>
+                        <div class="radio-row">
+                            <label class="radio-inline">
+                                <input type="radio" name="transportation" value="taxi">
+                                <span>タクシー</span>
+                            </label>
+                        </div>
+                        <div class="radio-row">
+                            <label class="radio-inline">
+                                <input type="radio" name="transportation" value="other">
+                                <span>その他</span>
+                            </label>
+                            <span class="conditional inline-input" id="transportation-other-inline" style="display: none;">
+                                <input type="text" id="transportation_other" name="transportation_other" placeholder="" style="width: 200px; margin-left: 10px;">
+                            </span>
+                        </div>
+                        <div class="radio-row conditional" id="vehicle-count-inline" style="display: none;">
+                            <span class="vehicle-count-label">台数</span>
+                            <input type="number" id="vehicle_count" name="vehicle_count" min="1" max="99" style="width: 60px; margin-left: 10px;">
+                            <span class="unit">台</span>
+                        </div>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">見学目的</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <textarea id="purpose" name="purpose" rows="3" maxlength="500" required></textarea>
                     </span>
                 </div>
-                <!-- 見学者様の分類 -->
+                
                 <div class="info-row">
-                    <span class="info-label">見学者様の分類</span>
+                    <span class="info-label">見学者様人数</span>
                     <span class="info-input">
-                        <label class="radio-inline">
-                            <input type="radio" name="visitor_category" value="school" required>
-                            <span>小学校・中学校・大学</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="visitor_category" value="recruit">
-                            <span>個人(大学生・高校生のリクルート)</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="visitor_category" value="family">
-                            <span>個人・親子見学・ご家族など</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="visitor_category" value="company">
-                            <span>企業(研修など)</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="visitor_category" value="government">
-                            <span>自治体主体ツアーなど</span>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="visitor_category" value="other">
-                            <span>その他(グループ・団体)</span>
-                        </label>
+                        <span class="required-label">必須</span>
+                        <input type="number" id="total_visitor_count" name="total_visitor_count" min="1" max="50" placeholder="" required>
+                        <span class="unit" style="font-size: 15px;">名</span>
+                        <span style="margin: 0 20px; font-size: 15px;">内小学生以下</span>
+                        <input type="number" id="total_child_count" name="total_child_count" min="0" max="50" placeholder="">
+                        <span class="unit" style="font-size: 15px;">名</span>
                     </span>
                 </div>
+                <!-- 最後の項目の後の線 -->
+                <div class="info-separator" style="margin-bottom: 20px;"></div>
                 <!-- 分類別詳細情報（条件付き表示） -->
                 <div class="conditional" id="school-details" style="display: none;">
                 <div class="info-row">
-                    <span class="info-label">学校名</span>
+                    <span class="info-label">学校・団体名</span>
                     <span class="info-input">
-                        <input type="text" id="school_name" name="school_name" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="school_name" name="school_name" placeholder="ABC小学校" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">学校・団体名（ふりがな）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="school_kana" name="school_kana" placeholder="えーびーしーしょうがっこう" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">代表者様氏名</span>
+                    <span class="info-input">
+                        <input type="text" id="school_representative_name" name="school_representative_name" placeholder="山田 太郎">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">代表者様氏名（ふりがな）</span>
+                    <span class="info-input">
+                        <input type="text" id="school_representative_kana" name="school_representative_kana" placeholder="やまだ たろう">
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">学年</span>
                     <span class="info-input">
-                        <input type="text" id="grade" name="grade" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="grade" name="grade" placeholder="" class="required">
+                        <span class="unit">年生</span>
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">見学者人数</span>
+                    <span class="info-label">クラス数</span>
                     <span class="info-input">
-                        <input type="number" id="school_visitor_count" name="school_visitor_count" min="1" max="50" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="class_count" name="class_count" placeholder="" class="required">
+                        <span class="unit">クラス</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（児童・生徒）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="school_student_count" name="school_student_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">小学生以下の人数</span>
+                    <span class="info-label">見学者様人数（引率）</span>
                     <span class="info-input">
-                        <input type="number" id="school_child_count" name="school_child_count" min="0" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="school_supervisor_count" name="school_supervisor_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -289,101 +609,205 @@ $timeslot_info = parse_timeslot($timeslot);
 
                 <div class="conditional" id="recruit-details" style="display: none;">
                 <div class="info-row">
-                    <span class="info-label">見学者人数</span>
+                    <span class="info-label">学校名</span>
                     <span class="info-input">
-                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="recruit_school_name" name="recruit_school_name" placeholder="ABC大学" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="recruit_grade" name="recruit_grade" placeholder="" class="required">
+                        <span class="unit">年生</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">学部</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="recruit_department" name="recruit_department" placeholder="工学部" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
+                </div>
+                <div id="companion-fields">
+                    <!-- 同行者フィールドは人数に応じて動的に追加 -->
                 </div>
                 </div>
 
                 <div class="conditional" id="family-details" style="display: none;">
                 <div class="info-row">
-                    <span class="info-label">見学者人数</span>
+                    <span class="info-label">会社・団体名</span>
                     <span class="info-input">
-                        <input type="number" id="family_visitor_count" name="family_visitor_count" min="1" max="50" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="family_organization_name" name="family_organization_name" placeholder="株式会社エフピコ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">会社・団体名（ふりがな）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="family_organization_kana" name="family_organization_kana" placeholder="かぶしきかいしゃえふぴこ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（大人）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="family_adult_count" name="family_adult_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">小学生以下の人数</span>
+                    <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
-                        <input type="number" id="family_child_count" name="family_child_count" min="0" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="family_child_count" name="family_child_count" min="0" placeholder="" class="required">
                         <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row conditional-child-grade" style="display: none;">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="family_child_grade" name="family_child_grade" placeholder="例：小学3年生、小学5年生">
                     </span>
                 </div>
                 </div>
 
                 <div class="conditional" id="company-details" style="display: none;">
                 <div class="info-row">
-                    <span class="info-label">会社名</span>
+                    <span class="info-label">会社・団体名</span>
                     <span class="info-input">
-                        <input type="text" id="company_name" name="company_name" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="company_name" name="company_name" placeholder="株式会社エフピコ" class="required">
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">見学者人数</span>
+                    <span class="info-label">会社・団体名（ふりがな）</span>
                     <span class="info-input">
-                        <input type="number" id="company_visitor_count" name="company_visitor_count" min="1" max="50" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="company_kana" name="company_kana" placeholder="かぶしきかいしゃえふぴこ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（大人）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="company_adult_count" name="company_adult_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（子ども）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="company_child_count" name="company_child_count" min="0" placeholder="" class="required">
+                        <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row conditional-child-grade" style="display: none;">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="company_child_grade" name="company_child_grade" placeholder="例：小学3年生、小学5年生">
                     </span>
                 </div>
                 </div>
 
                 <div class="conditional" id="government-details" style="display: none;">
                 <div class="info-row">
-                    <span class="info-label">団体名</span>
+                    <span class="info-label">会社・団体名</span>
                     <span class="info-input">
-                        <input type="text" id="government_name" name="government_name" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="government_name" name="government_name" placeholder="株式会社エフピコ" class="required">
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">見学者人数</span>
+                    <span class="info-label">会社・団体名（ふりがな）</span>
                     <span class="info-input">
-                        <input type="number" id="government_visitor_count" name="government_visitor_count" min="1" max="50" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="government_kana" name="government_kana" placeholder="かぶしきかいしゃえふぴこ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（大人）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">小学生以下の人数</span>
+                    <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
-                        <input type="number" id="government_child_count" name="government_child_count" min="0" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="government_child_count" name="government_child_count" min="0" placeholder="" class="required">
                         <span class="unit">名</span>
+                    </span>
+                </div>
+                <div class="info-row conditional-child-grade" style="display: none;">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="government_child_grade" name="government_child_grade" placeholder="例：小学3年生、小学5年生">
                     </span>
                 </div>
                 </div>
 
                 <div class="conditional" id="other-details" style="display: none;">
                 <div class="info-row">
-                    <span class="info-label">団体名</span>
+                    <span class="info-label">会社・団体名</span>
                     <span class="info-input">
-                        <input type="text" id="other_group_name" name="other_group_name" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="other_group_name" name="other_group_name" placeholder="株式会社エフピコ" class="required">
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">見学者人数</span>
+                    <span class="info-label">会社・団体名（ふりがな）</span>
                     <span class="info-input">
-                        <input type="number" id="other_visitor_count" name="other_visitor_count" min="1" max="50" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="other_group_kana" name="other_group_kana" placeholder="かぶしきかいしゃえふぴこ" class="required">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">見学者様人数（大人）</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">小学生以下の人数</span>
+                    <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
-                        <input type="number" id="other_child_count" name="other_child_count" min="0" placeholder="">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="other_child_count" name="other_child_count" min="0" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
+                <div class="info-row conditional-child-grade" style="display: none;">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <input type="text" id="other_child_grade" name="other_child_grade" placeholder="例：小学3年生、小学5年生">
+                    </span>
                 </div>
-            </div>
-
-            <!-- 送信ボタン -->
-            <div class="form-actions">
-                <button type="submit" class="btn-submit" disabled>
-                    入力内容の確認 →
-                </button>
+                </div>
             </div>
         </form>
+        
+        <!-- 送信ボタン（枠の外） -->
+        <div class="form-actions">
+            <button type="submit" class="btn-submit" form="reservation-form" disabled>
+                <span class="btn-text">入力内容の確認</span>
+                <span class="btn-arrow">→</span>
+            </button>
+        </div>
     </div>
 </main>
 
@@ -483,9 +907,22 @@ $timeslot_info = parse_timeslot($timeslot);
     border-top: none;
 }
 
-/* 最後のボックス以外の下部ボーダーを削除 */
-.reservation-info-box:not(:last-of-type) {
-    border-bottom: none;
+/* 連続するボックス間の下部ボーダーを削除（重複を避ける） */
+.reservation-info-box + .reservation-info-box {
+    border-top: none;
+}
+
+/* このルールを削除 - 全てのreservation-info-boxに下部ボーダーを表示 */
+
+/* 必須ラベルのスタイル */
+.required-label {
+    background-color: #E65100;
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 8px;
+    display: inline-block;
 }
 
 .info-row {
@@ -494,6 +931,11 @@ $timeslot_info = parse_timeslot($timeslot);
     min-height: 92px;
     padding: 0 20px;
     position: relative;
+}
+
+.address-row {
+    min-height: 250px;
+    padding: 25px 20px 0 20px;
 }
 
 .info-row:not(:last-child)::after {
@@ -538,7 +980,7 @@ $timeslot_info = parse_timeslot($timeslot);
 .info-input input[type="tel"],
 .info-input input[type="number"],
 .info-input select {
-    flex: 1;
+    width: 420px;
     padding: 9px 12px;
     border: 3px solid #5E4037;
     border-radius: 0;
@@ -548,7 +990,7 @@ $timeslot_info = parse_timeslot($timeslot);
 }
 
 .info-input textarea {
-    flex: 1;
+    width: 420px;
     padding: 9px 12px;
     border: 3px solid #5E4037;
     border-radius: 0;
@@ -583,13 +1025,24 @@ $timeslot_info = parse_timeslot($timeslot);
 
 .radio-inline span {
     white-space: nowrap;
+    font-size: 16px;
 }
 
 /* 住所入力行のスタイル */
+.address-row {
+    align-items: flex-start;
+}
+
+.address-row .info-label {
+    align-self: flex-start;
+    margin-top: 0;
+}
+
 .address-row .address-input {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    align-items: flex-start;
 }
 
 .postal-code-group {
@@ -600,9 +1053,10 @@ $timeslot_info = parse_timeslot($timeslot);
 
 .address-fields-row {
     display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    width: 100%;
 }
 
 .postal-prefix {
@@ -612,40 +1066,134 @@ $timeslot_info = parse_timeslot($timeslot);
 }
 
 .postal-code-input {
-    width: 100px !important;
-    flex: none !important;
+    width: 55px !important;
 }
 
 .prefecture-select {
-    width: 130px !important;
-    flex: none !important;
+    width: 200px !important;
 }
 
 .city-input {
-    width: 150px !important;
-    flex: none !important;
+    width: 420px;
 }
 
 .address-input-field {
-    flex: 1 !important;
-    min-width: 200px;
+    width: 420px;
 }
 
-/* 住所検索ボタン */
-.btn-postal-search {
-    padding: 8px 16px;
-    background: #007cba;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
+/* 郵便番号ヘルプテキスト */
+.postal-help-text {
+    font-size: 12px;
+    color: #666;
+    margin-left: 10px;
     white-space: nowrap;
-    flex: none;
 }
 
-.btn-postal-search:hover {
-    background: #0056a3;
+/* 学校関連の数値入力フィールドの幅 */
+#grade,
+#class_count,
+#school_student_count,
+#school_supervisor_count {
+    width: 30px !important;
+}
+
+/* 見学者様人数の入力フィールド */
+#total_visitor_count,
+#total_child_count {
+    width: 60px !important;
+}
+
+/* フォーム下部の枠 */
+.form-bottom-border {
+    border-bottom: 2px solid #4A4A4A;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* 送信ボタンのスタイル */
+.form-actions {
+    text-align: center !important;
+    margin-top: 30px;
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+.btn-submit {
+    background-color: #5C5548 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 15px 40px !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background-color: #4a453a !important;
+}
+
+.btn-submit:disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed !important;
+}
+
+.btn-text {
+    color: white !important;
+}
+
+.btn-arrow {
+    background-color: white !important;
+    color: #5C5548 !important;
+    border-radius: 50% !important;
+    width: 25px !important;
+    height: 25px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: bold !important;
+}
+
+/* ラジオボタングリッドレイアウト */
+.radio-group-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.radio-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.radio-row .radio-inline {
+    margin-right: 0;
+}
+
+.inline-input {
+    display: inline-flex;
+    align-items: center;
+}
+
+.vehicle-count-label {
+    font-size: 14px;
+    color: #5C5548;
+    font-weight: normal;
+}
+
+/* セパレーター線 */
+.info-row-separator {
+    height: 1px;
+    background: #E0E0E0;
+    margin: 0 20px;
 }
 
 /* 単位表示 */

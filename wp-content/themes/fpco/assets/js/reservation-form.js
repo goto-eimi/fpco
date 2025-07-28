@@ -32,12 +32,23 @@ class ReservationForm {
             radio.addEventListener('change', () => this.toggleVisitorCategoryFields());
         });
         
-        // 郵便番号検索
-        document.querySelectorAll('.btn-postal-search').forEach(btn => {
-            btn.addEventListener('click', (e) => this.searchByPostalCode(e));
+        // 見学者人数の変更（recruit用の同行者フィールド生成）
+        document.addEventListener('change', (e) => {
+            if (e.target.id === 'recruit_visitor_count') {
+                this.updateCompanionFields(e.target.value);
+            }
         });
         
-        // 郵便番号入力の自動フォーマット
+        // 子ども人数の変更（学年フィールドの表示/非表示）
+        document.addEventListener('change', (e) => {
+            if (e.target.name && e.target.name.includes('_child_count')) {
+                this.toggleChildGradeField(e.target);
+            }
+        });
+        
+        // 削除: 自動計算機能は不要になったため
+        
+        // 郵便番号入力処理（フォーマット+自動検索）
         document.querySelectorAll('.postal-code-input').forEach(input => {
             input.addEventListener('input', (e) => {
                 // 数字以外を削除
@@ -46,11 +57,13 @@ class ReservationForm {
                 if (value.length > 7) {
                     value = value.slice(0, 7);
                 }
+                
+                // 値を設定
                 e.target.value = value;
                 
                 // 7桁入力されたら自動で住所検索
                 if (value.length === 7) {
-                    const target = e.target.id === 'agency_postal_code' ? 'agency' : 'applicant';
+                    const target = e.target.getAttribute('data-target');
                     this.fetchAddressFromAPI(value, target);
                 }
             });
@@ -94,27 +107,27 @@ class ReservationForm {
     
     toggleTransportationFields() {
         const selectedTransportation = document.querySelector('input[name="transportation"]:checked').value;
-        const otherRow = document.getElementById('transportation-other-row');
-        const vehicleRow = document.getElementById('vehicle-count-row');
+        const otherInline = document.getElementById('transportation-other-inline');
+        const vehicleInline = document.getElementById('vehicle-count-inline');
         
         // その他の表示/非表示
         if (selectedTransportation === 'other') {
-            otherRow.style.display = 'flex';
-            otherRow.querySelector('input').required = true;
+            otherInline.style.display = 'inline-flex';
+            otherInline.querySelector('input').required = true;
         } else {
-            otherRow.style.display = 'none';
-            otherRow.querySelector('input').required = false;
-            otherRow.querySelector('input').value = '';
+            otherInline.style.display = 'none';
+            otherInline.querySelector('input').required = false;
+            otherInline.querySelector('input').value = '';
         }
         
         // 台数入力の表示/非表示
         if (selectedTransportation === 'car' || selectedTransportation === 'chartered_bus') {
-            vehicleRow.style.display = 'flex';
-            vehicleRow.querySelector('input').required = true;
+            vehicleInline.style.display = 'flex';
+            vehicleInline.querySelector('input').required = true;
         } else {
-            vehicleRow.style.display = 'none';
-            vehicleRow.querySelector('input').required = false;
-            vehicleRow.querySelector('input').value = '';
+            vehicleInline.style.display = 'none';
+            vehicleInline.querySelector('input').required = false;
+            vehicleInline.querySelector('input').value = '';
         }
         
         this.validateForm();
@@ -156,31 +169,70 @@ class ReservationForm {
         this.validateForm();
     }
     
-    
-    searchByPostalCode(e) {
-        const button = e.target;
-        const target = button.getAttribute('data-target'); // 'agency' or 'applicant'
-        const postalInput = target === 'agency' ? 
-            document.getElementById('agency_postal_code') : 
-            document.getElementById('postal_code');
+    updateCompanionFields(visitorCount) {
+        const companionContainer = document.getElementById('companion-fields');
+        if (!companionContainer) return;
         
-        const postalCode = postalInput.value.replace(/[^0-9]/g, '');
+        // 既存の同行者フィールドをクリア
+        companionContainer.innerHTML = '';
         
-        if (postalCode.length !== 7) {
-            alert('郵便番号は7桁の数字で入力してください（ハイフンなし）');
-            return;
+        const count = parseInt(visitorCount) || 0;
+        const companionCount = Math.max(0, count - 1); // 申込者を除く
+        
+        // 同行者フィールドを動的に生成（最大8名まで）
+        for (let i = 1; i <= Math.min(companionCount, 8); i++) {
+            const companionHTML = `
+                <div class="info-row">
+                    <span class="info-label">同行者様${this.numberToCircle(i)}</span>
+                    <span class="info-input">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <input type="text" id="companion_${i}_name" name="companion_${i}_name" placeholder="山田 太郎" class="required" style="width: 100%;">
+                                <small style="color: #666; font-size: 11px;">氏名</small>
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <input type="text" id="companion_${i}_department" name="companion_${i}_department" placeholder="工学部" class="required" style="width: 100%;">
+                                <small style="color: #666; font-size: 11px;">学部</small>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            `;
+            companionContainer.insertAdjacentHTML('beforeend', companionHTML);
         }
         
-        // 郵便番号APIを使用（実際の実装）
-        this.fetchAddressFromAPI(postalCode, target);
+        this.validateForm();
+    }
+    
+    numberToCircle(num) {
+        const circles = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
+        return circles[num - 1] || num.toString();
+    }
+    
+    toggleChildGradeField(childCountField) {
+        const fieldName = childCountField.name;
+        const category = fieldName.split('_')[0]; // family, company, government, other
+        const gradeField = document.querySelector(`.conditional-child-grade input[id="${category}_child_grade"]`);
+        const gradeRow = gradeField?.closest('.conditional-child-grade');
+        
+        if (gradeRow) {
+            const childCount = parseInt(childCountField.value) || 0;
+            if (childCount > 0) {
+                gradeRow.style.display = 'block';
+                gradeField.classList.add('required');
+                gradeField.required = true;
+            } else {
+                gradeRow.style.display = 'none';
+                gradeField.classList.remove('required');
+                gradeField.required = false;
+                gradeField.value = '';
+            }
+        }
+        
+        this.validateForm();
     }
     
     fetchAddressFromAPI(postalCode, target) {
-        // ボタンを無効化してローディング表示
-        const button = document.querySelector(`.btn-postal-search[data-target="${target}"]`);
-        button.disabled = true;
-        button.textContent = '検索中...';
-        
         // 郵便番号検索API（zipcloud）を使用
         fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`)
             .then(response => response.json())
@@ -193,17 +245,12 @@ class ReservationForm {
                         address: result.address3
                     });
                 } else {
-                    alert('該当する住所が見つかりませんでした');
+                    // 住所が見つからない場合は何も表示しない（自動検索なので）
                 }
             })
             .catch(error => {
                 console.error('住所検索エラー:', error);
-                alert('住所検索に失敗しました。手動で入力してください。');
-            })
-            .finally(() => {
-                // ボタンを元に戻す
-                button.disabled = false;
-                button.textContent = '住所検索';
+                // エラーの場合は何も表示しない（自動検索なので）
             });
     }
     
