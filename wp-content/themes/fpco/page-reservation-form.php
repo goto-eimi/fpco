@@ -46,23 +46,25 @@ textarea:-ms-input-placeholder {
     color: #E5E5E5 !important;
 }
 
-/* フォームの幅を広げる */
+/* フォームの幅を調整 */
 .reservation-form {
-    max-width: 1200px !important;
+    max-width: 1000px !important;
     width: 100% !important;
+    margin: 0 auto !important;
 }
 
 .reservation-info-box {
     max-width: none !important;
     width: 100% !important;
+    padding-left: 40px !important;
 }
 
 /* 項目ラベルの幅を調整 */
 .info-row .info-label {
-    width: 250px !important;
-    min-width: 250px !important;
-    white-space: nowrap !important;
+    width: 200px !important;
+    min-width: 200px !important;
     flex-shrink: 0 !important;
+    line-height: 1.4 !important;
 }
 
 /* 入力エリアの幅を調整 */
@@ -72,8 +74,21 @@ textarea:-ms-input-placeholder {
 }
 
 /* 見学者様の分類の改行調整 */
-.info-label br {
-    line-height: 1.5 !important;
+.info-label {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+}
+
+/* グリッド線の調整 */
+.info-row {
+    border-bottom: 1px solid #E0E0E0 !important;
+    width: calc(100% - 40px) !important;
+    margin-left: 0 !important;
+}
+
+.reservation-info-box {
+    border: 1px solid #E0E0E0 !important;
+    border-radius: 0 !important;
 }
 
 /* レスポンシブ対応 */
@@ -226,7 +241,7 @@ textarea:-ms-input-placeholder {
                 <!-- 見学者様の分類 -->
                 <div class="info-row-separator"></div>
                 <div class="info-row">
-                    <span class="info-label">見学者様の分類<br/><span style="font-size: 14px; color: #666; font-weight: normal;">(当てはまるものを選択してください)</span></span>
+                    <span class="info-label">見学者様の分類<br/><br/><span style="font-size: 14px; color: #666; font-weight: normal;">(当てはまるものを選択してください)</span></span>
                     <span class="info-input radio-group-grid">
                         <div class="radio-row">
                             <span class="required-label">必須</span>
