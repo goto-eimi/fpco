@@ -402,16 +402,6 @@ function factory_add_user_fields($user) {
         </tr>
         <?php endif; ?>
         
-        <!-- 名前 -->
-        <tr>
-            <th><label>名前</label></th>
-            <td>
-                <div>
-                    ユーザー名　　<input type="text" value="<?php echo esc_attr($user->user_login); ?>" readonly style="background-color: #f0f0f0;" />
-                    ユーザー名は変更できません。
-                </div>
-            </td>
-        </tr>
     </table>
     <?php
 }
