@@ -19,6 +19,34 @@ $factory_name = get_factory_name($factory_id);
 $timeslot_info = parse_timeslot($timeslot);
 ?>
 
+<style>
+/* プレースホルダーの文字色を#E5E5E5に設定 */
+input::placeholder,
+textarea::placeholder,
+select option[value=""] {
+    color: #E5E5E5 !important;
+}
+
+/* WebKit系ブラウザ対応 */
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    color: #E5E5E5 !important;
+}
+
+/* Mozilla Firefox対応 */
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+    color: #E5E5E5 !important;
+    opacity: 1;
+}
+
+/* Internet Explorer対応 */
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+    color: #E5E5E5 !important;
+}
+</style>
+
 <main id="main" class="wp-block-group">
     <div class="wp-block-group__inner-container">
         <!-- パンくずリスト -->
