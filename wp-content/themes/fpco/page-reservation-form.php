@@ -101,42 +101,29 @@ $timeslot_info = parse_timeslot($timeslot);
                         <input type="text" id="agency_name" name="agency_name" placeholder="" required>
                     </span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">旅行会社郵便番号</span>
-                    <span class="info-input">
-                        <span class="required-label">必須</span>
+                <div class="info-row address-row">
+                    <span class="info-label">旅行会社住所</span>
+                    <span class="info-input address-input">
                         <div class="postal-code-group">
+                            <span class="required-label">必須</span>
                             <span class="postal-prefix">〒</span>
                             <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="agency" required>
                             <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
-                    </span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">旅行会社都道府県</span>
-                    <span class="info-input">
-                        <span class="required-label">必須</span>
-                        <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select" required>
-                            <option value="">都道府県</option>
-                            <?php foreach (get_prefectures() as $pref): ?>
-                                <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">旅行会社市区町村</span>
-                    <span class="info-input">
-                        <span class="required-label">必須</span>
-                        <input type="text" id="agency_city" name="agency_city" placeholder="市区町村" class="city-input" required>
-                    </span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">旅行会社番地・建物名</span>
-                    <span class="info-input">
-                        <span class="required-label">必須</span>
-                        <input type="text" id="agency_address" name="agency_address" placeholder="番地・建物名" class="address-input-field" required>
-                        <input type="hidden" id="agency_building" name="agency_building" value="">
+                        <div class="address-fields-row">
+                            <span class="required-label">必須</span>
+                            <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select" required>
+                                <option value="">都道府県</option>
+                                <?php foreach (get_prefectures() as $pref): ?>
+                                    <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <span class="required-label">必須</span>
+                            <input type="text" id="agency_city" name="agency_city" placeholder="市区町村" class="city-input" required>
+                            <span class="required-label">必須</span>
+                            <input type="text" id="agency_address" name="agency_address" placeholder="番地・建物名" class="address-input-field" required>
+                            <input type="hidden" id="agency_building" name="agency_building" value="">
+                        </div>
                     </span>
                 </div>
                 <div class="info-row">
