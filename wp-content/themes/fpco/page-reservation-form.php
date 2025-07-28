@@ -45,6 +45,39 @@ input:-ms-input-placeholder,
 textarea:-ms-input-placeholder {
     color: #E5E5E5 !important;
 }
+
+/* フォームの幅を広げる */
+.reservation-form {
+    max-width: 1200px !important;
+    width: 100% !important;
+}
+
+.reservation-info-box {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* 項目ラベルの幅を調整 */
+.info-row .info-label {
+    width: 250px !important;
+    min-width: 250px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+/* 入力エリアの幅を調整 */
+.info-row .info-input {
+    flex: 1 !important;
+    max-width: none !important;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .info-row .info-label {
+        width: 200px !important;
+        min-width: 200px !important;
+    }
+}
 </style>
 
 <main id="main" class="wp-block-group">
