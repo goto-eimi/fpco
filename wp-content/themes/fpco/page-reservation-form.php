@@ -81,6 +81,7 @@ $timeslot_info = parse_timeslot($timeslot);
                 <div class="info-row">
                     <span class="info-label">申込者様は旅行会社の方ですか？</span>
                     <span class="info-input">
+                        <span class="required-label">必須</span>
                         <label class="radio-inline">
                             <input type="radio" name="is_travel_agency" value="yes">
                             <span>はい</span>
@@ -101,32 +102,48 @@ $timeslot_info = parse_timeslot($timeslot);
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">旅行会社電話番号</span>
+                    <span class="info-label">旅行会社郵便番号</span>
                     <span class="info-input">
-                        <span class="required-label">必須</span>
-                        <input type="tel" id="agency_phone" name="agency_phone" placeholder="" required>
-                    </span>
-                </div>
-                <div class="info-row address-row">
-                    <span class="info-label">旅行会社住所</span>
-                    <span class="info-input address-input">
                         <span class="required-label">必須</span>
                         <div class="postal-code-group">
                             <span class="postal-prefix">〒</span>
                             <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="agency" required>
                             <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
-                        <div class="address-fields-row">
-                            <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select" required>
-                                <option value="">都道府県</option>
-                                <?php foreach (get_prefectures() as $pref): ?>
-                                    <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <input type="text" id="agency_city" name="agency_city" placeholder="市区町村" class="city-input" required>
-                            <input type="text" id="agency_address" name="agency_address" placeholder="番地・建物名" class="address-input-field" required>
-                            <input type="hidden" id="agency_building" name="agency_building" value="">
-                        </div>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">旅行会社都道府県</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select" required>
+                            <option value="">都道府県</option>
+                            <?php foreach (get_prefectures() as $pref): ?>
+                                <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">旅行会社市区町村</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="agency_city" name="agency_city" placeholder="市区町村" class="city-input" required>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">旅行会社番地・建物名</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="agency_address" name="agency_address" placeholder="番地・建物名" class="address-input-field" required>
+                        <input type="hidden" id="agency_building" name="agency_building" value="">
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">旅行会社電話番号</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="tel" id="agency_phone" name="agency_phone" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
@@ -150,12 +167,13 @@ $timeslot_info = parse_timeslot($timeslot);
                 </div>
                 </div>
                 <!-- 見学者様の分類 -->
+                <div class="info-row-separator"></div>
                 <div class="info-row">
                     <span class="info-label">見学者様の分類</span>
                     <span class="info-input radio-group-grid">
-                        <span class="required-label">必須</span>
                         <div class="radio-row">
                             <label class="radio-inline">
+                                <span class="required-label">必須</span>
                                 <input type="radio" name="visitor_category" value="school" required>
                                 <span>小学校・中学校・大学</span>
                             </label>
@@ -184,6 +202,7 @@ $timeslot_info = parse_timeslot($timeslot);
                                 <span>その他(グループ・団体)</span>
                             </label>
                         </div>
+                        <div style="margin-top: 8px; font-size: 14px; color: #666;">(当てはまるものを選択してください)</div>
                     </span>
                 </div>
                 <!-- 分類別詳細情報（条件付き表示） -->
