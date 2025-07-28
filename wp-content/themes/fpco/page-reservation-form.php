@@ -71,6 +71,11 @@ textarea:-ms-input-placeholder {
     max-width: none !important;
 }
 
+/* 見学者様の分類の改行調整 */
+.info-label br {
+    line-height: 1.5 !important;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .info-row .info-label {
@@ -221,7 +226,7 @@ textarea:-ms-input-placeholder {
                 <!-- 見学者様の分類 -->
                 <div class="info-row-separator"></div>
                 <div class="info-row">
-                    <span class="info-label">見学者様の分類<br><span style="font-size: 14px; color: #666; font-weight: normal;">(当てはまるものを選択してください)</span></span>
+                    <span class="info-label">見学者様の分類<br/><span style="font-size: 14px; color: #666; font-weight: normal;">(当てはまるものを選択してください)</span></span>
                     <span class="info-input radio-group-grid">
                         <div class="radio-row">
                             <span class="required-label">必須</span>
