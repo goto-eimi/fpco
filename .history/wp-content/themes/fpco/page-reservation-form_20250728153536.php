@@ -140,20 +140,20 @@ $timeslot_info = parse_timeslot($timeslot);
                 <div class="info-row">
                     <span class="info-label">旅行会社FAX番号</span>
                     <span class="info-input">
-                        <input type="tel" id="agency_fax" name="agency_fax" placeholder="0841112222">
+                        <input type="tel" id="agency_fax" name="agency_fax" placeholder="">
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">担当者携帯番号</span>
                     <span class="info-input">
-                        <input type="tel" id="agency_contact_mobile" name="agency_contact_mobile" placeholder="08012345678">
+                        <input type="tel" id="agency_contact_mobile" name="agency_contact_mobile" placeholder="">
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">担当者メールアドレス</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="email" id="agency_contact_email" name="agency_contact_email" placeholder="tantou@example.com" required>
+                        <input type="email" id="agency_contact_email" name="agency_contact_email" placeholder="" required>
                     </span>
                 </div>
                 </div>
@@ -229,7 +229,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">学年</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="grade" name="grade" placeholder="1" class="required">
+                        <input type="number" id="grade" name="grade" placeholder="" class="required">
                         <span class="unit">年生</span>
                     </span>
                 </div>
@@ -237,7 +237,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">クラス数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="class_count" name="class_count" placeholder="1" class="required">
+                        <input type="number" id="class_count" name="class_count" placeholder="" class="required">
                         <span class="unit">クラス</span>
                     </span>
                 </div>
@@ -245,7 +245,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">見学者様人数（児童・生徒）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="school_student_count" name="school_student_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="school_student_count" name="school_student_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -253,7 +253,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">見学者様人数（引率）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="school_supervisor_count" name="school_supervisor_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="school_supervisor_count" name="school_supervisor_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -286,7 +286,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">見学者様人数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -314,7 +314,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="family_adult_count" name="family_adult_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="family_adult_count" name="family_adult_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -322,7 +322,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="family_child_count" name="family_child_count" min="0" placeholder="1" class="required">
+                        <input type="number" id="family_child_count" name="family_child_count" min="0" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -392,7 +392,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -400,7 +400,7 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="government_child_count" name="government_child_count" min="0" placeholder="1" class="required">
+                        <input type="number" id="government_child_count" name="government_child_count" min="0" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -458,7 +458,7 @@ $timeslot_info = parse_timeslot($timeslot);
                         <div class="postal-code-group">
                             <span class="required-label">必須</span>
                             <span class="postal-prefix">〒</span>
-                            <input type="text" id="postal_code" name="postal_code" placeholder="7218607" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="applicant" required>
+                            <input type="text" id="postal_code" name="postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="applicant" required>
                             <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
                         <div class="postal-code-group">
@@ -472,11 +472,11 @@ $timeslot_info = parse_timeslot($timeslot);
                         </div>
                         <div class="postal-code-group">
                             <span class="required-label">必須</span>
-                            <input type="text" id="city" name="city" placeholder="市区町村名(例: 福山市曙町)" class="city-input" required>
+                            <input type="text" id="city" name="city" placeholder="市区町村" class="city-input" required>
                         </div>
                         <div class="postal-code-group">
                             <span class="required-label">必須</span>
-                            <input type="text" id="address" name="address" placeholder="番地・ビル名(例: 1-13-15)" class="address-input-field" required>
+                            <input type="text" id="address" name="address" placeholder="番地・建物名" class="address-input-field" required>
                             <input type="hidden" id="building" name="building" value="">
                         </div>
                     </span>
@@ -485,21 +485,21 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">申込者様電話番号</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="tel" id="phone" name="phone" placeholder="08012345678" required>
+                        <input type="tel" id="phone" name="phone" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">申込者様携帯番号</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="tel" id="mobile" name="mobile" placeholder="08012345678" required>
+                        <input type="tel" id="mobile" name="mobile" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">申込者様メールアドレス</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="email" id="email" name="email" placeholder="user@example.com" required>
+                        <input type="email" id="email" name="email" placeholder="" required>
                     </span>
                 </div>
                 <div class="info-row">
@@ -537,7 +537,7 @@ $timeslot_info = parse_timeslot($timeslot);
                         </div>
                         <div class="radio-row conditional" id="vehicle-count-inline" style="display: none;">
                             <span class="vehicle-count-label">台数</span>
-                            <input type="number" id="vehicle_count" name="vehicle_count" min="1" max="99" placeholder="1" style="width: 60px; margin-left: 10px;">
+                            <input type="number" id="vehicle_count" name="vehicle_count" min="1" max="99" style="width: 60px; margin-left: 10px;">
                             <span class="unit">台</span>
                         </div>
                     </span>
@@ -554,10 +554,10 @@ $timeslot_info = parse_timeslot($timeslot);
                     <span class="info-label">見学者様人数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="total_visitor_count" name="total_visitor_count" min="1" max="50" placeholder="1" required>
+                        <input type="number" id="total_visitor_count" name="total_visitor_count" min="1" max="50" placeholder="" required>
                         <span class="unit" style="font-size: 15px;">名</span>
                         <span style="margin: 0 20px; font-size: 15px;">内小学生以下</span>
-                        <input type="number" id="total_child_count" name="total_child_count" min="0" max="50" placeholder="1">
+                        <input type="number" id="total_child_count" name="total_child_count" min="0" max="50" placeholder="">
                         <span class="unit" style="font-size: 15px;">名</span>
                     </span>
                 </div>
