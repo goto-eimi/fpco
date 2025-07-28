@@ -110,7 +110,7 @@ $timeslot_info = parse_timeslot($timeslot);
                             <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="agency" required>
                             <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
-                        <div class="address-fields-row">
+                        <div class="postal-code-group">
                             <span class="required-label">必須</span>
                             <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select" required>
                                 <option value="">都道府県</option>
@@ -118,8 +118,12 @@ $timeslot_info = parse_timeslot($timeslot);
                                     <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="postal-code-group">
                             <span class="required-label">必須</span>
                             <input type="text" id="agency_city" name="agency_city" placeholder="市区町村" class="city-input" required>
+                        </div>
+                        <div class="postal-code-group">
                             <span class="required-label">必須</span>
                             <input type="text" id="agency_address" name="agency_address" placeholder="番地・建物名" class="address-input-field" required>
                             <input type="hidden" id="agency_building" name="agency_building" value="">
@@ -457,7 +461,7 @@ $timeslot_info = parse_timeslot($timeslot);
                             <input type="text" id="postal_code" name="postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="applicant" required>
                             <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
-                        <div class="address-fields-row">
+                        <div class="postal-code-group">
                             <span class="required-label">必須</span>
                             <select id="prefecture" name="prefecture" class="prefecture-select" required>
                                 <option value="">都道府県</option>
@@ -465,8 +469,12 @@ $timeslot_info = parse_timeslot($timeslot);
                                     <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="postal-code-group">
                             <span class="required-label">必須</span>
                             <input type="text" id="city" name="city" placeholder="市区町村" class="city-input" required>
+                        </div>
+                        <div class="postal-code-group">
                             <span class="required-label">必須</span>
                             <input type="text" id="address" name="address" placeholder="番地・建物名" class="address-input-field" required>
                             <input type="hidden" id="building" name="building" value="">
