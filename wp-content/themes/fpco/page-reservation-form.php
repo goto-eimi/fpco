@@ -171,9 +171,9 @@ $timeslot_info = parse_timeslot($timeslot);
                 <div class="info-row">
                     <span class="info-label">見学者様の分類</span>
                     <span class="info-input radio-group-grid">
+                        <span class="required-label">必須</span>
                         <div class="radio-row">
                             <label class="radio-inline">
-                                <span class="required-label">必須</span>
                                 <input type="radio" name="visitor_category" value="school" required>
                                 <span>小学校・中学校・大学</span>
                             </label>
