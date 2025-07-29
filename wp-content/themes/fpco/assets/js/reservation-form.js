@@ -269,8 +269,8 @@ class ReservationForm {
                     const result = data.data[0];
                     this.fillAddress(target, {
                         prefecture: result.ja.prefecture,
-                        city: result.ja.address1,
-                        address: result.ja.address2
+                        city: result.ja.address1 + (result.ja.address2 || ''),
+                        address: ''  // 番地は手動入力のため空にする
                     });
                 } else {
                     // 住所が見つからない場合は何も表示しない（自動検索なので）
