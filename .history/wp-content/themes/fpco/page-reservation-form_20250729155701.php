@@ -332,18 +332,18 @@ textarea:-ms-input-placeholder {
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">学部</span>
-                    <span class="info-input">
-                        <span class="required-label">必須</span>
-                        <input type="text" id="recruit_department" name="recruit_department" placeholder="工学部" class="required">
-                    </span>
-                </div>
-                <div class="info-row">
                     <span class="info-label">学年</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
                         <input type="number" id="recruit_grade" name="recruit_grade" placeholder="" class="required count-box">
                         <span class="unit">年生</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">学部</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="text" id="recruit_department" name="recruit_department" placeholder="工学部" class="required">
                     </span>
                 </div>
                 <div class="info-row">

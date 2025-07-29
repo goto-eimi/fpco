@@ -206,17 +206,20 @@ class ReservationForm {
         for (let i = 1; i <= Math.min(companionCount, 8); i++) {
             const companionHTML = `
                 <div class="info-row">
-                    <span class="info-label">同行者様${this.numberToCircle(i)}氏名</span>
+                    <span class="info-label">同行者様${this.numberToCircle(i)}</span>
                     <span class="info-input">
-                        <span class="required-label">必須</span>
-                        <input type="text" id="companion_${i}_name" name="companion_${i}_name" placeholder="山田 太郎" class="required">
-                    </span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">同行者様${this.numberToCircle(i)}学部</span>
-                    <span class="info-input">
-                        <span class="required-label">必須</span>
-                        <input type="text" id="companion_${i}_department" name="companion_${i}_department" placeholder="工学部" class="required">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <span class="info-label">氏名</span>
+                                <span class="required-label">必須</span>
+                                <input type="text" id="companion_${i}_name" name="companion_${i}_name" placeholder="山田 太郎" class="required" style="width: 100%;">
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <span class="info-label">学部</span>
+                                <span class="required-label">必須</span>
+                                <input type="text" id="companion_${i}_department" name="companion_${i}_department" placeholder="工学部" class="required" style="width: 100%;">
+                            </div>
+                        </div>
                     </span>
                 </div>
             `;

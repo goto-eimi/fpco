@@ -332,6 +332,14 @@ textarea:-ms-input-placeholder {
                     </span>
                 </div>
                 <div class="info-row">
+                    <span class="info-label">学年</span>
+                    <span class="info-input">
+                        <span class="required-label">必須</span>
+                        <input type="number" id="recruit_grade" name="recruit_grade" placeholder="" class="required">
+                        <span class="unit">年生</span>
+                    </span>
+                </div>
+                <div class="info-row">
                     <span class="info-label">学部</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
@@ -339,18 +347,10 @@ textarea:-ms-input-placeholder {
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">学年</span>
-                    <span class="info-input">
-                        <span class="required-label">必須</span>
-                        <input type="number" id="recruit_grade" name="recruit_grade" placeholder="" class="required count-box">
-                        <span class="unit">年生</span>
-                    </span>
-                </div>
-                <div class="info-row">
                     <span class="info-label">見学者様人数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="1" class="required count-box">
+                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -705,7 +705,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">学年</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="recruit_grade" name="recruit_grade" placeholder="" class="required count-box">
+                        <input type="number" id="recruit_grade" name="recruit_grade" placeholder="" class="required">
                         <span class="unit">年生</span>
                     </span>
                 </div>
@@ -720,7 +720,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="" class="required count-box">
+                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -865,7 +865,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="50" placeholder="" class="required count-box">
+                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="50" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -873,7 +873,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="other_child_count" name="other_child_count" min="0" placeholder="" class="required count-box">
+                        <input type="number" id="other_child_count" name="other_child_count" min="0" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
