@@ -1310,7 +1310,7 @@ textarea:-ms-input-placeholder {
     display: none !important;
 }
 
-/* 同行者の学部行の区切り線を削除 */
+/* 同行者の学部行の区切り線は基本的に削除 */
 .companion-dept-row::after {
     display: none !important;
 }
@@ -1325,6 +1325,18 @@ textarea:-ms-input-placeholder {
 .companion-dept-row {
     min-height: 60px !important;
     padding-top: 0 !important;
+}
+
+/* 各同行者グループの最後（学部行）に区切り線を表示 */
+.companion-dept-row:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 35px;
+    right: 35px;
+    height: 1px;
+    background: #E0E0E0;
+    display: block !important;
 }
 
 /* レスポンシブ対応 */
