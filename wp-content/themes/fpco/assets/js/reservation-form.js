@@ -13,6 +13,7 @@ class ReservationForm {
     
     init() {
         this.bindEvents();
+        this.restoreFormData();
         this.validateForm();
     }
     
@@ -82,6 +83,10 @@ class ReservationForm {
             input.addEventListener('input', () => {
                 this.validateField(input);
                 this.validateForm();
+                this.saveFormData(); // 入力時にデータを保存
+            });
+            input.addEventListener('change', () => {
+                this.saveFormData(); // 選択変更時にデータを保存
             });
         });
         
@@ -429,8 +434,68 @@ class ReservationForm {
             return;
         }
         
+        // 送信時にlocalStorageをクリア
+        this.clearFormData();
+        
         // フォームデータを確認画面に送信
         this.form.submit();
+    }
+    
+    saveFormData() {
+        const formData = new FormData(this.form);
+        const data = {};
+        
+        // 通常のフォームフィールド
+        for (let [key, value] of formData.entries()) {
+            data[key] = value;
+        }
+        
+        // ラジオボタンの状態を保存
+        const radioGroups = ['is_travel_agency', 'visitor_category', 'transportation'];
+        radioGroups.forEach(groupName => {
+            const checkedRadio = this.form.querySelector(`input[name="${groupName}"]:checked`);
+            if (checkedRadio) {
+                data[groupName] = checkedRadio.value;
+            }
+        });
+        
+        localStorage.setItem('reservation_form_data', JSON.stringify(data));
+    }
+    
+    restoreFormData() {
+        const savedData = localStorage.getItem('reservation_form_data');
+        if (!savedData) return;
+        
+        try {
+            const data = JSON.parse(savedData);
+            
+            // テキスト・数値・メール・電話・テキストエリア・セレクトフィールドを復元
+            Object.keys(data).forEach(key => {
+                const field = this.form.querySelector(`[name="${key}"]`);
+                if (field) {
+                    if (field.type === 'radio') {
+                        const radioButton = this.form.querySelector(`input[name="${key}"][value="${data[key]}"]`);
+                        if (radioButton) {
+                            radioButton.checked = true;
+                        }
+                    } else {
+                        field.value = data[key];
+                    }
+                }
+            });
+            
+            // 条件付き表示セクションを復元
+            this.toggleTravelAgencySection();
+            this.toggleVisitorCategoryFields();
+            this.toggleTransportationFields();
+            
+        } catch (error) {
+            console.error('フォームデータの復元に失敗しました:', error);
+        }
+    }
+    
+    clearFormData() {
+        localStorage.removeItem('reservation_form_data');
     }
 }
 

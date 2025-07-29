@@ -11,7 +11,7 @@ get_header(); ?>
     <div class="wp-block-group__inner-container">
         <header class="entry-header">
             <h1 class="entry-title">[フロント]予約状況カレンダー</h1>
-            <p class="calendar-description" style="text-align: center; font-size: 16px; color: #555;">
+            <p class="calendar-description">
                 日付を選択し、表示されたポップアップよりご希望の時間帯を選択してください。
             </p>
         </header>
@@ -20,6 +20,7 @@ get_header(); ?>
             <!-- 年月選択エリア -->
             <div class="calendar-controls">
                 <div class="month-selector">
+                    <label for="calendar-month-select">表示月:</label>
                     <select id="calendar-month-select" class="month-select">
                         <?php
                         // 今月から12ヶ月先まで表示

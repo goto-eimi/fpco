@@ -31,9 +31,6 @@ get_header(); ?>
                             $month = $date->format('n');
                             $display = $date->format('Y年n月');
                             $value = $date->format('Y-m');
-                            
-                            $selected = ($i === 0) ? 'selected' : '';
-                            echo "<option value=\"{$value}\" {$selected}>{$display}</option>";
                         }
                         ?>
                     </select>
