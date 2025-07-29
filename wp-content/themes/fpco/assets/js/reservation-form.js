@@ -205,16 +205,18 @@ class ReservationForm {
         // 同行者フィールドを動的に生成（最大8名まで）
         for (let i = 1; i <= Math.min(companionCount, 8); i++) {
             const companionHTML = `
-                <div class="info-row">
-                    <span class="info-label">同行者様${this.numberToCircle(i)}氏名</span>
+                <div class="info-row companion-name-row">
+                    <span class="info-label">同行者様${this.numberToCircle(i)}</span>
                     <span class="info-input">
+                        <span class="companion-field-label">氏名</span>
                         <span class="required-label">必須</span>
                         <input type="text" id="companion_${i}_name" name="companion_${i}_name" placeholder="山田 太郎" class="required">
                     </span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">同行者様${this.numberToCircle(i)}学部</span>
+                <div class="info-row companion-dept-row">
+                    <span class="info-label"></span>
                     <span class="info-input">
+                        <span class="companion-field-label">学部</span>
                         <span class="required-label">必須</span>
                         <input type="text" id="companion_${i}_department" name="companion_${i}_department" placeholder="工学部" class="required">
                     </span>

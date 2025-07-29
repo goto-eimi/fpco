@@ -1295,6 +1295,20 @@ textarea:-ms-input-placeholder {
     display: none;
 }
 
+/* 同行者フィールドのスタイル */
+.companion-field-label {
+    font-weight: bold;
+    color: #5C5548;
+    margin-right: 10px;
+    display: inline-block;
+    width: 40px;
+}
+
+/* 同行者の学部行の区切り線を削除 */
+.companion-dept-row::after {
+    display: none !important;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .info-row {
