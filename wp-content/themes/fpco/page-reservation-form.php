@@ -581,12 +581,14 @@ textarea:-ms-input-placeholder {
                             </label>
                         </div>
                         <div class="radio-row">
+                            <span style="visibility: hidden;" class="required-label">必須</span>
                             <label class="radio-inline">
                                 <input type="radio" name="transportation" value="taxi">
                                 <span>タクシー</span>
                             </label>
                         </div>
                         <div class="radio-row">
+                            <span style="visibility: hidden;" class="required-label">必須</span>
                             <label class="radio-inline">
                                 <input type="radio" name="transportation" value="other">
                                 <span>その他</span>
