@@ -1298,10 +1298,16 @@ textarea:-ms-input-placeholder {
 /* 同行者フィールドのスタイル */
 .companion-field-label {
     font-weight: bold;
+    font-size: 15px;
     color: #5C5548;
     margin-right: 10px;
     display: inline-block;
     width: 40px;
+}
+
+/* 同行者の氏名行の区切り線を削除 */
+.companion-name-row:not(:last-child)::after {
+    display: none !important;
 }
 
 /* 同行者の学部行の区切り線を削除 */
