@@ -200,12 +200,14 @@ textarea:-ms-input-placeholder {
                 <div class="info-row">
                     <span class="info-label">旅行会社FAX番号</span>
                     <span class="info-input">
+                        <span style="visibility: hidden;" class="required-label">必須</span>
                         <input type="tel" id="agency_fax" name="agency_fax" placeholder="0841112222">
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">担当者携帯番号</span>
                     <span class="info-input">
+                        <span style="visibility: hidden;" class="required-label">必須</span>
                         <input type="tel" id="agency_contact_mobile" name="agency_contact_mobile" placeholder="08012345678">
                     </span>
                 </div>
@@ -276,12 +278,14 @@ textarea:-ms-input-placeholder {
                 <div class="info-row">
                     <span class="info-label">代表者様氏名</span>
                     <span class="info-input">
+                        <span style="visibility: hidden;" class="required-label">必須</span>
                         <input type="text" id="school_representative_name" name="school_representative_name" placeholder="山田 太郎">
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">代表者様氏名（ふりがな）</span>
                     <span class="info-input">
+                        <span style="visibility: hidden;" class="required-label">必須</span>
                         <input type="text" id="school_representative_kana" name="school_representative_kana" placeholder="やまだ たろう">
                     </span>
                 </div>
@@ -644,12 +648,14 @@ textarea:-ms-input-placeholder {
                 <div class="info-row">
                     <span class="info-label">代表者様氏名</span>
                     <span class="info-input">
+                        <span style="visibility: hidden;" class="required-label">必須</span>
                         <input type="text" id="school_representative_name" name="school_representative_name" placeholder="山田 太郎">
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">代表者様氏名（ふりがな）</span>
                     <span class="info-input">
+                        <span style="visibility: hidden;" class="required-label">必須</span>
                         <input type="text" id="school_representative_kana" name="school_representative_kana" placeholder="やまだ たろう">
                     </span>
                 </div>
