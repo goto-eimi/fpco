@@ -1315,6 +1315,18 @@ textarea:-ms-input-placeholder {
     display: none !important;
 }
 
+/* 同行者の氏名行の下パディングを削減 */
+.companion-name-row {
+    min-height: 60px !important;
+    padding-bottom: 0 !important;
+}
+
+/* 同行者の学部行の上パディングを削減 */
+.companion-dept-row {
+    min-height: 60px !important;
+    padding-top: 0 !important;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .info-row {
