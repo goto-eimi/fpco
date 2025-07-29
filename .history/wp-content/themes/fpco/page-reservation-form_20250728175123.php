@@ -597,7 +597,7 @@ textarea:-ms-input-placeholder {
                         </div>
                         <div class="radio-row conditional" id="vehicle-count-inline" style="display: none;">
                             <span class="vehicle-count-label">台数</span>
-                            <span class="required-label">必須</span><input type="number" id="vehicle_count" name="vehicle_count" min="1" max="99" placeholder="1" style="width: 20px; margin-left: 10px;" required>
+                            <input type="number" id="vehicle_count" name="vehicle_count" min="1" max="99" placeholder="1" style="width: 60px; margin-left: 10px;">
                             <span class="unit">台</span>
                         </div>
                     </span>
@@ -1074,7 +1074,7 @@ textarea:-ms-input-placeholder {
     border-radius: 0;
     font-size: 14px;
     resize: vertical;
-    min-height: 55px;
+    min-height: 80px;
 }
 
 .info-input input:focus,
@@ -1179,6 +1179,7 @@ textarea:-ms-input-placeholder {
 #total_visitor_count,
 #total_child_count {
     width: 20px !important;
+    text-align: center !important;
 }
 
 /* フォーム下部の枠 */

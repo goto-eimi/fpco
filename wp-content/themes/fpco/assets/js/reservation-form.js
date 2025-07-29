@@ -121,7 +121,7 @@ class ReservationForm {
         }
         
         // 台数入力の表示/非表示
-        if (selectedTransportation === 'car' || selectedTransportation === 'chartered_bus') {
+        if (selectedTransportation === 'car' || selectedTransportation === 'chartered_bus' || selectedTransportation === 'taxi') {
             vehicleInline.style.display = 'flex';
             vehicleInline.querySelector('input').required = true;
         } else {
