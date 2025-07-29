@@ -96,6 +96,29 @@ class ReservationForm {
         if (isTravelAgency) {
             section.style.display = 'block';
             this.setRequiredFields(section, true);
+            
+            // 旅行会社の郵便番号入力フィールドにイベントリスナーを再登録
+            const agencyPostalInput = document.getElementById('agency_postal_code');
+            if (agencyPostalInput && !agencyPostalInput.hasAttribute('data-listener-attached')) {
+                agencyPostalInput.setAttribute('data-listener-attached', 'true');
+                agencyPostalInput.addEventListener('input', (e) => {
+                    // 数字以外を削除
+                    let value = e.target.value.replace(/[^0-9]/g, '');
+                    // 7桁に制限
+                    if (value.length > 7) {
+                        value = value.slice(0, 7);
+                    }
+                    
+                    // 値を設定
+                    e.target.value = value;
+                    
+                    // 7桁入力されたら自動で住所検索
+                    if (value.length === 7) {
+                        const target = e.target.getAttribute('data-target');
+                        this.fetchAddressFromAPI(value, target);
+                    }
+                });
+            }
         } else {
             section.style.display = 'none';
             this.setRequiredFields(section, false);
