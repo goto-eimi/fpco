@@ -233,16 +233,21 @@ class ReservationForm {
     }
     
     fetchAddressFromAPI(postalCode, target) {
-        // 郵便番号検索API（zipcloud）を使用
-        fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`)
-            .then(response => response.json())
+        // madefor.github.io の郵便番号検索APIを使用（CORS対応）
+        fetch(`https://madefor.github.io/postal-code-api/api/v1/${postalCode.slice(0,3)}/${postalCode.slice(3)}.json`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('郵便番号が見つかりません');
+                }
+                return response.json();
+            })
             .then(data => {
-                if (data.status === 200 && data.results && data.results.length > 0) {
-                    const result = data.results[0];
+                if (data && data.data && data.data.length > 0) {
+                    const result = data.data[0];
                     this.fillAddress(target, {
-                        prefecture: result.address1,
-                        city: result.address2,
-                        address: result.address3
+                        prefecture: result.ja.prefecture,
+                        city: result.ja.address1,
+                        address: result.ja.address2
                     });
                 } else {
                     // 住所が見つからない場合は何も表示しない（自動検索なので）
