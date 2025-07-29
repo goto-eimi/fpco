@@ -293,7 +293,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">学年</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="grade" name="grade" placeholder="1" class="required">
+                        <input type="number" id="grade" name="grade" placeholder="1" class="required">
                         <span class="unit">年生</span>
                     </span>
                 </div>
@@ -301,7 +301,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">クラス数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="class_count" name="class_count" placeholder="1" class="required">
+                        <input type="number" id="class_count" name="class_count" placeholder="1" class="required">
                         <span class="unit">クラス</span>
                     </span>
                 </div>
@@ -309,7 +309,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（児童・生徒）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="school_student_count" name="school_student_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="school_student_count" name="school_student_count" min="1" max="50" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -317,7 +317,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（引率）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="school_supervisor_count" name="school_supervisor_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="school_supervisor_count" name="school_supervisor_count" min="1" max="50" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -378,7 +378,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="family_adult_count" name="family_adult_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="family_adult_count" name="family_adult_count" min="1" max="50" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -386,14 +386,14 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="family_child_count" name="family_child_count" min="0" placeholder="1" class="required">
+                        <input type="number" id="family_child_count" name="family_child_count" min="0" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
                 <div class="info-row conditional-child-grade" style="display: none;">
                     <span class="info-label">学年</span>
                     <span class="info-input">
-                        <input type="text" class="count-box" id="family_child_grade" name="family_child_grade" placeholder="例：小学3年生、小学5年生">
+                        <input type="text" id="family_child_grade" name="family_child_grade" placeholder="例：小学3年生、小学5年生">
                     </span>
                 </div>
                 </div>
@@ -1179,8 +1179,7 @@ textarea:-ms-input-placeholder {
 #grade,
 #class_count,
 #school_student_count,
-#school_supervisor_count,
-.count-box {
+#school_supervisor_count {
     width: 30px !important;
 }
 
