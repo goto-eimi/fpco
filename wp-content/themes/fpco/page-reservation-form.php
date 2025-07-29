@@ -565,8 +565,8 @@ textarea:-ms-input-placeholder {
                 <div class="info-row">
                     <span class="info-label">ご利用の交通機関</span>
                     <span class="info-input radio-group-grid">
-                        <span class="required-label">必須</span>
                         <div class="radio-row">
+                            <span class="required-label">必須</span>
                             <label class="radio-inline">
                                 <input type="radio" name="transportation" value="car" required>
                                 <span>車</span>
