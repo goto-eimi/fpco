@@ -387,11 +387,15 @@ class ReservationForm {
         const submitBtn = document.querySelector('.btn-submit');
         let isValid = true;
         
-        // 必須項目のチェック
+        // 必須項目のチェック（表示されているフィールドのみ）
         const requiredFields = this.form.querySelectorAll('[required]');
         requiredFields.forEach(field => {
-            if (!this.validateField(field)) {
-                isValid = false;
+            // フィールドが非表示の親要素内にないかチェック
+            const hiddenParent = field.closest('.conditional[style*="display: none"]');
+            if (!hiddenParent) {
+                if (!this.validateField(field)) {
+                    isValid = false;
+                }
             }
         });
         
