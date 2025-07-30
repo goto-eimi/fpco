@@ -23,226 +23,117 @@ $factory_name = get_factory_name($form_data['factory_id']);
 $timeslot_info = parse_timeslot($form_data['timeslot']);
 ?>
 
-<main id="main" class="wp-block-group">
-    <div class="wp-block-group__inner-container">
-        <!-- パンくずリスト -->
-        <nav class="breadcrumb">
-            <a href="<?php echo home_url(); ?>">TOP</a> &gt; 
-            <a href="<?php echo home_url('/reservation-calendar/'); ?>">予約状況カレンダー</a> &gt; 
-            <a href="<?php echo home_url('/reservation-form/'); ?>">予約フォーム</a> &gt; 
-            <span>入力内容の確認</span>
-        </nav>
-
-        <!-- ステップインジケーター -->
-        <div class="step-indicator">
-            <div class="step completed">
-                <span class="step-number">1</span>
-                <span class="step-label">必要事項の入力</span>
-            </div>
-            <div class="step active">
-                <span class="step-number">2</span>
-                <span class="step-label">入力内容の確認</span>
-            </div>
-            <div class="step">
-                <span class="step-number">3</span>
-                <span class="step-label">送信完了</span>
-            </div>
-        </div>
-
-        <header class="entry-header">
-            <h1 class="entry-title">入力内容の確認</h1>
-            <p class="confirm-description">
-                以下の内容でよろしければ「この内容で送信する」ボタンをクリックしてください。<br>
-                修正する場合は「内容を修正する」ボタンをクリックしてください。
-            </p>
-        </header>
-
-        <div class="confirmation-content">
-            <!-- 予約内容表示 -->
-            <section class="confirm-section">
-                <h2>ご予約内容</h2>
-                <dl class="confirm-list">
-                    <dt>見学工場</dt>
-                    <dd><?php echo esc_html($factory_name); ?>工場</dd>
-                    <dt>見学日</dt>
-                    <dd><?php echo esc_html(format_display_date($form_data['date'])); ?></dd>
-                    <dt>見学時間帯</dt>
-                    <dd><?php echo esc_html($timeslot_info['display']); ?></dd>
-                    <dt>見学時間</dt>
-                    <dd><?php echo esc_html($timeslot_info['duration']); ?>分</dd>
-                </dl>
-            </section>
-
-            <!-- 申込者情報 -->
-            <section class="confirm-section">
-                <h2>申込者様情報</h2>
-                <dl class="confirm-list">
-                    <dt>申込者様氏名（ふりがな）</dt>
-                    <dd><?php echo esc_html($form_data['applicant_name']); ?>（<?php echo esc_html($form_data['applicant_name_kana']); ?>）</dd>
-                    
-                    <dt>住所</dt>
-                    <dd>
-                        〒<?php echo esc_html($form_data['postal_code']); ?><br>
-                        <?php echo esc_html($form_data['prefecture']); ?><?php echo esc_html($form_data['city']); ?><?php echo esc_html($form_data['address']); ?>
-                        <?php if (!empty($form_data['building'])): ?>
-                            <br><?php echo esc_html($form_data['building']); ?>
-                        <?php endif; ?>
-                    </dd>
-                    
-                    <dt>電話番号</dt>
-                    <dd><?php echo esc_html($form_data['phone']); ?></dd>
-                    
-                    <dt>携帯番号</dt>
-                    <dd><?php echo esc_html($form_data['mobile']); ?></dd>
-                    
-                    <dt>メールアドレス</dt>
-                    <dd><?php echo esc_html($form_data['email']); ?></dd>
-                    
-                    <dt>ご利用の交通機関</dt>
-                    <dd>
-                        <?php echo esc_html(get_transportation_display($form_data['transportation'], $form_data)); ?>
-                        <?php if (!empty($form_data['vehicle_count'])): ?>
-                            （<?php echo esc_html($form_data['vehicle_count']); ?>台）
-                        <?php endif; ?>
-                    </dd>
-                    
-                    <dt>見学目的</dt>
-                    <dd><?php echo nl2br(esc_html($form_data['purpose'])); ?></dd>
-                </dl>
-            </section>
-
-            <!-- 旅行会社情報（該当する場合） -->
-            <?php if ($form_data['is_travel_agency'] === 'yes'): ?>
-            <section class="confirm-section">
-                <h2>旅行会社情報</h2>
-                <dl class="confirm-list">
-                    <dt>旅行会社名</dt>
-                    <dd><?php echo esc_html($form_data['agency_name']); ?></dd>
-                    
-                    <dt>電話番号</dt>
-                    <dd><?php echo esc_html($form_data['agency_phone']); ?></dd>
-                    
-                    <dt>住所</dt>
-                    <dd>
-                        〒<?php echo esc_html($form_data['agency_postal_code']); ?><br>
-                        <?php echo esc_html($form_data['agency_prefecture']); ?><?php echo esc_html($form_data['agency_city']); ?><?php echo esc_html($form_data['agency_address']); ?>
-                        <?php if (!empty($form_data['agency_building'])): ?>
-                            <br><?php echo esc_html($form_data['agency_building']); ?>
-                        <?php endif; ?>
-                    </dd>
-                    
-                    <?php if (!empty($form_data['agency_fax'])): ?>
-                    <dt>FAX番号</dt>
-                    <dd><?php echo esc_html($form_data['agency_fax']); ?></dd>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($form_data['agency_contact_mobile'])): ?>
-                    <dt>担当者携帯番号</dt>
-                    <dd><?php echo esc_html($form_data['agency_contact_mobile']); ?></dd>
-                    <?php endif; ?>
-                    
-                    <dt>担当者メールアドレス</dt>
-                    <dd><?php echo esc_html($form_data['agency_contact_email']); ?></dd>
-                </dl>
-            </section>
-            <?php endif; ?>
-
-            <!-- 見学者情報 -->
-            <section class="confirm-section">
-                <h2>見学者様情報</h2>
-                <dl class="confirm-list">
-                    <dt>見学者様の分類</dt>
-                    <dd><?php echo esc_html(get_visitor_category_display($form_data['visitor_category'])); ?></dd>
-                    
-                    <?php echo generate_visitor_details_display($form_data); ?>
-                    
-                    <dt>見学者様人数（合計）</dt>
-                    <dd class="total-count"><?php echo calculate_total_visitors($form_data); ?>名</dd>
-                </dl>
-            </section>
-        </div>
-
-        <!-- 確認・送信フォーム -->
-        <form id="confirm-form" method="post" action="<?php echo home_url('/reservation-complete/'); ?>">
-            <!-- 全フォームデータを隠しフィールドとして保持 -->
-            <?php foreach ($form_data as $key => $value): ?>
-                <?php if (is_array($value)): ?>
-                    <?php foreach ($value as $subKey => $subValue): ?>
-                        <input type="hidden" name="<?php echo esc_attr($key . '[' . $subKey . ']'); ?>" value="<?php echo esc_attr($subValue); ?>">
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <input type="hidden" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>">
-                <?php endif; ?>
-            <?php endforeach; ?>
-
-            <div class="form-actions">
-                <button type="button" class="btn-back" onclick="history.back()">
-                    ← 内容を修正する
-                </button>
-                <button type="submit" class="btn-submit">
-                    この内容で送信する →
-                </button>
-            </div>
-        </form>
-    </div>
-</main>
-
 <style>
-/* 確認画面のスタイル */
-.confirm-description {
-    text-align: center;
-    color: #666;
-    margin-bottom: 30px;
+/* プレースホルダーの文字色を#E5E5E5に設定 */
+input::placeholder,
+textarea::placeholder,
+select option[value=""] {
+    color: #E5E5E5 !important;
 }
 
-.confirmation-content {
-    max-width: 800px;
-    margin: 0 auto;
+/* WebKit系ブラウザ対応 */
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    color: #E5E5E5 !important;
 }
 
-.confirm-section {
-    background: white;
-    padding: 30px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 30px;
+/* Mozilla Firefox対応 */
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+    color: #E5E5E5 !important;
+    opacity: 1;
 }
 
-.confirm-section h2 {
-    margin-top: 0;
+/* Internet Explorer対応 */
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+    color: #E5E5E5 !important;
+}
+
+.reservation-info-box {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* 項目ラベルの幅を調整 */
+.info-row .info-label {
+    width: 250px !important;
+    min-width: 250px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+/* 入力エリアの幅を調整 */
+.info-row .info-input {
+    flex: 1 !important;
+    max-width: none !important;
+}
+
+/* 見学者様の分類の改行調整 */
+.info-label br {
+    line-height: 1.5 !important;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .info-row .info-label {
+        width: 200px !important;
+        min-width: 200px !important;
+    }
+}
+
+/* 確認画面追加スタイル */
+.breadcrumb {
     margin-bottom: 20px;
-    font-size: 20px;
-    color: #333;
-    border-bottom: 2px solid #007cba;
-    padding-bottom: 10px;
-}
-
-.confirm-list {
-    display: grid;
-    gap: 15px;
-    margin: 0;
-}
-
-.confirm-list dt {
+    color: #797369;
+    font-size: 12px;
     font-weight: bold;
-    color: #666;
-    margin-bottom: 5px;
+    margin-left: 70px;
 }
 
-.confirm-list dd {
-    margin: 0 0 15px 0;
-    color: #333;
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 4px;
-    line-height: 1.6;
+.breadcrumb a {
+    color: #797369;
+    text-decoration: none;
 }
 
-.confirm-list .total-count {
-    font-size: 18px;
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    padding: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 0 40px;
+}
+
+.step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: calc(50% + 15px);
+    width: calc(80px - -70px);
+    height: 2px;
+    background: #ddd;
+    top: 15px;
+    transform: translateY(-50%);
+}
+
+.step.active .step-number {
+    background: #5C5548;
+    color: white;
+}
+
+.step.active .step-label {
+    color: #5C5548;
     font-weight: bold;
-    color: #007cba;
-    text-align: center;
 }
 
 .step.completed .step-number {
@@ -255,12 +146,42 @@ $timeslot_info = parse_timeslot($form_data['timeslot']);
     font-weight: bold;
 }
 
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #DFDCDC;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.step-label {
+    color: #DFDCDC;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* 予約情報ボックススタイル */
+.reservation-info-box {
+    border: 2px solid #4A4A4A;
+    border-radius: 0;
+    background: #fff;
+    margin-bottom: 0;
+    max-width: 900px;
+    margin: 0 auto 30px auto;
+}
+
+/* 確認ボタンスタイル */
 .form-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 40px;
-    max-width: 800px;
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -297,10 +218,6 @@ $timeslot_info = parse_timeslot($form_data['timeslot']);
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
-    .confirm-section {
-        padding: 20px;
-    }
-    
     .form-actions {
         flex-direction: column;
         gap: 15px;
@@ -312,6 +229,174 @@ $timeslot_info = parse_timeslot($form_data['timeslot']);
     }
 }
 </style>
+
+<main id="main" class="wp-block-group">
+    <div class="wp-block-group__inner-container">
+        <!-- パンくずリスト -->
+        <nav class="breadcrumb">
+            <a href="<?php echo home_url(); ?>">TOP</a> &gt; 
+            <a href="<?php echo home_url('/reservation-calendar/'); ?>">予約状況カレンダー</a> &gt; 
+            <a href="<?php echo home_url('/reservation-form/'); ?>">予約フォーム</a> &gt; 
+            <span>入力内容の確認</span>
+        </nav>
+
+        <!-- ステップインジケーター -->
+        <div class="step-indicator">
+            <div class="step completed">
+                <span class="step-number">1</span>
+                <span class="step-label">必要事項の入力</span>
+            </div>
+            <div class="step active">
+                <span class="step-number">2</span>
+                <span class="step-label">入力内容の確認</span>
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <span class="step-label">送信完了</span>
+            </div>
+        </div>
+
+        <!-- 入力内容確認説明 -->
+        <div style="text-align: center; margin: 20px 0 30px 0; color: #666;">
+            以下の内容でよろしければ「この内容で送信する」ボタンをクリックしてください。<br>
+            修正する場合は「内容を修正する」ボタンをクリックしてください。
+        </div>
+
+        <!-- 予約情報表示部分 -->
+        <div class="reservation-info-box">
+            <div class="info-row">
+                <span class="info-label">見学工場</span>
+                <span class="info-value"><?php echo esc_html($factory_name); ?>工場</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">見学日</span>
+                <span class="info-value"><?php echo esc_html(format_display_date($form_data['date'])); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">見学時間帯</span>
+                <span class="info-value"><?php echo esc_html($timeslot_info['display']); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">見学時間</span>
+                <span class="info-value"><?php echo esc_html($timeslot_info['duration']); ?>分</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">申込者様氏名</span>
+                <span class="info-value"><?php echo esc_html($form_data['applicant_name']); ?>（<?php echo esc_html($form_data['applicant_name_kana']); ?>）</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">住所</span>
+                <span class="info-value">
+                    〒<?php echo esc_html($form_data['postal_code']); ?><br>
+                    <?php echo esc_html($form_data['prefecture']); ?><?php echo esc_html($form_data['city']); ?><?php echo esc_html($form_data['address']); ?>
+                    <?php if (!empty($form_data['building'])): ?>
+                        <br><?php echo esc_html($form_data['building']); ?>
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">電話番号</span>
+                <span class="info-value"><?php echo esc_html($form_data['phone']); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">携帯番号</span>
+                <span class="info-value"><?php echo esc_html($form_data['mobile']); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">メールアドレス</span>
+                <span class="info-value"><?php echo esc_html($form_data['email']); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ご利用の交通機関</span>
+                <span class="info-value">
+                    <?php echo esc_html(get_transportation_display($form_data['transportation'], $form_data)); ?>
+                    <?php if (!empty($form_data['vehicle_count'])): ?>
+                        （<?php echo esc_html($form_data['vehicle_count']); ?>台）
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">見学目的</span>
+                <span class="info-value"><?php echo nl2br(esc_html($form_data['purpose'])); ?></span>
+            </div>
+
+            <!-- 旅行会社情報（該当する場合） -->
+            <?php if ($form_data['is_travel_agency'] === 'yes'): ?>
+            <div class="info-row">
+                <span class="info-label">旅行会社名</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_name']); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">旅行会社電話番号</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_phone']); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">旅行会社住所</span>
+                <span class="info-value">
+                    〒<?php echo esc_html($form_data['agency_postal_code']); ?><br>
+                    <?php echo esc_html($form_data['agency_prefecture']); ?><?php echo esc_html($form_data['agency_city']); ?><?php echo esc_html($form_data['agency_address']); ?>
+                    <?php if (!empty($form_data['agency_building'])): ?>
+                        <br><?php echo esc_html($form_data['agency_building']); ?>
+                    <?php endif; ?>
+                </span>
+            </div>
+            <?php if (!empty($form_data['agency_fax'])): ?>
+            <div class="info-row">
+                <span class="info-label">旅行会社FAX番号</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_fax']); ?></span>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($form_data['agency_contact_mobile'])): ?>
+            <div class="info-row">
+                <span class="info-label">担当者携帯番号</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_contact_mobile']); ?></span>
+            </div>
+            <?php endif; ?>
+            <div class="info-row">
+                <span class="info-label">担当者メールアドレス</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_contact_email']); ?></span>
+            </div>
+            <?php endif; ?>
+
+            <div class="info-row">
+                <span class="info-label">見学者様の分類</span>
+                <span class="info-value"><?php echo esc_html(get_visitor_category_display($form_data['visitor_category'])); ?></span>
+            </div>
+            
+            <?php echo generate_visitor_details_display_new($form_data); ?>
+            
+            <div class="info-row">
+                <span class="info-label">見学者様人数（合計）</span>
+                <span class="info-value" style="font-size: 18px; font-weight: bold; color: #007cba;"><?php echo calculate_total_visitors($form_data); ?>名</span>
+            </div>
+        </div>
+
+        <!-- 確認・送信フォーム -->
+        <form id="confirm-form" method="post" action="<?php echo home_url('/reservation-complete/'); ?>">
+            <!-- 全フォームデータを隠しフィールドとして保持 -->
+            <?php foreach ($form_data as $key => $value): ?>
+                <?php if (is_array($value)): ?>
+                    <?php foreach ($value as $subKey => $subValue): ?>
+                        <input type="hidden" name="<?php echo esc_attr($key . '[' . $subKey . ']'); ?>" value="<?php echo esc_attr($subValue); ?>">
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <input type="hidden" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>">
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <div class="form-actions">
+                <button type="button" class="btn-back" onclick="history.back()">
+                    ← 内容を修正する
+                </button>
+                <button type="submit" class="btn-submit">
+                    この内容で送信する →
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
 
 <?php
 // ヘルパー関数
@@ -395,6 +480,177 @@ function get_visitor_category_display($category) {
     ];
     
     return $category_labels[$category] ?? '';
+}
+
+function generate_visitor_details_display_new($form_data) {
+    $category = $form_data['visitor_category'];
+    $html = '';
+    
+    switch ($category) {
+        case 'school':
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">学校・団体名</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['school_name']);
+            if (!empty($form_data['school_kana'])) {
+                $html .= '（' . esc_html($form_data['school_kana']) . '）';
+            }
+            $html .= '</span>';
+            $html .= '</div>';
+            
+            if (!empty($form_data['school_representative_name'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">代表者様氏名</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['school_representative_name']);
+                if (!empty($form_data['school_representative_kana'])) {
+                    $html .= '（' . esc_html($form_data['school_representative_kana']) . '）';
+                }
+                $html .= '</span>';
+                $html .= '</div>';
+            }
+            
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">学年・クラス</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['grade']) . '年生 ' . esc_html($form_data['class_count']) . 'クラス</span>';
+            $html .= '</div>';
+            
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">見学者様人数</span>';
+            $html .= '<span class="info-value">児童・生徒 ' . esc_html($form_data['school_student_count']) . '名、引率 ' . esc_html($form_data['school_supervisor_count']) . '名</span>';
+            $html .= '</div>';
+            break;
+            
+        case 'recruit':
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">学校名</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['recruit_school_name']) . '</span>';
+            $html .= '</div>';
+            
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">学年・学部</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['recruit_grade']) . '年生 ' . esc_html($form_data['recruit_department']) . '</span>';
+            $html .= '</div>';
+            
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">見学者様人数</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['recruit_visitor_count']) . '名</span>';
+            $html .= '</div>';
+            
+            // 同行者情報がある場合
+            $companionCount = (int)$form_data['recruit_visitor_count'] - 1;
+            if ($companionCount > 0) {
+                $companionList = '';
+                for ($i = 1; $i <= $companionCount; $i++) {
+                    if (!empty($form_data["companion_{$i}_name"])) {
+                        $companionList .= $i . '. ' . esc_html($form_data["companion_{$i}_name"]);
+                        if (!empty($form_data["companion_{$i}_department"])) {
+                            $companionList .= '（' . esc_html($form_data["companion_{$i}_department"]) . '）';
+                        }
+                        $companionList .= '<br>';
+                    }
+                }
+                if ($companionList) {
+                    $html .= '<div class="info-row">';
+                    $html .= '<span class="info-label">同行者様</span>';
+                    $html .= '<span class="info-value">' . $companionList . '</span>';
+                    $html .= '</div>';
+                }
+            }
+            break;
+            
+        case 'family':
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">会社・団体名</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['family_organization_name']);
+            if (!empty($form_data['family_organization_kana'])) {
+                $html .= '（' . esc_html($form_data['family_organization_kana']) . '）';
+            }
+            $html .= '</span>';
+            $html .= '</div>';
+            
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">見学者様人数</span>';
+            $html .= '<span class="info-value">大人 ' . esc_html($form_data['family_adult_count']) . '名、子ども ' . esc_html($form_data['family_child_count']) . '名</span>';
+            $html .= '</div>';
+            
+            if (!empty($form_data['family_child_grade'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学年</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['family_child_grade']) . '</span>';
+                $html .= '</div>';
+            }
+            break;
+            
+        case 'company':
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">会社・団体名</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['company_name']);
+            if (!empty($form_data['company_kana'])) {
+                $html .= '（' . esc_html($form_data['company_kana']) . '）';
+            }
+            $html .= '</span>';
+            $html .= '</div>';
+            
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">見学者様人数</span>';
+            $html .= '<span class="info-value">大人 ' . esc_html($form_data['company_adult_count']) . '名、子ども ' . esc_html($form_data['company_child_count']) . '名</span>';
+            $html .= '</div>';
+            
+            if (!empty($form_data['company_child_grade'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学年</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['company_child_grade']) . '</span>';
+                $html .= '</div>';
+            }
+            break;
+            
+        case 'government':
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">会社・団体名</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['government_name']);
+            if (!empty($form_data['government_kana'])) {
+                $html .= '（' . esc_html($form_data['government_kana']) . '）';
+            }
+            $html .= '</span>';
+            $html .= '</div>';
+            
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">見学者様人数</span>';
+            $html .= '<span class="info-value">大人 ' . esc_html($form_data['government_adult_count']) . '名、子ども ' . esc_html($form_data['government_child_count']) . '名</span>';
+            $html .= '</div>';
+            
+            if (!empty($form_data['government_child_grade'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学年</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['government_child_grade']) . '</span>';
+                $html .= '</div>';
+            }
+            break;
+            
+        case 'other':
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">会社・団体名</span>';
+            $html .= '<span class="info-value">' . esc_html($form_data['other_group_name']);
+            if (!empty($form_data['other_group_kana'])) {
+                $html .= '（' . esc_html($form_data['other_group_kana']) . '）';
+            }
+            $html .= '</span>';
+            $html .= '</div>';
+            
+            $html .= '<div class="info-row">';
+            $html .= '<span class="info-label">見学者様人数</span>';
+            $html .= '<span class="info-value">大人 ' . esc_html($form_data['other_adult_count']) . '名、子ども ' . esc_html($form_data['other_child_count']) . '名</span>';
+            $html .= '</div>';
+            
+            if (!empty($form_data['other_child_grade'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学年</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['other_child_grade']) . '</span>';
+                $html .= '</div>';
+            }
+            break;
+    }
+    
+    return $html;
 }
 
 function generate_visitor_details_display($form_data) {
