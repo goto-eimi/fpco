@@ -16,10 +16,42 @@ if (WP_DEBUG) {
     error_log('Form data: ' . print_r($form_data, true));
 }
 
+// 一時的にリダイレクトを無効化してデバッグ
 if (!$form_data) {
-    // データが不正な場合は入力画面に戻る
-    wp_redirect(home_url('/reservation-form/'));
-    exit;
+    // 本来はリダイレクトするが、デバッグのため表示を続ける
+    echo '<div style="background: red; color: white; padding: 20px; margin: 20px;">';
+    echo '<h2>デバッグ情報</h2>';
+    echo '<p>フォームデータの検証に失敗しました。</p>';
+    echo '<h3>POSTデータ:</h3><pre>' . print_r($_POST, true) . '</pre>';
+    echo '<h3>リクエストメソッド:</h3>' . $_SERVER['REQUEST_METHOD'];
+    echo '<h3>現在のURL:</h3>' . $_SERVER['REQUEST_URI'];
+    echo '</div>';
+    
+    // デモ用のダミーデータを設定
+    $form_data = [
+        'factory_id' => '1',
+        'date' => '2024-12-01',
+        'timeslot' => 'am-60-1',
+        'applicant_name' => 'テスト 太郎',
+        'applicant_name_kana' => 'てすと たろう',
+        'is_travel_agency' => 'no',
+        'visitor_category' => 'family',
+        'family_organization_name' => 'テスト会社',
+        'family_organization_kana' => 'てすとかいしゃ',
+        'family_adult_count' => '2',
+        'family_child_count' => '1',
+        'postal_code' => '1234567',
+        'prefecture' => '東京都',
+        'city' => '渋谷区',
+        'address' => '1-1-1',
+        'phone' => '03-1234-5678',
+        'mobile' => '090-1234-5678',
+        'email' => 'test@example.com',
+        'transportation' => 'car',
+        'vehicle_count' => '1',
+        'purpose' => 'テスト目的',
+        'total_visitor_count' => '3'
+    ];
 }
 
 // 工場名を取得
@@ -322,9 +354,32 @@ $timeslot_info = parse_timeslot($form_data['timeslot']);
 <?php
 // ヘルパー関数
 function validate_form_data($post_data) {
-    // 基本的なバリデーション（実際の実装では詳細な検証を行う）
-    if (empty($post_data) || !isset($post_data['factory_id']) || !isset($post_data['date'])) {
+    // デバッグ用ログ出力
+    if (WP_DEBUG) {
+        error_log('validate_form_data called with: ' . print_r($post_data, true));
+    }
+    
+    // POSTデータが空の場合
+    if (empty($post_data)) {
+        if (WP_DEBUG) {
+            error_log('validate_form_data: POST data is empty');
+        }
         return false;
+    }
+    
+    // 必須の基本項目をチェック
+    $required_fields = ['factory_id', 'date', 'timeslot', 'applicant_name'];
+    foreach ($required_fields as $field) {
+        if (!isset($post_data[$field]) || empty($post_data[$field])) {
+            if (WP_DEBUG) {
+                error_log("validate_form_data: Required field '{$field}' is missing or empty");
+            }
+            return false;
+        }
+    }
+    
+    if (WP_DEBUG) {
+        error_log('validate_form_data: Validation passed');
     }
     
     return $post_data;
