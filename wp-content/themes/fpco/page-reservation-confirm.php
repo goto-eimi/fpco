@@ -385,6 +385,10 @@ textarea:-ms-input-placeholder {
                 <span class="info-label">申込者様氏名</span>
                 <span class="info-value"><?php echo esc_html($form_data['applicant_name']); ?>（<?php echo esc_html($form_data['applicant_name_kana']); ?>）</span>
             </div>
+            <div class="info-row">
+                <span class="info-label">申込者様は旅行会社の方ですか？</span>
+                <span class="info-value"><?php echo $form_data['is_travel_agency'] === 'yes' ? 'はい' : 'いいえ'; ?></span>
+            </div>
 
             <div class="info-row">
                 <span class="info-label">住所</span>
@@ -760,134 +764,6 @@ function generate_visitor_details_display_new($form_data) {
     return $html;
 }
 
-function generate_visitor_details_display($form_data) {
-    $category = $form_data['visitor_category'];
-    $html = '';
-    
-    switch ($category) {
-        case 'school':
-            $html .= '<dt>学校・団体名</dt>';
-            $html .= '<dd>' . esc_html($form_data['school_name']);
-            if (!empty($form_data['school_kana'])) {
-                $html .= '（' . esc_html($form_data['school_kana']) . '）';
-            }
-            $html .= '</dd>';
-            
-            if (!empty($form_data['school_representative_name'])) {
-                $html .= '<dt>代表者様氏名</dt>';
-                $html .= '<dd>' . esc_html($form_data['school_representative_name']);
-                if (!empty($form_data['school_representative_kana'])) {
-                    $html .= '（' . esc_html($form_data['school_representative_kana']) . '）';
-                }
-                $html .= '</dd>';
-            }
-            
-            $html .= '<dt>学年・クラス</dt>';
-            $html .= '<dd>' . esc_html($form_data['grade']) . '年生 ' . esc_html($form_data['class_count']) . 'クラス</dd>';
-            
-            $html .= '<dt>見学者様人数</dt>';
-            $html .= '<dd>児童・生徒 ' . esc_html($form_data['school_student_count']) . '名、引率 ' . esc_html($form_data['school_supervisor_count']) . '名</dd>';
-            break;
-            
-        case 'recruit':
-            $html .= '<dt>学校名</dt>';
-            $html .= '<dd>' . esc_html($form_data['recruit_school_name']) . '</dd>';
-            
-            $html .= '<dt>学年・学部</dt>';
-            $html .= '<dd>' . esc_html($form_data['recruit_grade']) . '年生 ' . esc_html($form_data['recruit_department']) . '</dd>';
-            
-            $html .= '<dt>見学者様人数</dt>';
-            $html .= '<dd>' . esc_html($form_data['recruit_visitor_count']) . '名</dd>';
-            
-            // 同行者情報がある場合
-            $companionCount = (int)$form_data['recruit_visitor_count'] - 1;
-            if ($companionCount > 0) {
-                $html .= '<dt>同行者様</dt>';
-                $html .= '<dd>';
-                for ($i = 1; $i <= $companionCount; $i++) {
-                    if (!empty($form_data["companion_{$i}_name"])) {
-                        $html .= $i . '. ' . esc_html($form_data["companion_{$i}_name"]);
-                        if (!empty($form_data["companion_{$i}_department"])) {
-                            $html .= '（' . esc_html($form_data["companion_{$i}_department"]) . '）';
-                        }
-                        $html .= '<br>';
-                    }
-                }
-                $html .= '</dd>';
-            }
-            break;
-            
-        case 'family':
-            $html .= '<dt>会社・団体名</dt>';
-            $html .= '<dd>' . esc_html($form_data['family_organization_name']);
-            if (!empty($form_data['family_organization_kana'])) {
-                $html .= '（' . esc_html($form_data['family_organization_kana']) . '）';
-            }
-            $html .= '</dd>';
-            
-            $html .= '<dt>見学者様人数</dt>';
-            $html .= '<dd>大人 ' . esc_html($form_data['family_adult_count']) . '名、子ども ' . esc_html($form_data['family_child_count']) . '名</dd>';
-            
-            if (!empty($form_data['family_child_grade'])) {
-                $html .= '<dt>学年</dt>';
-                $html .= '<dd>' . esc_html($form_data['family_child_grade']) . '</dd>';
-            }
-            break;
-            
-        case 'company':
-            $html .= '<dt>会社・団体名</dt>';
-            $html .= '<dd>' . esc_html($form_data['company_name']);
-            if (!empty($form_data['company_kana'])) {
-                $html .= '（' . esc_html($form_data['company_kana']) . '）';
-            }
-            $html .= '</dd>';
-            
-            $html .= '<dt>見学者様人数</dt>';
-            $html .= '<dd>大人 ' . esc_html($form_data['company_adult_count']) . '名、子ども ' . esc_html($form_data['company_child_count']) . '名</dd>';
-            
-            if (!empty($form_data['company_child_grade'])) {
-                $html .= '<dt>学年</dt>';
-                $html .= '<dd>' . esc_html($form_data['company_child_grade']) . '</dd>';
-            }
-            break;
-            
-        case 'government':
-            $html .= '<dt>会社・団体名</dt>';
-            $html .= '<dd>' . esc_html($form_data['government_name']);
-            if (!empty($form_data['government_kana'])) {
-                $html .= '（' . esc_html($form_data['government_kana']) . '）';
-            }
-            $html .= '</dd>';
-            
-            $html .= '<dt>見学者様人数</dt>';
-            $html .= '<dd>大人 ' . esc_html($form_data['government_adult_count']) . '名、子ども ' . esc_html($form_data['government_child_count']) . '名</dd>';
-            
-            if (!empty($form_data['government_child_grade'])) {
-                $html .= '<dt>学年</dt>';
-                $html .= '<dd>' . esc_html($form_data['government_child_grade']) . '</dd>';
-            }
-            break;
-            
-        case 'other':
-            $html .= '<dt>会社・団体名</dt>';
-            $html .= '<dd>' . esc_html($form_data['other_group_name']);
-            if (!empty($form_data['other_group_kana'])) {
-                $html .= '（' . esc_html($form_data['other_group_kana']) . '）';
-            }
-            $html .= '</dd>';
-            
-            $html .= '<dt>見学者様人数</dt>';
-            $html .= '<dd>大人 ' . esc_html($form_data['other_adult_count']) . '名、子ども ' . esc_html($form_data['other_child_count']) . '名</dd>';
-            
-            if (!empty($form_data['other_child_grade'])) {
-                $html .= '<dt>学年</dt>';
-                $html .= '<dd>' . esc_html($form_data['other_child_grade']) . '</dd>';
-            }
-            break;
-    }
-    
-    return $html;
-}
 
 function calculate_total_visitors($form_data) {
     // total_visitor_countがある場合はそれを使用
