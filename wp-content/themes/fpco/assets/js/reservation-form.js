@@ -92,6 +92,11 @@ class ReservationForm {
         
         // フォーム送信
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+        
+        // ページアンロード時にもデータを保存
+        window.addEventListener('beforeunload', () => {
+            this.saveFormData();
+        });
     }
     
     toggleTravelAgencySection() {
@@ -493,6 +498,23 @@ class ReservationForm {
             this.toggleTravelAgencySection();
             this.toggleVisitorCategoryFields();
             this.toggleTransportationFields();
+            
+            // リクルート見学者の同行者フィールドを復元
+            const recruitVisitorCount = document.getElementById('recruit_visitor_count');
+            if (recruitVisitorCount && recruitVisitorCount.value) {
+                this.updateCompanionFields(recruitVisitorCount.value);
+                // 同行者フィールドの値を復元
+                setTimeout(() => {
+                    Object.keys(data).forEach(key => {
+                        if (key.startsWith('companion_')) {
+                            const field = document.querySelector(`[name="${key}"]`);
+                            if (field) {
+                                field.value = data[key];
+                            }
+                        }
+                    });
+                }, 100);
+            }
             
         } catch (error) {
             console.error('フォームデータの復元に失敗しました:', error);
