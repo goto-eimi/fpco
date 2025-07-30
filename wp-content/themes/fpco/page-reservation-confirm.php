@@ -383,12 +383,54 @@ textarea:-ms-input-placeholder {
             </div>
             <div class="info-row">
                 <span class="info-label">申込者様氏名</span>
-                <span class="info-value"><?php echo esc_html($form_data['applicant_name']); ?>（<?php echo esc_html($form_data['applicant_name_kana']); ?>）</span>
+                <span class="info-value"><?php echo esc_html($form_data['applicant_name']); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">申込者氏名(ふりがな)</span>
+                <span class="info-value"><?php echo esc_html($form_data['applicant_name_kana']); ?></span>
             </div>
             <div class="info-row">
                 <span class="info-label">申込者様は旅行会社の方ですか？</span>
                 <span class="info-value"><?php echo $form_data['is_travel_agency'] === 'yes' ? 'はい' : 'いいえ'; ?></span>
             </div>
+
+            <!-- 旅行会社情報（該当する場合） -->
+            <?php if ($form_data['is_travel_agency'] === 'yes'): ?>
+            <div class="info-row">
+                <span class="info-label">旅行会社名</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_name']); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">旅行会社住所</span>
+                <span class="info-value">
+                    〒<?php echo esc_html($form_data['agency_postal_code']); ?><br>
+                    <?php echo esc_html($form_data['agency_prefecture']); ?><?php echo esc_html($form_data['agency_city']); ?><?php echo esc_html($form_data['agency_address']); ?>
+                    <?php if (!empty($form_data['agency_building'])): ?>
+                        <br><?php echo esc_html($form_data['agency_building']); ?>
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">旅行会社電話番号</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_phone']); ?></span>
+            </div>
+            <?php if (!empty($form_data['agency_fax'])): ?>
+            <div class="info-row">
+                <span class="info-label">旅行会社FAX番号</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_fax']); ?></span>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($form_data['agency_contact_mobile'])): ?>
+            <div class="info-row">
+                <span class="info-label">担当者携帯番号</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_contact_mobile']); ?></span>
+            </div>
+            <?php endif; ?>
+            <div class="info-row">
+                <span class="info-label">担当者メールアドレス</span>
+                <span class="info-value"><?php echo esc_html($form_data['agency_contact_email']); ?></span>
+            </div>
+            <?php endif; ?>
 
             <div class="info-row">
                 <span class="info-label">住所</span>
@@ -425,44 +467,6 @@ textarea:-ms-input-placeholder {
                 <span class="info-label">見学目的</span>
                 <span class="info-value"><?php echo nl2br(esc_html($form_data['purpose'])); ?></span>
             </div>
-
-            <!-- 旅行会社情報（該当する場合） -->
-            <?php if ($form_data['is_travel_agency'] === 'yes'): ?>
-            <div class="info-row">
-                <span class="info-label">旅行会社名</span>
-                <span class="info-value"><?php echo esc_html($form_data['agency_name']); ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">旅行会社電話番号</span>
-                <span class="info-value"><?php echo esc_html($form_data['agency_phone']); ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">旅行会社住所</span>
-                <span class="info-value">
-                    〒<?php echo esc_html($form_data['agency_postal_code']); ?><br>
-                    <?php echo esc_html($form_data['agency_prefecture']); ?><?php echo esc_html($form_data['agency_city']); ?><?php echo esc_html($form_data['agency_address']); ?>
-                    <?php if (!empty($form_data['agency_building'])): ?>
-                        <br><?php echo esc_html($form_data['agency_building']); ?>
-                    <?php endif; ?>
-                </span>
-            </div>
-            <?php if (!empty($form_data['agency_fax'])): ?>
-            <div class="info-row">
-                <span class="info-label">旅行会社FAX番号</span>
-                <span class="info-value"><?php echo esc_html($form_data['agency_fax']); ?></span>
-            </div>
-            <?php endif; ?>
-            <?php if (!empty($form_data['agency_contact_mobile'])): ?>
-            <div class="info-row">
-                <span class="info-label">担当者携帯番号</span>
-                <span class="info-value"><?php echo esc_html($form_data['agency_contact_mobile']); ?></span>
-            </div>
-            <?php endif; ?>
-            <div class="info-row">
-                <span class="info-label">担当者メールアドレス</span>
-                <span class="info-value"><?php echo esc_html($form_data['agency_contact_email']); ?></span>
-            </div>
-            <?php endif; ?>
 
             <div class="info-row">
                 <span class="info-label">見学者様の分類</span>
