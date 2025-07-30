@@ -156,11 +156,18 @@ class ReservationForm {
         // 台数入力の表示/非表示
         if (selectedTransportation === 'car' || selectedTransportation === 'chartered_bus' || selectedTransportation === 'taxi') {
             vehicleInline.style.display = 'flex';
-            vehicleInline.querySelector('input').required = true;
+            const vehicleInput = vehicleInline.querySelector('.vehicle-required');
+            if (vehicleInput) {
+                vehicleInput.required = true;
+            }
         } else {
             vehicleInline.style.display = 'none';
-            vehicleInline.querySelector('input').required = false;
-            vehicleInline.querySelector('input').value = '';
+            const vehicleInput = vehicleInline.querySelector('.vehicle-required');
+            if (vehicleInput) {
+                vehicleInput.required = false;
+                vehicleInput.removeAttribute('required');
+                vehicleInput.value = '';
+            }
         }
         
         this.validateForm();

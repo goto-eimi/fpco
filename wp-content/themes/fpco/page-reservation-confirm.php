@@ -16,42 +16,48 @@ if (WP_DEBUG) {
     error_log('Form data: ' . print_r($form_data, true));
 }
 
-// 一時的にリダイレクトを無効化してデバッグ
+// フォームデータが無い場合はフォームに戻る
 if (!$form_data) {
-    // 本来はリダイレクトするが、デバッグのため表示を続ける
-    echo '<div style="background: red; color: white; padding: 20px; margin: 20px;">';
-    echo '<h2>デバッグ情報</h2>';
-    echo '<p>フォームデータの検証に失敗しました。</p>';
-    echo '<h3>POSTデータ:</h3><pre>' . print_r($_POST, true) . '</pre>';
-    echo '<h3>リクエストメソッド:</h3>' . $_SERVER['REQUEST_METHOD'];
-    echo '<h3>現在のURL:</h3>' . $_SERVER['REQUEST_URI'];
-    echo '</div>';
+    if (WP_DEBUG) {
+        // デバッグ情報をログに記録
+        error_log('確認画面: フォームデータなし');
+        error_log('POST: ' . print_r($_POST, true));
+        error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
+        error_log('REQUEST_URI: ' . $_SERVER['REQUEST_URI']);
+    }
     
-    // デモ用のダミーデータを設定
-    $form_data = [
-        'factory_id' => '1',
-        'date' => '2024-12-01',
-        'timeslot' => 'am-60-1',
-        'applicant_name' => 'テスト 太郎',
-        'applicant_name_kana' => 'てすと たろう',
-        'is_travel_agency' => 'no',
-        'visitor_category' => 'family',
-        'family_organization_name' => 'テスト会社',
-        'family_organization_kana' => 'てすとかいしゃ',
-        'family_adult_count' => '2',
-        'family_child_count' => '1',
-        'postal_code' => '1234567',
-        'prefecture' => '東京都',
-        'city' => '渋谷区',
-        'address' => '1-1-1',
-        'phone' => '03-1234-5678',
-        'mobile' => '090-1234-5678',
-        'email' => 'test@example.com',
-        'transportation' => 'car',
-        'vehicle_count' => '1',
-        'purpose' => 'テスト目的',
-        'total_visitor_count' => '3'
-    ];
+    // 実際のフォームデータがない場合はテスト用データを表示
+    if (empty($_POST)) {
+        // 完全にデータがない場合はダミーデータで動作確認
+        $form_data = [
+            'factory_id' => '1',
+            'date' => '2024-12-01',
+            'timeslot' => 'am-60-1',
+            'applicant_name' => 'テスト 太郎',
+            'applicant_name_kana' => 'てすと たろう',
+            'is_travel_agency' => 'no',
+            'visitor_category' => 'family',
+            'family_organization_name' => 'テスト会社',
+            'family_organization_kana' => 'てすとかいしゃ',
+            'family_adult_count' => '2',
+            'family_child_count' => '1',
+            'postal_code' => '1234567',
+            'prefecture' => '東京都',
+            'city' => '渋谷区',
+            'address' => '1-1-1',
+            'phone' => '03-1234-5678',
+            'mobile' => '090-1234-5678',
+            'email' => 'test@example.com',
+            'transportation' => 'car',
+            'vehicle_count' => '1',
+            'purpose' => 'テスト目的',
+            'total_visitor_count' => '3'
+        ];
+    } else {
+        // POSTデータはあるが検証に失敗した場合はフォームに戻る
+        wp_redirect(home_url('/reservation-form/'));
+        exit;
+    }
 }
 
 // 工場名を取得
@@ -353,6 +359,40 @@ $timeslot_info = parse_timeslot($form_data['timeslot']);
 
 <?php
 // ヘルパー関数
+function get_factory_name($factory_id) {
+    $factories = [
+        1 => '関東リサイクル',
+        2 => '中部リサイクル',
+        3 => '関西リサイクル',
+        4 => '中四国リサイクル'
+    ];
+    
+    return isset($factories[$factory_id]) ? $factories[$factory_id] : '';
+}
+
+function parse_timeslot($timeslot) {
+    // timeslot形式: am-60-1, pm-90-2 など
+    $parts = explode('-', $timeslot);
+    $period = $parts[0] ?? '';
+    $duration = $parts[1] ?? '';
+    $session = $parts[2] ?? '';
+    
+    $period_display = $period === 'am' ? '午前' : '午後';
+    
+    return [
+        'display' => $period_display,
+        'duration' => $duration
+    ];
+}
+
+function format_display_date($date) {
+    $timestamp = strtotime($date);
+    if ($timestamp) {
+        return date('Y年m月d日', $timestamp);
+    }
+    return $date;
+}
+
 function validate_form_data($post_data) {
     // デバッグ用ログ出力
     if (WP_DEBUG) {
