@@ -433,7 +433,7 @@ textarea:-ms-input-placeholder {
             <?php endif; ?>
 
             <div class="info-row">
-                <span class="info-label">住所</span>
+                <span class="info-label">申込者様住所</span>
                 <span class="info-value">
                     〒<?php echo esc_html($form_data['postal_code']); ?><br>
                     <?php echo esc_html($form_data['prefecture']); ?><?php echo esc_html($form_data['city']); ?><?php echo esc_html($form_data['address']); ?>
@@ -443,15 +443,15 @@ textarea:-ms-input-placeholder {
                 </span>
             </div>
             <div class="info-row">
-                <span class="info-label">電話番号</span>
+                <span class="info-label">申込者様電話番号</span>
                 <span class="info-value"><?php echo esc_html($form_data['phone']); ?></span>
             </div>
             <div class="info-row">
-                <span class="info-label">携帯番号</span>
+                <span class="info-label">申込者様携帯番号</span>
                 <span class="info-value"><?php echo esc_html($form_data['mobile']); ?></span>
             </div>
             <div class="info-row">
-                <span class="info-label">メールアドレス</span>
+                <span class="info-label">申込者様メールアドレス</span>
                 <span class="info-value"><?php echo esc_html($form_data['email']); ?></span>
             </div>
             <div class="info-row">
@@ -469,16 +469,21 @@ textarea:-ms-input-placeholder {
             </div>
 
             <div class="info-row">
+                <span class="info-label">見学者様人数</span>
+                <span class="info-value">
+                    <?php echo esc_html($form_data['total_visitor_count']); ?>名
+                    <?php if (!empty($form_data['total_child_count']) && $form_data['total_child_count'] > 0): ?>
+                        　内小学生以下 <?php echo esc_html($form_data['total_child_count']); ?>名
+                    <?php endif; ?>
+                </span>
+            </div>
+
+            <div class="info-row">
                 <span class="info-label">見学者様の分類</span>
                 <span class="info-value"><?php echo esc_html(get_visitor_category_display($form_data['visitor_category'])); ?></span>
             </div>
             
             <?php echo generate_visitor_details_display_new($form_data); ?>
-            
-            <div class="info-row">
-                <span class="info-label">見学者様人数（合計）</span>
-                <span class="info-value total-visitor-count"><?php echo calculate_total_visitors($form_data); ?>名</span>
-            </div>
             </div>
             
             <!-- フォーム下部の枠 -->
