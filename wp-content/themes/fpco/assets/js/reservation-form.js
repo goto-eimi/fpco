@@ -413,12 +413,13 @@ class ReservationForm {
     }
     
     setRequiredFields(container, required) {
-        const fields = container.querySelectorAll('input, select, textarea');
+        const fields = container.querySelectorAll('.required');
         fields.forEach(field => {
-            if (required && field.classList.contains('required')) {
+            if (required) {
                 field.required = true;
             } else {
                 field.required = false;
+                field.removeAttribute('required');
             }
         });
     }

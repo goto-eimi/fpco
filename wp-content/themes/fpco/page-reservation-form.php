@@ -158,7 +158,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">旅行会社名</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="text" id="agency_name" name="agency_name" placeholder="株式会社ABC旅行" required>
+                        <input type="text" id="agency_name" name="agency_name" placeholder="株式会社ABC旅行" class="required">
                     </span>
                 </div>
                 <div class="info-row address-row">
@@ -167,12 +167,12 @@ textarea:-ms-input-placeholder {
                         <div class="postal-code-group">
                             <span class="required-label">必須</span>
                             <span class="postal-prefix">〒</span>
-                            <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="0000000" maxlength="7" class="postal-code-input" pattern="[0-9]{7}" data-target="agency" required>
+                            <input type="text" id="agency_postal_code" name="agency_postal_code" placeholder="0000000" maxlength="7" class="postal-code-input required" pattern="[0-9]{7}" data-target="agency">
                             <span class="postal-help-text">郵便番号を入力すると住所が入力されます</span>
                         </div>
                         <div class="postal-code-group">
                             <span class="required-label">必須</span>
-                            <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select" required>
+                            <select id="agency_prefecture" name="agency_prefecture" class="prefecture-select required">
                                 <option value="">都道府県を選択</option>
                                 <?php foreach (get_prefectures() as $pref): ?>
                                     <option value="<?php echo esc_attr($pref); ?>"><?php echo esc_html($pref); ?></option>
@@ -181,11 +181,11 @@ textarea:-ms-input-placeholder {
                         </div>
                         <div class="postal-code-group">
                             <span class="required-label">必須</span>
-                            <input type="text" id="agency_city" name="agency_city" placeholder="市区町村名(例: 福山市曙町)" class="city-input" required>
+                            <input type="text" id="agency_city" name="agency_city" placeholder="市区町村名(例: 福山市曙町)" class="city-input required">
                         </div>
                         <div class="postal-code-group">
                             <span class="required-label">必須</span>
-                            <input type="text" id="agency_address" name="agency_address" placeholder="番地・ビル名(例: 1-13-15)" class="address-input-field" required>
+                            <input type="text" id="agency_address" name="agency_address" placeholder="番地・ビル名(例: 1-13-15)" class="address-input-field required">
                             <input type="hidden" id="agency_building" name="agency_building" value="">
                         </div>
                     </span>
@@ -194,7 +194,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">旅行会社電話番号</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="tel" id="agency_phone" name="agency_phone" placeholder="0841234567" required>
+                        <input type="tel" id="agency_phone" name="agency_phone" placeholder="0841234567" class="required">
                     </span>
                 </div>
                 <div class="info-row">
@@ -215,7 +215,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">担当者メールアドレス</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="email" id="agency_contact_email" name="agency_contact_email" placeholder="tantou@example.com" required>
+                        <input type="email" id="agency_contact_email" name="agency_contact_email" placeholder="tantou@example.com" class="required">
                     </span>
                 </div>
                 </div>
