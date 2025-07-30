@@ -82,6 +82,61 @@ textarea:-ms-input-placeholder {
     }
 }
 
+/* フォームスタイルの完全適用 */
+.reservation-form {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* 必須ラベルのスタイル */
+.required-label {
+    background-color: #E65100;
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    min-height: 92px;
+    padding: 0 40px;
+    position: relative;
+}
+
+.info-row:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 35px;
+    right: 35px;
+    height: 1px;
+    background: #E0E0E0;
+}
+
+.info-label {
+    flex: 0 0 180px;
+    padding: 15px 0;
+    background: transparent;
+    font-weight: bold;
+    font-size: 15px;
+    color: #5C5548;
+    display: flex;
+    align-items: center;
+}
+
+.info-value {
+    flex: 1;
+    padding: 15px 0 15px 20px;
+    color: #5C5548;
+    font-weight: normal;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
 /* 確認画面追加スタイル */
 .breadcrumb {
     margin-bottom: 20px;
@@ -175,45 +230,90 @@ textarea:-ms-input-placeholder {
     margin: 0 auto 30px auto;
 }
 
-/* 確認ボタンスタイル */
+/* 確認ボタンスタイル - フォームスタイルに合わせる */
 .form-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 40px;
+    text-align: center !important;
+    margin-top: 30px;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .btn-back {
-    padding: 15px 30px;
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 15px 30px !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    transition: background-color 0.3s ease !important;
 }
 
 .btn-back:hover {
-    background: #5a6268;
+    background-color: #5a6268 !important;
 }
 
 .btn-submit {
-    padding: 15px 30px;
-    background: #007cba;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.3s;
+    background-color: #5C5548 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 15px 40px !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    transition: background-color 0.3s ease !important;
 }
 
 .btn-submit:hover {
-    background: #005a87;
+    background-color: #4a453a !important;
+}
+
+.btn-text {
+    color: white !important;
+}
+
+.btn-arrow {
+    background-color: white !important;
+    color: #5C5548 !important;
+    border-radius: 50% !important;
+    width: 25px !important;
+    height: 25px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: bold !important;
+}
+
+.btn-back .btn-arrow {
+    background-color: white !important;
+    color: #6c757d !important;
+}
+
+/* フォーム下部の枠 */
+.form-bottom-border {
+    border-bottom: 2px solid #4A4A4A;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* 人数の強調表示 */
+.total-visitor-count {
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: #5C5548 !important;
 }
 
 /* レスポンシブ対応 */
@@ -263,7 +363,8 @@ textarea:-ms-input-placeholder {
         </div>
 
         <!-- 予約情報表示部分 -->
-        <div class="reservation-info-box">
+        <div class="reservation-form">
+            <div class="reservation-info-box">
             <div class="info-row">
                 <span class="info-label">見学工場</span>
                 <span class="info-value"><?php echo esc_html($factory_name); ?>工場</span>
@@ -368,8 +469,12 @@ textarea:-ms-input-placeholder {
             
             <div class="info-row">
                 <span class="info-label">見学者様人数（合計）</span>
-                <span class="info-value" style="font-size: 18px; font-weight: bold; color: #007cba;"><?php echo calculate_total_visitors($form_data); ?>名</span>
+                <span class="info-value total-visitor-count"><?php echo calculate_total_visitors($form_data); ?>名</span>
             </div>
+            </div>
+            
+            <!-- フォーム下部の枠 -->
+            <div class="form-bottom-border"></div>
         </div>
 
         <!-- 確認・送信フォーム -->
@@ -387,10 +492,12 @@ textarea:-ms-input-placeholder {
 
             <div class="form-actions">
                 <button type="button" class="btn-back" onclick="history.back()">
-                    ← 内容を修正する
+                    <span class="btn-arrow">←</span>
+                    <span class="btn-text">内容を修正する</span>
                 </button>
                 <button type="submit" class="btn-submit">
-                    この内容で送信する →
+                    <span class="btn-text">この内容で送信する</span>
+                    <span class="btn-arrow">→</span>
                 </button>
             </div>
         </form>
