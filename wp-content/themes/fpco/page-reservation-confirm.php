@@ -10,54 +10,10 @@ get_header();
 // POSTデータを取得・検証
 $form_data = validate_form_data($_POST);
 
-// デバッグ用（一時的）
-if (WP_DEBUG) {
-    error_log('POST data: ' . print_r($_POST, true));
-    error_log('Form data: ' . print_r($form_data, true));
-}
-
 // フォームデータが無い場合はフォームに戻る
 if (!$form_data) {
-    if (WP_DEBUG) {
-        // デバッグ情報をログに記録
-        error_log('確認画面: フォームデータなし');
-        error_log('POST: ' . print_r($_POST, true));
-        error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
-        error_log('REQUEST_URI: ' . $_SERVER['REQUEST_URI']);
-    }
-    
-    // 実際のフォームデータがない場合はテスト用データを表示
-    if (empty($_POST)) {
-        // 完全にデータがない場合はダミーデータで動作確認
-        $form_data = [
-            'factory_id' => '1',
-            'date' => '2024-12-01',
-            'timeslot' => 'am-60-1',
-            'applicant_name' => 'テスト 太郎',
-            'applicant_name_kana' => 'てすと たろう',
-            'is_travel_agency' => 'no',
-            'visitor_category' => 'family',
-            'family_organization_name' => 'テスト会社',
-            'family_organization_kana' => 'てすとかいしゃ',
-            'family_adult_count' => '2',
-            'family_child_count' => '1',
-            'postal_code' => '1234567',
-            'prefecture' => '東京都',
-            'city' => '渋谷区',
-            'address' => '1-1-1',
-            'phone' => '03-1234-5678',
-            'mobile' => '090-1234-5678',
-            'email' => 'test@example.com',
-            'transportation' => 'car',
-            'vehicle_count' => '1',
-            'purpose' => 'テスト目的',
-            'total_visitor_count' => '3'
-        ];
-    } else {
-        // POSTデータはあるが検証に失敗した場合はフォームに戻る
-        wp_redirect(home_url('/reservation-form/'));
-        exit;
-    }
+    wp_redirect(home_url('/reservation-form/'));
+    exit;
 }
 
 // 工場名を取得
@@ -394,16 +350,8 @@ function format_display_date($date) {
 }
 
 function validate_form_data($post_data) {
-    // デバッグ用ログ出力
-    if (WP_DEBUG) {
-        error_log('validate_form_data called with: ' . print_r($post_data, true));
-    }
-    
     // POSTデータが空の場合
     if (empty($post_data)) {
-        if (WP_DEBUG) {
-            error_log('validate_form_data: POST data is empty');
-        }
         return false;
     }
     
@@ -411,15 +359,8 @@ function validate_form_data($post_data) {
     $required_fields = ['factory_id', 'date', 'timeslot', 'applicant_name'];
     foreach ($required_fields as $field) {
         if (!isset($post_data[$field]) || empty($post_data[$field])) {
-            if (WP_DEBUG) {
-                error_log("validate_form_data: Required field '{$field}' is missing or empty");
-            }
             return false;
         }
-    }
-    
-    if (WP_DEBUG) {
-        error_log('validate_form_data: Validation passed');
     }
     
     return $post_data;
