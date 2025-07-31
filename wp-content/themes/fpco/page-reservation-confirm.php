@@ -158,6 +158,23 @@ textarea:-ms-input-placeholder {
     white-space: pre-wrap;
 }
 
+/* 同行者様の詳細情報スタイル */
+.companion-detail {
+    line-height: 1.8;
+}
+
+.companion-field {
+    display: inline-block;
+    width: 40px;
+    text-align: justify;
+    text-align-last: justify;
+    margin-right: 20px;
+}
+
+.companion-value {
+    display: inline;
+}
+
 /* 確認画面追加スタイル */
 .breadcrumb {
     margin-bottom: 20px;
@@ -716,15 +733,19 @@ function generate_visitor_details_display_new($form_data) {
                 for ($i = 1; $i <= $companionCount; $i++) {
                     if (!empty($form_data["companion_{$i}_name"])) {
                         $circle = $circles[$i - 1] ?? $i;
-                        $companionDetails = '';
+                        $companionDetails = '<div class="companion-detail">';
                         
                         // 氏名
-                        $companionDetails .= '氏名 ' . esc_html($form_data["companion_{$i}_name"]);
+                        $companionDetails .= '<span class="companion-field">氏名</span>';
+                        $companionDetails .= '<span class="companion-value">' . esc_html($form_data["companion_{$i}_name"]) . '</span>';
                         
                         // 学部
                         if (!empty($form_data["companion_{$i}_department"])) {
-                            $companionDetails .= '<br>学部 ' . esc_html($form_data["companion_{$i}_department"]);
+                            $companionDetails .= '<br><span class="companion-field">学部</span>';
+                            $companionDetails .= '<span class="companion-value">' . esc_html($form_data["companion_{$i}_department"]) . '</span>';
                         }
+                        
+                        $companionDetails .= '</div>';
                         
                         $html .= '<div class="info-row long-text">';
                         $html .= '<span class="info-label">同行者様' . $circle . '</span>';
