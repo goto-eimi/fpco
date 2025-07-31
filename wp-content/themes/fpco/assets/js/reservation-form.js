@@ -473,6 +473,8 @@ class ReservationForm {
         this.clearFormData();
         
         // フォームデータを確認画面に送信
+        console.log('Submitting form to:', this.form.action);
+        console.log('Form method:', this.form.method);
         this.form.submit();
     }
     

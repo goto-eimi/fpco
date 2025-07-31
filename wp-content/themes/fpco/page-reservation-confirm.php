@@ -7,23 +7,32 @@
 
 get_header(); 
 
+// デバッグ: REQUEST_METHODとContent-Typeを確認
+echo "<!-- REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD'] . " -->\n";
+echo "<!-- CONTENT_TYPE: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set') . " -->\n";
+echo "<!-- POST count: " . count($_POST) . " -->\n";
+
 // POSTデータを取得・検証
 $form_data = validate_form_data($_POST);
 
-// デバッグ: 受信したPOSTデータをHTMLコメントで表示
+// デバッグ: 受信したPOSTデータをHTMLコメントで表示（空の値も含めて）
 echo "<!-- === Received POST data === -->\n";
-foreach ($_POST as $key => $value) {
-    if (!empty($value)) {
-        echo "<!-- POST[$key] = " . htmlspecialchars($value) . " -->\n";
+if (empty($_POST)) {
+    echo "<!-- WARNING: POST array is empty! -->\n";
+} else {
+    foreach ($_POST as $key => $value) {
+        echo "<!-- POST[$key] = " . htmlspecialchars($value) . " (length: " . strlen($value) . ") -->\n";
     }
 }
 echo "<!-- === End POST data === -->\n";
 
 // デバッグ: $form_dataの内容を確認
 echo "<!-- === form_data contents === -->\n";
-foreach ($form_data as $key => $value) {
-    if (!empty($value)) {
-        echo "<!-- form_data[$key] = " . htmlspecialchars($value) . " -->\n";
+if ($form_data === false) {
+    echo "<!-- WARNING: form_data is false! -->\n";
+} else {
+    foreach ($form_data as $key => $value) {
+        echo "<!-- form_data[$key] = " . htmlspecialchars($value) . " (length: " . strlen($value) . ") -->\n";
     }
 }
 echo "<!-- === End form_data === -->\n";
