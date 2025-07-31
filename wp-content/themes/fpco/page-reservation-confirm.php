@@ -433,6 +433,13 @@ textarea:-ms-input-placeholder {
             <?php endif; ?>
 
             <div class="info-row">
+                <span class="info-label">見学者様の分類</span>
+                <span class="info-value"><?php echo esc_html(get_visitor_category_display($form_data['visitor_category'])); ?></span>
+            </div>
+            
+            <?php echo generate_visitor_details_display_new($form_data); ?>
+
+            <div class="info-row">
                 <span class="info-label">申込者様住所</span>
                 <span class="info-value">
                     〒<?php echo esc_html($form_data['postal_code']); ?><br>
@@ -477,13 +484,6 @@ textarea:-ms-input-placeholder {
                     <?php endif; ?>
                 </span>
             </div>
-
-            <div class="info-row">
-                <span class="info-label">見学者様の分類</span>
-                <span class="info-value"><?php echo esc_html(get_visitor_category_display($form_data['visitor_category'])); ?></span>
-            </div>
-            
-            <?php echo generate_visitor_details_display_new($form_data); ?>
             </div>
             
             <!-- フォーム下部の枠 -->
