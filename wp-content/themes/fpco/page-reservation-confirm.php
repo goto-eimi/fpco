@@ -11,6 +11,18 @@ get_header();
 echo "<!-- REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD'] . " -->\n";
 echo "<!-- CONTENT_TYPE: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set') . " -->\n";
 echo "<!-- POST count: " . count($_POST) . " -->\n";
+echo "<!-- php://input length: " . strlen(file_get_contents('php://input')) . " -->\n";
+
+// POSTデータが空の場合、php://inputを確認
+if (empty($_POST) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $raw_post = file_get_contents('php://input');
+    echo "<!-- Raw POST data (first 500 chars): " . htmlspecialchars(substr($raw_post, 0, 500)) . " -->\n";
+    parse_str($raw_post, $parsed_post);
+    if (!empty($parsed_post)) {
+        $_POST = $parsed_post;
+        echo "<!-- POST data recovered from php://input -->\n";
+    }
+}
 
 // POSTデータを取得・検証
 $form_data = validate_form_data($_POST);

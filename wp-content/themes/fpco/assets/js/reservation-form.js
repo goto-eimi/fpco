@@ -456,17 +456,35 @@ class ReservationForm {
         const formData = new FormData(this.form);
         console.log('=== 送信前のフォームデータ ===');
         for (let [key, value] of formData.entries()) {
-            if (value) {
-                console.log(`${key}: ${value}`);
-            }
+            console.log(`${key}: ${value} (empty: ${!value})`);
         }
         console.log('=== 送信前のフォームデータ終了 ===');
         
-        // 送信前に非表示フィールドのrequired属性を一時的に削除
-        const hiddenRequiredFields = this.form.querySelectorAll('.conditional[style*="display: none"] [required]');
-        hiddenRequiredFields.forEach(field => {
-            field.removeAttribute('required');
-            field.dataset.wasRequired = 'true';
+        // 特に条件表示フィールドの値を確認
+        const visitorCategory = this.form.querySelector('input[name="visitor_category"]:checked')?.value;
+        console.log('=== 条件表示フィールド確認 ===');
+        console.log('Visitor category:', visitorCategory);
+        if (visitorCategory === 'school') {
+            const schoolFields = ['school_name', 'school_kana', 'grade', 'class_count', 'school_student_count', 'school_supervisor_count'];
+            schoolFields.forEach(fieldName => {
+                const field = this.form.querySelector(`[name="${fieldName}"]`);
+                if (field) {
+                    console.log(`${fieldName}: value="${field.value}", visible=${field.offsetParent !== null}, disabled=${field.disabled}`);
+                }
+            });
+        }
+        console.log('=== 条件表示フィールド確認終了 ===');
+        
+        // 送信前に非表示セクション内のフィールドを無効化（送信対象から除外）
+        const hiddenSections = this.form.querySelectorAll('.conditional[style*="display: none"]');
+        hiddenSections.forEach(section => {
+            const fields = section.querySelectorAll('input, select, textarea');
+            fields.forEach(field => {
+                if (field.name) {
+                    field.disabled = true;
+                    field.dataset.wasEnabled = 'true';
+                }
+            });
         });
         
         // 送信時にlocalStorageをクリア
