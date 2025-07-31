@@ -135,6 +135,26 @@ textarea:-ms-input-placeholder {
     font-weight: normal;
     font-size: 15px;
     line-height: 1.6;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: calc(100% - 250px);
+}
+
+/* 長いテキスト用の特別なスタイル */
+.info-row.long-text {
+    align-items: flex-start;
+    min-height: auto;
+    padding: 20px 40px;
+}
+
+.info-row.long-text .info-label {
+    padding-top: 0;
+}
+
+.info-row.long-text .info-value {
+    padding-top: 0;
+    white-space: pre-wrap;
 }
 
 /* 確認画面追加スタイル */
@@ -470,7 +490,7 @@ textarea:-ms-input-placeholder {
                     <?php endif; ?>
                 </span>
             </div>
-            <div class="info-row">
+            <div class="info-row long-text">
                 <span class="info-label">見学目的</span>
                 <span class="info-value"><?php echo nl2br(esc_html($form_data['purpose'])); ?></span>
             </div>
