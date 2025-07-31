@@ -12,7 +12,6 @@ class ReservationForm {
     }
     
     init() {
-        console.log('ReservationForm initialized');
         this.bindEvents();
         this.restoreFormData();
         this.validateForm();
@@ -452,28 +451,6 @@ class ReservationForm {
             return;
         }
         
-        // 送信前にフォームデータをデバッグ
-        const formData = new FormData(this.form);
-        console.log('=== 送信前のフォームデータ ===');
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}: ${value} (empty: ${!value})`);
-        }
-        console.log('=== 送信前のフォームデータ終了 ===');
-        
-        // 特に条件表示フィールドの値を確認
-        const visitorCategory = this.form.querySelector('input[name="visitor_category"]:checked')?.value;
-        console.log('=== 条件表示フィールド確認 ===');
-        console.log('Visitor category:', visitorCategory);
-        if (visitorCategory === 'school') {
-            const schoolFields = ['school_name', 'school_kana', 'grade', 'class_count', 'school_student_count', 'school_supervisor_count'];
-            schoolFields.forEach(fieldName => {
-                const field = this.form.querySelector(`[name="${fieldName}"]`);
-                if (field) {
-                    console.log(`${fieldName}: value="${field.value}", visible=${field.offsetParent !== null}, disabled=${field.disabled}`);
-                }
-            });
-        }
-        console.log('=== 条件表示フィールド確認終了 ===');
         
         // 送信前に非表示セクション内のフィールドを無効化（送信対象から除外）
         const hiddenSections = this.form.querySelectorAll('.conditional[style*="display: none"]');
@@ -491,8 +468,6 @@ class ReservationForm {
         this.clearFormData();
         
         // フォームデータを確認画面に送信
-        console.log('Submitting form to:', this.form.action);
-        console.log('Form method:', this.form.method);
         this.form.submit();
     }
     
@@ -523,7 +498,6 @@ class ReservationForm {
         
         try {
             const data = JSON.parse(savedData);
-            console.log('フォームデータを復元中:', data);
             
             // まずラジオボタンの状態を復元
             const radioGroups = ['is_travel_agency', 'visitor_category', 'transportation'];
@@ -532,7 +506,6 @@ class ReservationForm {
                     const radioButton = this.form.querySelector(`input[name="${groupName}"][value="${data[groupName]}"]`);
                     if (radioButton) {
                         radioButton.checked = true;
-                        console.log(`ラジオボタン復元: ${groupName} = ${data[groupName]}`);
                     }
                 }
             });

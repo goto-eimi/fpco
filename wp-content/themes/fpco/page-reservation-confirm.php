@@ -7,47 +7,8 @@
 
 get_header(); 
 
-// デバッグ: REQUEST_METHODとContent-Typeを確認
-echo "<!-- REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD'] . " -->\n";
-echo "<!-- CONTENT_TYPE: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set') . " -->\n";
-echo "<!-- POST count: " . count($_POST) . " -->\n";
-echo "<!-- php://input length: " . strlen(file_get_contents('php://input')) . " -->\n";
-
-// POSTデータが空の場合、php://inputを確認
-if (empty($_POST) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $raw_post = file_get_contents('php://input');
-    echo "<!-- Raw POST data (first 500 chars): " . htmlspecialchars(substr($raw_post, 0, 500)) . " -->\n";
-    parse_str($raw_post, $parsed_post);
-    if (!empty($parsed_post)) {
-        $_POST = $parsed_post;
-        echo "<!-- POST data recovered from php://input -->\n";
-    }
-}
-
 // POSTデータを取得・検証
 $form_data = validate_form_data($_POST);
-
-// デバッグ: 受信したPOSTデータをHTMLコメントで表示（空の値も含めて）
-echo "<!-- === Received POST data === -->\n";
-if (empty($_POST)) {
-    echo "<!-- WARNING: POST array is empty! -->\n";
-} else {
-    foreach ($_POST as $key => $value) {
-        echo "<!-- POST[$key] = " . htmlspecialchars($value) . " (length: " . strlen($value) . ") -->\n";
-    }
-}
-echo "<!-- === End POST data === -->\n";
-
-// デバッグ: $form_dataの内容を確認
-echo "<!-- === form_data contents === -->\n";
-if ($form_data === false) {
-    echo "<!-- WARNING: form_data is false! -->\n";
-} else {
-    foreach ($form_data as $key => $value) {
-        echo "<!-- form_data[$key] = " . htmlspecialchars($value) . " (length: " . strlen($value) . ") -->\n";
-    }
-}
-echo "<!-- === End form_data === -->\n";
 
 // フォームデータが無い場合はフォームに戻る
 if (!$form_data) {
@@ -476,60 +437,7 @@ textarea:-ms-input-placeholder {
                 <span class="info-value"><?php echo esc_html(get_visitor_category_display($form_data['visitor_category'])); ?></span>
             </div>
             
-            <?php 
-            // デバッグ: カテゴリと関連フィールドを確認
-            echo "\n<!-- ===== VISITOR CATEGORY DEBUG START ===== -->\n";
-            echo "<!-- Current visitor_category: " . ($form_data['visitor_category'] ?? 'NOT SET') . " -->\n";
-            
-            // すべてのカテゴリ関連フィールドを表示
-            $all_category_fields = [
-                'school' => ['school_name', 'school_kana', 'school_representative_name', 'school_representative_kana', 'grade', 'class_count', 'school_student_count', 'school_supervisor_count'],
-                'recruit' => ['recruit_school_name', 'recruit_department', 'recruit_grade', 'recruit_visitor_count'],
-                'family' => ['family_organization_name', 'family_organization_kana', 'family_adult_count', 'family_child_count', 'family_child_grade'],
-                'company' => ['company_name', 'company_kana', 'company_adult_count', 'company_child_count', 'company_child_grade'],
-                'government' => ['government_name', 'government_kana', 'government_adult_count', 'government_child_count', 'government_child_grade'],
-                'other' => ['other_group_name', 'other_group_kana', 'other_adult_count', 'other_child_count', 'other_child_grade']
-            ];
-            
-            // 現在のカテゴリのフィールドを確認
-            $current_category = $form_data['visitor_category'] ?? '';
-            if (isset($all_category_fields[$current_category])) {
-                echo "<!-- Fields for current category '$current_category': -->\n";
-                foreach ($all_category_fields[$current_category] as $field) {
-                    $value = isset($form_data[$field]) ? $form_data[$field] : 'NOT SET';
-                    echo "<!-- - $field = " . htmlspecialchars($value) . " -->\n";
-                }
-            }
-            
-            // generate_visitor_details_display_new関数を実行
-            $details_html = generate_visitor_details_display_new($form_data);
-            echo "<!-- Generated HTML length: " . strlen($details_html) . " bytes -->\n";
-            if (empty(trim($details_html))) {
-                echo "<!-- WARNING: No HTML generated for visitor details! -->\n";
-            }
-            echo "<!-- ===== VISITOR CATEGORY DEBUG END ===== -->\n\n";
-            
-            // 生成されたHTMLが空の場合、直接表示してみる
-            if (empty(trim($details_html))) {
-                echo '<div style="background-color: #ffeeee; padding: 10px; margin: 10px 0; border: 1px solid #ff0000;">';
-                echo '<strong>デバッグ: 見学者分類詳細が生成されていません</strong><br>';
-                echo 'カテゴリ: ' . htmlspecialchars($form_data['visitor_category'] ?? 'NOT SET') . '<br>';
-                if ($current_category === 'school') {
-                    echo '学校名: ' . htmlspecialchars($form_data['school_name'] ?? 'NOT SET') . '<br>';
-                    echo '学年: ' . htmlspecialchars($form_data['grade'] ?? 'NOT SET') . '<br>';
-                    echo 'クラス数: ' . htmlspecialchars($form_data['class_count'] ?? 'NOT SET') . '<br>';
-                    echo '生徒数: ' . htmlspecialchars($form_data['school_student_count'] ?? 'NOT SET') . '<br>';
-                    echo '引率数: ' . htmlspecialchars($form_data['school_supervisor_count'] ?? 'NOT SET') . '<br>';
-                    echo '<br><strong>POSTデータ確認:</strong><br>';
-                    echo 'POST[school_name]: ' . htmlspecialchars($_POST['school_name'] ?? 'NOT SET') . '<br>';
-                    echo 'POST[grade]: ' . htmlspecialchars($_POST['grade'] ?? 'NOT SET') . '<br>';
-                    echo 'POST[class_count]: ' . htmlspecialchars($_POST['class_count'] ?? 'NOT SET') . '<br>';
-                }
-                echo '</div>';
-            } else {
-                echo $details_html;
-            }
-            ?>
+            <?php echo generate_visitor_details_display_new($form_data); ?>
 
             <div class="info-row">
                 <span class="info-label">申込者様住所</span>
