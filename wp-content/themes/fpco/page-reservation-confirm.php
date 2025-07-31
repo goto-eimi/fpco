@@ -156,11 +156,15 @@ textarea:-ms-input-placeholder {
 .info-row.long-text .info-value {
     padding-top: 0;
     white-space: pre-wrap;
+    align-self: center;
 }
 
 /* 同行者様の詳細情報スタイル */
 .companion-detail {
     line-height: 1.8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .companion-field {
@@ -169,10 +173,12 @@ textarea:-ms-input-placeholder {
     text-align: justify;
     text-align-last: justify;
     margin-right: 20px;
+    vertical-align: middle;
 }
 
 .companion-value {
     display: inline;
+    vertical-align: middle;
 }
 
 /* 確認画面追加スタイル */
