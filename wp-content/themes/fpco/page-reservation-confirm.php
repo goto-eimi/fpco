@@ -143,13 +143,14 @@ textarea:-ms-input-placeholder {
 
 /* 長いテキスト用の特別なスタイル */
 .info-row.long-text {
-    align-items: flex-start;
+    align-items: center;
     min-height: auto;
     padding: 20px 40px;
 }
 
 .info-row.long-text .info-label {
     padding-top: 0;
+    align-self: center;
 }
 
 .info-row.long-text .info-value {
@@ -712,17 +713,21 @@ function generate_visitor_details_display_new($form_data) {
             $companionCount = (int)($form_data['recruit_visitor_count'] ?? 0) - 1;
             if ($companionCount > 0) {
                 $companionList = '';
+                $circles = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
                 for ($i = 1; $i <= $companionCount; $i++) {
                     if (!empty($form_data["companion_{$i}_name"])) {
-                        $companionList .= $i . '. ' . esc_html($form_data["companion_{$i}_name"]);
+                        $circle = $circles[$i - 1] ?? $i;
+                        $companionList .= '同行者様' . $circle . ' ' . esc_html($form_data["companion_{$i}_name"]) . '<br>';
                         if (!empty($form_data["companion_{$i}_department"])) {
-                            $companionList .= '（' . esc_html($form_data["companion_{$i}_department"]) . '）';
+                            $companionList .= '　　　　　' . esc_html($form_data["companion_{$i}_department"]) . '<br>';
                         }
-                        $companionList .= '<br>';
+                        if ($i < $companionCount) {
+                            $companionList .= '<br>'; // 同行者間の空行
+                        }
                     }
                 }
                 if ($companionList) {
-                    $html .= '<div class="info-row">';
+                    $html .= '<div class="info-row long-text">';
                     $html .= '<span class="info-label">同行者様</span>';
                     $html .= '<span class="info-value">' . $companionList . '</span>';
                     $html .= '</div>';
