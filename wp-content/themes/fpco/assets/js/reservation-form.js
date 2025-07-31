@@ -12,6 +12,7 @@ class ReservationForm {
     }
     
     init() {
+        console.log('ReservationForm initialized');
         this.bindEvents();
         this.restoreFormData();
         this.validateForm();

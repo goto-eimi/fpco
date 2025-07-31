@@ -440,40 +440,41 @@ textarea:-ms-input-placeholder {
             <?php 
             $details_html = generate_visitor_details_display_new($form_data);
             
-            // デバッグ：詳細HTMLが生成されない場合のみデバッグ情報を表示
-            if (empty(trim($details_html))) {
-                echo "<!-- DEBUG: 見学者分類詳細が表示されていません -->\n";
-                echo "<!-- Visitor category = " . $form_data['visitor_category'] . " -->\n";
-                
-                // カテゴリに応じて期待されるフィールドを確認
-                $expected_fields = [];
-                switch($form_data['visitor_category']) {
-                    case 'school':
-                        $expected_fields = ['school_name', 'school_kana', 'grade', 'class_count', 'school_student_count', 'school_supervisor_count'];
-                        break;
-                    case 'recruit':
-                        $expected_fields = ['recruit_school_name', 'recruit_department', 'recruit_grade', 'recruit_visitor_count'];
-                        break;
-                    case 'family':
-                        $expected_fields = ['family_organization_name', 'family_adult_count', 'family_child_count'];
-                        break;
-                    case 'company':
-                        $expected_fields = ['company_name', 'company_adult_count', 'company_child_count'];
-                        break;
-                    case 'government':
-                        $expected_fields = ['government_name', 'government_adult_count', 'government_child_count'];
-                        break;
-                    case 'other':
-                        $expected_fields = ['other_group_name', 'other_adult_count', 'other_child_count'];
-                        break;
-                }
-                
-                echo "<!-- Expected fields for {$form_data['visitor_category']}: -->\n";
-                foreach ($expected_fields as $field) {
-                    $value = isset($form_data[$field]) ? $form_data[$field] : 'NOT SET';
-                    echo "<!-- $field = $value -->\n";
-                }
+            // 常にデバッグ情報を表示（開発中）
+            echo "\n<!-- ===== DEBUG INFO START ===== -->\n";
+            echo "<!-- Visitor category: " . $form_data['visitor_category'] . " -->\n";
+            
+            // カテゴリに応じて期待されるフィールドを確認
+            $expected_fields = [];
+            switch($form_data['visitor_category']) {
+                case 'school':
+                    $expected_fields = ['school_name', 'school_kana', 'school_representative_name', 'school_representative_kana', 'grade', 'class_count', 'school_student_count', 'school_supervisor_count'];
+                    break;
+                case 'recruit':
+                    $expected_fields = ['recruit_school_name', 'recruit_department', 'recruit_grade', 'recruit_visitor_count'];
+                    break;
+                case 'family':
+                    $expected_fields = ['family_organization_name', 'family_organization_kana', 'family_adult_count', 'family_child_count', 'family_child_grade'];
+                    break;
+                case 'company':
+                    $expected_fields = ['company_name', 'company_kana', 'company_adult_count', 'company_child_count', 'company_child_grade'];
+                    break;
+                case 'government':
+                    $expected_fields = ['government_name', 'government_kana', 'government_adult_count', 'government_child_count', 'government_child_grade'];
+                    break;
+                case 'other':
+                    $expected_fields = ['other_group_name', 'other_group_kana', 'other_adult_count', 'other_child_count', 'other_child_grade'];
+                    break;
             }
+            
+            echo "<!-- Expected fields for category '{$form_data['visitor_category']}': -->\n";
+            foreach ($expected_fields as $field) {
+                $value = isset($form_data[$field]) ? $form_data[$field] : 'NOT SET';
+                echo "<!-- - $field = $value -->\n";
+            }
+            
+            echo "<!-- Details HTML length: " . strlen($details_html) . " -->\n";
+            echo "<!-- ===== DEBUG INFO END ===== -->\n\n";
             
             echo $details_html;
             ?>
