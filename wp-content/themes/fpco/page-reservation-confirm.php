@@ -19,6 +19,15 @@ foreach ($_POST as $key => $value) {
 }
 echo "<!-- === End POST data === -->\n";
 
+// デバッグ: $form_dataの内容を確認
+echo "<!-- === form_data contents === -->\n";
+foreach ($form_data as $key => $value) {
+    if (!empty($value)) {
+        echo "<!-- form_data[$key] = " . htmlspecialchars($value) . " -->\n";
+    }
+}
+echo "<!-- === End form_data === -->\n";
+
 // フォームデータが無い場合はフォームに戻る
 if (!$form_data) {
     wp_redirect(home_url('/reservation-form/'));
@@ -490,6 +499,10 @@ textarea:-ms-input-placeholder {
                     echo 'クラス数: ' . htmlspecialchars($form_data['class_count'] ?? 'NOT SET') . '<br>';
                     echo '生徒数: ' . htmlspecialchars($form_data['school_student_count'] ?? 'NOT SET') . '<br>';
                     echo '引率数: ' . htmlspecialchars($form_data['school_supervisor_count'] ?? 'NOT SET') . '<br>';
+                    echo '<br><strong>POSTデータ確認:</strong><br>';
+                    echo 'POST[school_name]: ' . htmlspecialchars($_POST['school_name'] ?? 'NOT SET') . '<br>';
+                    echo 'POST[grade]: ' . htmlspecialchars($_POST['grade'] ?? 'NOT SET') . '<br>';
+                    echo 'POST[class_count]: ' . htmlspecialchars($_POST['class_count'] ?? 'NOT SET') . '<br>';
                 }
                 echo '</div>';
             } else {
