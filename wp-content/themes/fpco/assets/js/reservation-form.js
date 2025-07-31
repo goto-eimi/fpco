@@ -485,43 +485,79 @@ class ReservationForm {
         
         try {
             const data = JSON.parse(savedData);
+            console.log('フォームデータを復元中:', data);
             
-            // テキスト・数値・メール・電話・テキストエリア・セレクトフィールドを復元
-            Object.keys(data).forEach(key => {
-                const field = this.form.querySelector(`[name="${key}"]`);
-                if (field) {
-                    if (field.type === 'radio') {
-                        const radioButton = this.form.querySelector(`input[name="${key}"][value="${data[key]}"]`);
-                        if (radioButton) {
-                            radioButton.checked = true;
-                        }
-                    } else {
-                        field.value = data[key];
+            // まずラジオボタンの状態を復元
+            const radioGroups = ['is_travel_agency', 'visitor_category', 'transportation'];
+            radioGroups.forEach(groupName => {
+                if (data[groupName]) {
+                    const radioButton = this.form.querySelector(`input[name="${groupName}"][value="${data[groupName]}"]`);
+                    if (radioButton) {
+                        radioButton.checked = true;
+                        console.log(`ラジオボタン復元: ${groupName} = ${data[groupName]}`);
                     }
                 }
             });
             
-            // 条件付き表示セクションを復元
+            // 条件付き表示セクションを復元（ラジオボタンの状態に基づいて）
             this.toggleTravelAgencySection();
             this.toggleVisitorCategoryFields();
             this.toggleTransportationFields();
             
-            // リクルート見学者の同行者フィールドを復元
-            const recruitVisitorCount = document.getElementById('recruit_visitor_count');
-            if (recruitVisitorCount && recruitVisitorCount.value) {
-                this.updateCompanionFields(recruitVisitorCount.value);
-                // 同行者フィールドの値を復元
-                setTimeout(() => {
-                    Object.keys(data).forEach(key => {
-                        if (key.startsWith('companion_')) {
-                            const field = document.querySelector(`[name="${key}"]`);
-                            if (field) {
-                                field.value = data[key];
-                            }
-                        }
-                    });
-                }, 100);
-            }
+            // 基本フィールドを復元
+            Object.keys(data).forEach(key => {
+                const field = this.form.querySelector(`[name="${key}"]`);
+                if (field && field.type !== 'radio') {
+                    field.value = data[key];
+                }
+            });
+            
+            // 条件表示された項目内のフィールド値を確実に復元
+            setTimeout(() => {
+                Object.keys(data).forEach(key => {
+                    const field = this.form.querySelector(`[name="${key}"]`);
+                    if (field && field.type !== 'radio' && data[key]) {
+                        field.value = data[key];
+                        
+                        // 入力イベントを発火して関連処理をトリガー
+                        field.dispatchEvent(new Event('input', { bubbles: true }));
+                        field.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+                
+                // 子ども人数に応じた学年フィールドの表示/非表示を復元
+                ['family', 'company', 'government', 'other'].forEach(category => {
+                    const childCountField = document.querySelector(`[name="${category}_child_count"]`);
+                    if (childCountField && data[`${category}_child_count`]) {
+                        childCountField.value = data[`${category}_child_count`];
+                        this.toggleChildGradeField(childCountField);
+                    }
+                });
+                
+                // リクルート見学者の同行者フィールドを復元
+                if (data['recruit_visitor_count']) {
+                    const recruitVisitorCount = document.getElementById('recruit_visitor_count');
+                    if (recruitVisitorCount) {
+                        recruitVisitorCount.value = data['recruit_visitor_count'];
+                        this.updateCompanionFields(data['recruit_visitor_count']);
+                        
+                        // 同行者フィールドの値を復元
+                        setTimeout(() => {
+                            Object.keys(data).forEach(key => {
+                                if (key.startsWith('companion_')) {
+                                    const field = document.querySelector(`[name="${key}"]`);
+                                    if (field && data[key]) {
+                                        field.value = data[key];
+                                    }
+                                }
+                            });
+                        }, 100);
+                    }
+                }
+                
+                // 最終的にフォームバリデーションを実行
+                this.validateForm();
+            }, 150);
             
         } catch (error) {
             console.error('フォームデータの復元に失敗しました:', error);
