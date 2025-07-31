@@ -447,45 +447,54 @@ textarea:-ms-input-placeholder {
             </div>
             
             <?php 
+            // デバッグ: カテゴリと関連フィールドを確認
+            echo "\n<!-- ===== VISITOR CATEGORY DEBUG START ===== -->\n";
+            echo "<!-- Current visitor_category: " . ($form_data['visitor_category'] ?? 'NOT SET') . " -->\n";
+            
+            // すべてのカテゴリ関連フィールドを表示
+            $all_category_fields = [
+                'school' => ['school_name', 'school_kana', 'school_representative_name', 'school_representative_kana', 'grade', 'class_count', 'school_student_count', 'school_supervisor_count'],
+                'recruit' => ['recruit_school_name', 'recruit_department', 'recruit_grade', 'recruit_visitor_count'],
+                'family' => ['family_organization_name', 'family_organization_kana', 'family_adult_count', 'family_child_count', 'family_child_grade'],
+                'company' => ['company_name', 'company_kana', 'company_adult_count', 'company_child_count', 'company_child_grade'],
+                'government' => ['government_name', 'government_kana', 'government_adult_count', 'government_child_count', 'government_child_grade'],
+                'other' => ['other_group_name', 'other_group_kana', 'other_adult_count', 'other_child_count', 'other_child_grade']
+            ];
+            
+            // 現在のカテゴリのフィールドを確認
+            $current_category = $form_data['visitor_category'] ?? '';
+            if (isset($all_category_fields[$current_category])) {
+                echo "<!-- Fields for current category '$current_category': -->\n";
+                foreach ($all_category_fields[$current_category] as $field) {
+                    $value = isset($form_data[$field]) ? $form_data[$field] : 'NOT SET';
+                    echo "<!-- - $field = " . htmlspecialchars($value) . " -->\n";
+                }
+            }
+            
+            // generate_visitor_details_display_new関数を実行
             $details_html = generate_visitor_details_display_new($form_data);
-            
-            // 常にデバッグ情報を表示（開発中）
-            echo "\n<!-- ===== DEBUG INFO START ===== -->\n";
-            echo "<!-- Visitor category: " . $form_data['visitor_category'] . " -->\n";
-            
-            // カテゴリに応じて期待されるフィールドを確認
-            $expected_fields = [];
-            switch($form_data['visitor_category']) {
-                case 'school':
-                    $expected_fields = ['school_name', 'school_kana', 'school_representative_name', 'school_representative_kana', 'grade', 'class_count', 'school_student_count', 'school_supervisor_count'];
-                    break;
-                case 'recruit':
-                    $expected_fields = ['recruit_school_name', 'recruit_department', 'recruit_grade', 'recruit_visitor_count'];
-                    break;
-                case 'family':
-                    $expected_fields = ['family_organization_name', 'family_organization_kana', 'family_adult_count', 'family_child_count', 'family_child_grade'];
-                    break;
-                case 'company':
-                    $expected_fields = ['company_name', 'company_kana', 'company_adult_count', 'company_child_count', 'company_child_grade'];
-                    break;
-                case 'government':
-                    $expected_fields = ['government_name', 'government_kana', 'government_adult_count', 'government_child_count', 'government_child_grade'];
-                    break;
-                case 'other':
-                    $expected_fields = ['other_group_name', 'other_group_kana', 'other_adult_count', 'other_child_count', 'other_child_grade'];
-                    break;
+            echo "<!-- Generated HTML length: " . strlen($details_html) . " bytes -->\n";
+            if (empty(trim($details_html))) {
+                echo "<!-- WARNING: No HTML generated for visitor details! -->\n";
             }
+            echo "<!-- ===== VISITOR CATEGORY DEBUG END ===== -->\n\n";
             
-            echo "<!-- Expected fields for category '{$form_data['visitor_category']}': -->\n";
-            foreach ($expected_fields as $field) {
-                $value = isset($form_data[$field]) ? $form_data[$field] : 'NOT SET';
-                echo "<!-- - $field = $value -->\n";
+            // 生成されたHTMLが空の場合、直接表示してみる
+            if (empty(trim($details_html))) {
+                echo '<div style="background-color: #ffeeee; padding: 10px; margin: 10px 0; border: 1px solid #ff0000;">';
+                echo '<strong>デバッグ: 見学者分類詳細が生成されていません</strong><br>';
+                echo 'カテゴリ: ' . htmlspecialchars($form_data['visitor_category'] ?? 'NOT SET') . '<br>';
+                if ($current_category === 'school') {
+                    echo '学校名: ' . htmlspecialchars($form_data['school_name'] ?? 'NOT SET') . '<br>';
+                    echo '学年: ' . htmlspecialchars($form_data['grade'] ?? 'NOT SET') . '<br>';
+                    echo 'クラス数: ' . htmlspecialchars($form_data['class_count'] ?? 'NOT SET') . '<br>';
+                    echo '生徒数: ' . htmlspecialchars($form_data['school_student_count'] ?? 'NOT SET') . '<br>';
+                    echo '引率数: ' . htmlspecialchars($form_data['school_supervisor_count'] ?? 'NOT SET') . '<br>';
+                }
+                echo '</div>';
+            } else {
+                echo $details_html;
             }
-            
-            echo "<!-- Details HTML length: " . strlen($details_html) . " -->\n";
-            echo "<!-- ===== DEBUG INFO END ===== -->\n\n";
-            
-            echo $details_html;
             ?>
 
             <div class="info-row">
