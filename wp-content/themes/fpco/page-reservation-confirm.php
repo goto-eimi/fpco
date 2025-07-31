@@ -179,9 +179,6 @@ textarea:-ms-input-placeholder {
 /* 同行者様の詳細情報スタイル */
 .companion-detail {
     line-height: 1.8;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 .companion-detail > * {
