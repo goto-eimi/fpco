@@ -10,6 +10,15 @@ get_header();
 // POSTデータを取得・検証
 $form_data = validate_form_data($_POST);
 
+// デバッグ: 受信したPOSTデータをHTMLコメントで表示
+echo "<!-- === Received POST data === -->\n";
+foreach ($_POST as $key => $value) {
+    if (!empty($value)) {
+        echo "<!-- POST[$key] = " . htmlspecialchars($value) . " -->\n";
+    }
+}
+echo "<!-- === End POST data === -->\n";
+
 // フォームデータが無い場合はフォームに戻る
 if (!$form_data) {
     wp_redirect(home_url('/reservation-form/'));
