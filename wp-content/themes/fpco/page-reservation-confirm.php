@@ -608,14 +608,16 @@ function generate_visitor_details_display_new($form_data) {
     
     switch ($category) {
         case 'school':
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">学校・団体名</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['school_name']);
-            if (!empty($form_data['school_kana'])) {
-                $html .= '（' . esc_html($form_data['school_kana']) . '）';
+            if (!empty($form_data['school_name'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学校・団体名</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['school_name']);
+                if (!empty($form_data['school_kana'])) {
+                    $html .= '（' . esc_html($form_data['school_kana']) . '）';
+                }
+                $html .= '</span>';
+                $html .= '</div>';
             }
-            $html .= '</span>';
-            $html .= '</div>';
             
             if (!empty($form_data['school_representative_name'])) {
                 $html .= '<div class="info-row">';
@@ -628,35 +630,66 @@ function generate_visitor_details_display_new($form_data) {
                 $html .= '</div>';
             }
             
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">学年・クラス</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['grade']) . '年生 ' . esc_html($form_data['class_count']) . 'クラス</span>';
-            $html .= '</div>';
+            if (!empty($form_data['grade'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学年</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['grade']) . '年生</span>';
+                $html .= '</div>';
+            }
             
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">見学者様人数</span>';
-            $html .= '<span class="info-value">児童・生徒 ' . esc_html($form_data['school_student_count']) . '名、引率 ' . esc_html($form_data['school_supervisor_count']) . '名</span>';
-            $html .= '</div>';
+            if (!empty($form_data['class_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">クラス</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['class_count']) . 'クラス</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['school_student_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（児童・生徒）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['school_student_count']) . '名</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['school_supervisor_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（引率）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['school_supervisor_count']) . '名</span>';
+                $html .= '</div>';
+            }
             break;
             
         case 'recruit':
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">学校名</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['recruit_school_name']) . '</span>';
-            $html .= '</div>';
+            if (!empty($form_data['recruit_school_name'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学校名</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['recruit_school_name']) . '</span>';
+                $html .= '</div>';
+            }
             
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">学年・学部</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['recruit_grade']) . '年生 ' . esc_html($form_data['recruit_department']) . '</span>';
-            $html .= '</div>';
+            if (!empty($form_data['recruit_grade'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学年</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['recruit_grade']) . '年生</span>';
+                $html .= '</div>';
+            }
             
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">見学者様人数</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['recruit_visitor_count']) . '名</span>';
-            $html .= '</div>';
+            if (!empty($form_data['recruit_department'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学部</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['recruit_department']) . '</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['recruit_visitor_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['recruit_visitor_count']) . '名</span>';
+                $html .= '</div>';
+            }
             
             // 同行者情報がある場合
-            $companionCount = (int)$form_data['recruit_visitor_count'] - 1;
+            $companionCount = (int)($form_data['recruit_visitor_count'] ?? 0) - 1;
             if ($companionCount > 0) {
                 $companionList = '';
                 for ($i = 1; $i <= $companionCount; $i++) {
@@ -678,19 +711,30 @@ function generate_visitor_details_display_new($form_data) {
             break;
             
         case 'family':
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">会社・団体名</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['family_organization_name']);
-            if (!empty($form_data['family_organization_kana'])) {
-                $html .= '（' . esc_html($form_data['family_organization_kana']) . '）';
+            if (!empty($form_data['family_organization_name'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">会社・団体名</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['family_organization_name']);
+                if (!empty($form_data['family_organization_kana'])) {
+                    $html .= '（' . esc_html($form_data['family_organization_kana']) . '）';
+                }
+                $html .= '</span>';
+                $html .= '</div>';
             }
-            $html .= '</span>';
-            $html .= '</div>';
             
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">見学者様人数</span>';
-            $html .= '<span class="info-value">大人 ' . esc_html($form_data['family_adult_count']) . '名、子ども ' . esc_html($form_data['family_child_count']) . '名</span>';
-            $html .= '</div>';
+            if (!empty($form_data['family_adult_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（大人）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['family_adult_count']) . '名</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['family_child_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（子ども）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['family_child_count']) . '名</span>';
+                $html .= '</div>';
+            }
             
             if (!empty($form_data['family_child_grade'])) {
                 $html .= '<div class="info-row">';
@@ -701,19 +745,30 @@ function generate_visitor_details_display_new($form_data) {
             break;
             
         case 'company':
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">会社・団体名</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['company_name']);
-            if (!empty($form_data['company_kana'])) {
-                $html .= '（' . esc_html($form_data['company_kana']) . '）';
+            if (!empty($form_data['company_name'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">会社・団体名</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['company_name']);
+                if (!empty($form_data['company_kana'])) {
+                    $html .= '（' . esc_html($form_data['company_kana']) . '）';
+                }
+                $html .= '</span>';
+                $html .= '</div>';
             }
-            $html .= '</span>';
-            $html .= '</div>';
             
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">見学者様人数</span>';
-            $html .= '<span class="info-value">大人 ' . esc_html($form_data['company_adult_count']) . '名、子ども ' . esc_html($form_data['company_child_count']) . '名</span>';
-            $html .= '</div>';
+            if (!empty($form_data['company_adult_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（大人）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['company_adult_count']) . '名</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['company_child_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（子ども）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['company_child_count']) . '名</span>';
+                $html .= '</div>';
+            }
             
             if (!empty($form_data['company_child_grade'])) {
                 $html .= '<div class="info-row">';
@@ -724,19 +779,30 @@ function generate_visitor_details_display_new($form_data) {
             break;
             
         case 'government':
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">会社・団体名</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['government_name']);
-            if (!empty($form_data['government_kana'])) {
-                $html .= '（' . esc_html($form_data['government_kana']) . '）';
+            if (!empty($form_data['government_name'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">会社・団体名</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['government_name']);
+                if (!empty($form_data['government_kana'])) {
+                    $html .= '（' . esc_html($form_data['government_kana']) . '）';
+                }
+                $html .= '</span>';
+                $html .= '</div>';
             }
-            $html .= '</span>';
-            $html .= '</div>';
             
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">見学者様人数</span>';
-            $html .= '<span class="info-value">大人 ' . esc_html($form_data['government_adult_count']) . '名、子ども ' . esc_html($form_data['government_child_count']) . '名</span>';
-            $html .= '</div>';
+            if (!empty($form_data['government_adult_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（大人）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['government_adult_count']) . '名</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['government_child_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（子ども）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['government_child_count']) . '名</span>';
+                $html .= '</div>';
+            }
             
             if (!empty($form_data['government_child_grade'])) {
                 $html .= '<div class="info-row">';
@@ -747,19 +813,30 @@ function generate_visitor_details_display_new($form_data) {
             break;
             
         case 'other':
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">会社・団体名</span>';
-            $html .= '<span class="info-value">' . esc_html($form_data['other_group_name']);
-            if (!empty($form_data['other_group_kana'])) {
-                $html .= '（' . esc_html($form_data['other_group_kana']) . '）';
+            if (!empty($form_data['other_group_name'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">会社・団体名</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['other_group_name']);
+                if (!empty($form_data['other_group_kana'])) {
+                    $html .= '（' . esc_html($form_data['other_group_kana']) . '）';
+                }
+                $html .= '</span>';
+                $html .= '</div>';
             }
-            $html .= '</span>';
-            $html .= '</div>';
             
-            $html .= '<div class="info-row">';
-            $html .= '<span class="info-label">見学者様人数</span>';
-            $html .= '<span class="info-value">大人 ' . esc_html($form_data['other_adult_count']) . '名、子ども ' . esc_html($form_data['other_child_count']) . '名</span>';
-            $html .= '</div>';
+            if (!empty($form_data['other_adult_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（大人）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['other_adult_count']) . '名</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['other_child_count'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">見学者様人数（子ども）</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['other_child_count']) . '名</span>';
+                $html .= '</div>';
+            }
             
             if (!empty($form_data['other_child_grade'])) {
                 $html .= '<div class="info-row">';
