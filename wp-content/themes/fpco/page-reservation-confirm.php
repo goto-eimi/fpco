@@ -141,6 +141,11 @@ textarea:-ms-input-placeholder {
     max-width: calc(100% - 250px);
 }
 
+/* 同行者様の入力情報は改行を制御 */
+.info-row.long-text .info-value .companion-detail {
+    overflow: visible;
+}
+
 /* 長いテキスト用の特別なスタイル */
 .info-row.long-text {
     align-items: center;
@@ -165,6 +170,7 @@ textarea:-ms-input-placeholder {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    white-space: nowrap;
 }
 
 .companion-field {
@@ -174,11 +180,13 @@ textarea:-ms-input-placeholder {
     text-align-last: justify;
     margin-right: 20px;
     vertical-align: middle;
+    white-space: nowrap;
 }
 
 .companion-value {
     display: inline;
     vertical-align: middle;
+    white-space: nowrap;
 }
 
 /* 確認画面追加スタイル */
