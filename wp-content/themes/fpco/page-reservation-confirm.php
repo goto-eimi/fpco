@@ -712,25 +712,25 @@ function generate_visitor_details_display_new($form_data) {
             // 同行者情報がある場合
             $companionCount = (int)($form_data['recruit_visitor_count'] ?? 0) - 1;
             if ($companionCount > 0) {
-                $companionList = '';
                 $circles = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
                 for ($i = 1; $i <= $companionCount; $i++) {
                     if (!empty($form_data["companion_{$i}_name"])) {
                         $circle = $circles[$i - 1] ?? $i;
-                        $companionList .= '同行者様' . $circle . ' ' . esc_html($form_data["companion_{$i}_name"]) . '<br>';
+                        $companionDetails = '';
+                        
+                        // 氏名
+                        $companionDetails .= '氏名 ' . esc_html($form_data["companion_{$i}_name"]);
+                        
+                        // 学部
                         if (!empty($form_data["companion_{$i}_department"])) {
-                            $companionList .= '　　　　　' . esc_html($form_data["companion_{$i}_department"]) . '<br>';
+                            $companionDetails .= '<br>学部 ' . esc_html($form_data["companion_{$i}_department"]);
                         }
-                        if ($i < $companionCount) {
-                            $companionList .= '<br>'; // 同行者間の空行
-                        }
+                        
+                        $html .= '<div class="info-row long-text">';
+                        $html .= '<span class="info-label">同行者様' . $circle . '</span>';
+                        $html .= '<span class="info-value">' . $companionDetails . '</span>';
+                        $html .= '</div>';
                     }
-                }
-                if ($companionList) {
-                    $html .= '<div class="info-row long-text">';
-                    $html .= '<span class="info-label">同行者様</span>';
-                    $html .= '<span class="info-value">' . $companionList . '</span>';
-                    $html .= '</div>';
                 }
             }
             break;
