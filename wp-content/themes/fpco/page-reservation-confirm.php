@@ -146,6 +146,18 @@ textarea:-ms-input-placeholder {
     overflow: visible;
 }
 
+/* 同行者様の情報エリアの幅制限を解除 */
+.info-row .info-value .companion-detail {
+    max-width: none;
+    width: auto;
+}
+
+/* 同行者様の各行の幅制限を解除 */
+.companion-detail > * {
+    max-width: none;
+    width: auto;
+}
+
 /* 長いテキスト用の特別なスタイル */
 .info-row.long-text {
     align-items: center;
@@ -170,7 +182,11 @@ textarea:-ms-input-placeholder {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.companion-detail > * {
     white-space: nowrap;
+    display: block;
 }
 
 .companion-field {
@@ -181,12 +197,14 @@ textarea:-ms-input-placeholder {
     margin-right: 20px;
     vertical-align: middle;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .companion-value {
     display: inline;
     vertical-align: middle;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* 確認画面追加スタイル */
