@@ -437,7 +437,46 @@ textarea:-ms-input-placeholder {
                 <span class="info-value"><?php echo esc_html(get_visitor_category_display($form_data['visitor_category'])); ?></span>
             </div>
             
-            <?php echo generate_visitor_details_display_new($form_data); ?>
+            <?php 
+            $details_html = generate_visitor_details_display_new($form_data);
+            
+            // デバッグ：詳細HTMLが生成されない場合のみデバッグ情報を表示
+            if (empty(trim($details_html))) {
+                echo "<!-- DEBUG: 見学者分類詳細が表示されていません -->\n";
+                echo "<!-- Visitor category = " . $form_data['visitor_category'] . " -->\n";
+                
+                // カテゴリに応じて期待されるフィールドを確認
+                $expected_fields = [];
+                switch($form_data['visitor_category']) {
+                    case 'school':
+                        $expected_fields = ['school_name', 'school_kana', 'grade', 'class_count', 'school_student_count', 'school_supervisor_count'];
+                        break;
+                    case 'recruit':
+                        $expected_fields = ['recruit_school_name', 'recruit_department', 'recruit_grade', 'recruit_visitor_count'];
+                        break;
+                    case 'family':
+                        $expected_fields = ['family_organization_name', 'family_adult_count', 'family_child_count'];
+                        break;
+                    case 'company':
+                        $expected_fields = ['company_name', 'company_adult_count', 'company_child_count'];
+                        break;
+                    case 'government':
+                        $expected_fields = ['government_name', 'government_adult_count', 'government_child_count'];
+                        break;
+                    case 'other':
+                        $expected_fields = ['other_group_name', 'other_adult_count', 'other_child_count'];
+                        break;
+                }
+                
+                echo "<!-- Expected fields for {$form_data['visitor_category']}: -->\n";
+                foreach ($expected_fields as $field) {
+                    $value = isset($form_data[$field]) ? $form_data[$field] : 'NOT SET';
+                    echo "<!-- $field = $value -->\n";
+                }
+            }
+            
+            echo $details_html;
+            ?>
 
             <div class="info-row">
                 <span class="info-label">申込者様住所</span>

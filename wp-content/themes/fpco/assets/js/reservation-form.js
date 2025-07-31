@@ -451,6 +451,23 @@ class ReservationForm {
             return;
         }
         
+        // 送信前にフォームデータをデバッグ
+        const formData = new FormData(this.form);
+        console.log('=== 送信前のフォームデータ ===');
+        for (let [key, value] of formData.entries()) {
+            if (value) {
+                console.log(`${key}: ${value}`);
+            }
+        }
+        console.log('=== 送信前のフォームデータ終了 ===');
+        
+        // 送信前に非表示フィールドのrequired属性を一時的に削除
+        const hiddenRequiredFields = this.form.querySelectorAll('.conditional[style*="display: none"] [required]');
+        hiddenRequiredFields.forEach(field => {
+            field.removeAttribute('required');
+            field.dataset.wasRequired = 'true';
+        });
+        
         // 送信時にlocalStorageをクリア
         this.clearFormData();
         
