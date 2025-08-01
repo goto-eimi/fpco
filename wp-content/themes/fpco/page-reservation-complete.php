@@ -7,24 +7,40 @@
 
 get_header(); 
 
+// デバッグ: POSTデータの確認
+error_log('Complete page - POST data: ' . print_r($_POST, true));
+
 // POSTデータを取得・処理
 $form_data = validate_and_process_reservation($_POST);
 
+// デバッグ: バリデーション結果の確認
+error_log('Complete page - Validation result: ' . ($form_data ? 'SUCCESS' : 'FAILED'));
+if ($form_data) {
+    error_log('Complete page - Form data: ' . print_r($form_data, true));
+}
+
 if (!$form_data) {
     // データが不正な場合は入力画面に戻る
+    error_log('Complete page - Redirecting to form due to validation failure');
     wp_redirect(home_url('/reservation-form/'));
     exit;
 }
 
 // 予約処理を実行
+error_log('Complete page - Starting reservation processing');
 $reservation_result = process_reservation($form_data);
+
+// デバッグ: 予約処理結果の確認
+error_log('Complete page - Reservation result: ' . print_r($reservation_result, true));
 
 if (!$reservation_result['success']) {
     // 予約処理に失敗した場合
+    error_log('Complete page - Reservation processing failed: ' . ($reservation_result['error'] ?? 'Unknown error'));
     wp_die('予約処理中にエラーが発生しました。しばらく時間をおいてから再度お試しください。');
 }
 
 $reservation_id = $reservation_result['reservation_id'];
+error_log('Complete page - Generated reservation ID: ' . $reservation_id);
 ?>
 
 <main id="main" class="wp-block-group">
@@ -135,6 +151,90 @@ $reservation_id = $reservation_result['reservation_id'];
 </main>
 
 <style>
+/* ブレッドクラムのスタイル */
+.breadcrumb {
+    margin-bottom: 20px;
+    color: #797369;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 70px;
+}
+
+.breadcrumb a {
+    color: #797369;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* ステップインジケーターのスタイル */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    padding: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 0 40px;
+}
+
+.step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: calc(50% + 15px);
+    width: calc(80px - -70px);
+    height: 2px;
+    background: #28a745;
+    top: 15px;
+    transform: translateY(-50%);
+}
+
+.step.active .step-number {
+    background: #28a745;
+    color: white;
+}
+
+.step.active .step-label {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.step.completed .step-number {
+    background: #28a745;
+    color: white;
+}
+
+.step.completed .step-label {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #DFDCDC;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.step-label {
+    color: #DFDCDC;
+    text-align: center;
+    font-size: 14px;
+}
+
 /* 完了画面のスタイル */
 .completion-content {
     max-width: 800px;
@@ -347,10 +447,31 @@ function printReservation() {
 // ヘルパー関数
 
 function validate_and_process_reservation($post_data) {
+    // デバッグ: バリデーション開始
+    error_log('Validation - POST data received: ' . print_r($post_data, true));
+    
     // 基本的なバリデーション
-    if (empty($post_data) || !isset($post_data['factory_id']) || !isset($post_data['date'])) {
+    if (empty($post_data)) {
+        error_log('Validation - POST data is empty');
         return false;
     }
+    
+    if (!isset($post_data['factory_id'])) {
+        error_log('Validation - factory_id is missing');
+        return false;
+    }
+    
+    if (!isset($post_data['date'])) {
+        error_log('Validation - date is missing');
+        return false;
+    }
+    
+    if (!isset($post_data['applicant_name'])) {
+        error_log('Validation - applicant_name is missing');
+        return false;
+    }
+    
+    error_log('Validation - All required fields present');
     
     // セキュリティチェック（実際の実装ではより詳細な検証を行う）
     return $post_data;
@@ -403,27 +524,35 @@ function save_reservation_to_database($reservation_id, $form_data) {
     // 予約テーブルに保存
     $table_name = $wpdb->prefix . 'reservations';
     
+    // デバッグ: テーブル存在確認
+    $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
+    if (!$table_exists) {
+        error_log("Database - Table $table_name does not exist");
+        // テーブルが存在しない場合は作成する
+        create_reservations_table();
+    }
+    
     $reservation_data = [
         'reservation_id' => $reservation_id,
         'factory_id' => $form_data['factory_id'],
         'reservation_date' => $form_data['date'],
         'timeslot' => $form_data['timeslot'],
         'applicant_name' => $form_data['applicant_name'],
-        'applicant_name_kana' => $form_data['applicant_name_kana'],
+        'applicant_name_kana' => $form_data['applicant_name_kana'] ?? '',
         'email' => $form_data['email'],
-        'phone' => $form_data['phone'],
-        'mobile' => $form_data['mobile'],
-        'postal_code' => $form_data['postal_code'],
-        'prefecture' => $form_data['prefecture'],
-        'city' => $form_data['city'],
-        'address' => $form_data['address'],
+        'phone' => $form_data['phone'] ?? '',
+        'mobile' => $form_data['mobile'] ?? '',
+        'postal_code' => $form_data['postal_code'] ?? '',
+        'prefecture' => $form_data['prefecture'] ?? '',
+        'city' => $form_data['city'] ?? '',
+        'address' => $form_data['address'] ?? '',
         'building' => $form_data['building'] ?? '',
-        'transportation' => $form_data['transportation'],
+        'transportation' => $form_data['transportation'] ?? '',
         'transportation_other' => $form_data['transportation_other'] ?? '',
         'vehicle_count' => $form_data['vehicle_count'] ?? 0,
-        'purpose' => $form_data['purpose'],
-        'is_travel_agency' => $form_data['is_travel_agency'],
-        'visitor_category' => $form_data['visitor_category'],
+        'purpose' => $form_data['purpose'] ?? '',
+        'is_travel_agency' => $form_data['is_travel_agency'] ?? 'no',
+        'visitor_category' => $form_data['visitor_category'] ?? '',
         'total_visitors' => calculate_total_visitors($form_data),
         'form_data' => json_encode($form_data),
         'status' => 'pending',
@@ -431,7 +560,15 @@ function save_reservation_to_database($reservation_id, $form_data) {
         'updated_at' => current_time('mysql')
     ];
     
+    error_log('Database - Inserting reservation data: ' . print_r($reservation_data, true));
+    
     $result = $wpdb->insert($table_name, $reservation_data);
+    
+    if ($result === false) {
+        error_log('Database - Insert failed: ' . $wpdb->last_error);
+    } else {
+        error_log('Database - Insert successful, affected rows: ' . $result);
+    }
     
     return $result !== false;
 }
@@ -510,12 +647,139 @@ function send_admin_notification_email($reservation_id, $form_data) {
     wp_mail($admin_email, $subject, $message);
 }
 
+function create_reservations_table() {
+    global $wpdb;
+    
+    $table_name = $wpdb->prefix . 'reservations';
+    
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    $sql = "CREATE TABLE $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        reservation_id varchar(20) NOT NULL,
+        factory_id varchar(10) NOT NULL,
+        reservation_date date NOT NULL,
+        timeslot varchar(20) NOT NULL,
+        applicant_name varchar(100) NOT NULL,
+        applicant_name_kana varchar(100),
+        email varchar(100) NOT NULL,
+        phone varchar(20),
+        mobile varchar(20),
+        postal_code varchar(10),
+        prefecture varchar(20),
+        city varchar(50),
+        address varchar(100),
+        building varchar(100),
+        transportation varchar(50),
+        transportation_other varchar(100),
+        vehicle_count int DEFAULT 0,
+        purpose text,
+        is_travel_agency varchar(10) DEFAULT 'no',
+        visitor_category varchar(50),
+        total_visitors int DEFAULT 0,
+        form_data longtext,
+        status varchar(20) DEFAULT 'pending',
+        created_at datetime DEFAULT CURRENT_TIMESTAMP,
+        updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY reservation_id (reservation_id)
+    ) $charset_collate;";
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+    
+    error_log('Database - Reservations table created');
+}
+
+function calculate_total_visitors($form_data) {
+    // 総見学者数を計算
+    $total = 0;
+    
+    // 見学者分類に応じて人数を計算
+    switch ($form_data['visitor_category'] ?? '') {
+        case 'school':
+            $total = (int)($form_data['school_student_count'] ?? 0) + (int)($form_data['school_supervisor_count'] ?? 0);
+            break;
+        case 'recruit':
+            $total = (int)($form_data['recruit_visitor_count'] ?? 0);
+            break;
+        case 'family':
+            $total = (int)($form_data['family_adult_count'] ?? 0) + (int)($form_data['family_child_count'] ?? 0);
+            break;
+        case 'company':
+            $total = (int)($form_data['company_adult_count'] ?? 0) + (int)($form_data['company_child_count'] ?? 0);
+            break;
+        case 'government':
+            $total = (int)($form_data['government_adult_count'] ?? 0) + (int)($form_data['government_child_count'] ?? 0);
+            break;
+        case 'other':
+            $total = (int)($form_data['other_adult_count'] ?? 0) + (int)($form_data['other_child_count'] ?? 0);
+            break;
+        default:
+            // フォールバック：直接入力された総人数を使用
+            $total = (int)($form_data['total_visitor_count'] ?? 1);
+    }
+    
+    return max(1, $total); // 最低1名は保証
+}
+
 function update_calendar_availability($factory_id, $date, $timeslot) {
     // カレンダーの該当時間帯を見学不可に設定
     // 実際の実装では、カレンダーAPIまたはデータベースを更新
     
     // この処理は、カレンダーシステムの実装に依存する
     // 例：APIエンドポイントにPOSTリクエストを送信
+    error_log("Calendar - Would update availability for factory $factory_id, date $date, timeslot $timeslot");
+}
+
+// 必要なヘルパー関数を追加
+function get_factory_name($factory_id) {
+    $factories = [
+        1 => '関東リサイクル',
+        2 => '中部リサイクル',
+        3 => '福山リサイクル',
+        4 => '山形選別センター',
+        5 => '松本選別センター',
+        6 => '西宮選別センター',
+        7 => '東海選別センター',
+        8 => '金沢選別センター',
+        9 => '九州選別センター'
+    ];
+    
+    return isset($factories[$factory_id]) ? $factories[$factory_id] : '不明';
+}
+
+function parse_timeslot($timeslot) {
+    // timeslot形式: am-60-1, pm-90-2 など
+    $parts = explode('-', $timeslot);
+    $period = $parts[0] ?? '';
+    $duration = $parts[1] ?? '';
+    
+    $time_ranges = [
+        'am-60-1' => '9:00〜10:00',
+        'am-60-2' => '10:30〜11:30',
+        'am-90-1' => '9:00〜10:30',
+        'am-90-2' => '10:00〜11:30',
+        'pm-60-1' => '14:00〜15:00',
+        'pm-60-2' => '15:30〜16:30',
+        'pm-90-1' => '14:00〜15:30',
+        'pm-90-2' => '15:00〜16:30'
+    ];
+    
+    return [
+        'period' => strtoupper($period),
+        'duration' => $duration,
+        'time_range' => $time_ranges[$timeslot] ?? '',
+        'display' => strtoupper($period) . '(' . ($time_ranges[$timeslot] ?? '') . ')'
+    ];
+}
+
+function format_display_date($date) {
+    $timestamp = strtotime($date);
+    if ($timestamp) {
+        return date('Y年m月d日', $timestamp);
+    }
+    return $date;
 }
 
 get_footer();
