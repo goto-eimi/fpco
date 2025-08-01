@@ -937,7 +937,7 @@ textarea:-ms-input-placeholder {
     left: calc(50% + 15px);
     width: calc(80px - -70px);
     height: 2px;
-    background: #ddd;
+    background: #5C5548;
     top: 15px;
     transform: translateY(-50%);
 }
