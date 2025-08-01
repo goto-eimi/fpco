@@ -247,6 +247,11 @@ textarea:-ms-input-placeholder {
     transform: translateY(-50%);
 }
 
+/* ステップ1と2の間の線のみ#5C5548に変更 */
+.step:first-child::after {
+    background: #5C5548;
+}
+
 .step.active .step-number {
     background: #5C5548;
     color: white;
@@ -432,20 +437,16 @@ textarea:-ms-input-placeholder {
         <div class="reservation-form">
             <div class="reservation-info-box">
             <div class="info-row">
-                <span class="info-label">見学工場</span>
-                <span class="info-value"><?php echo esc_html($factory_name); ?>工場</span>
-            </div>
-            <div class="info-row">
                 <span class="info-label">見学日</span>
                 <span class="info-value"><?php echo esc_html(format_display_date($form_data['date'])); ?></span>
             </div>
             <div class="info-row">
-                <span class="info-label">見学時間帯</span>
-                <span class="info-value"><?php echo esc_html($timeslot_info['display']); ?></span>
-            </div>
-            <div class="info-row">
                 <span class="info-label">見学時間</span>
                 <span class="info-value"><?php echo esc_html($timeslot_info['duration']); ?>分</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">見学時間帯</span>
+                <span class="info-value"><?php echo esc_html($timeslot_info['display']); ?></span>
             </div>
             <div class="info-row">
                 <span class="info-label">申込者様氏名</span>
@@ -733,17 +734,17 @@ function generate_visitor_details_display_new($form_data) {
                 $html .= '</div>';
             }
             
-            if (!empty($form_data['recruit_grade'])) {
-                $html .= '<div class="info-row">';
-                $html .= '<span class="info-label">学年</span>';
-                $html .= '<span class="info-value">' . esc_html($form_data['recruit_grade']) . '年生</span>';
-                $html .= '</div>';
-            }
-            
             if (!empty($form_data['recruit_department'])) {
                 $html .= '<div class="info-row">';
                 $html .= '<span class="info-label">学部</span>';
                 $html .= '<span class="info-value">' . esc_html($form_data['recruit_department']) . '</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['recruit_grade'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学年</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['recruit_grade']) . '年生</span>';
                 $html .= '</div>';
             }
             
