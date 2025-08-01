@@ -85,41 +85,7 @@ try {
         <div class="completion-content">
             <!-- 完了メッセージ -->
             <div class="completion-message">
-                <div class="success-icon">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="12" fill="#28a745"/>
-                        <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <h1 class="main-message">予約の申込みが完了しました。</h1>
-                <p class="sub-message">
-                    予約受付番号: <strong><?php echo esc_html($reservation_id); ?></strong><br>
-                    確認後、改めて入力いただいたメールアドレスへご連絡いたしますので少々お待ちください。
-                </p>
-            </div>
-
-            <!-- 予約内容サマリー -->
-            <div class="reservation-summary">
-                <h2>ご予約内容</h2>
-                <dl class="summary-list">
-                    <dt>見学工場</dt>
-                    <dd><?php echo esc_html(get_factory_name($form_data['factory_id'])); ?>工場</dd>
-                    
-                    <dt>見学日</dt>
-                    <dd><?php echo esc_html(format_display_date($form_data['date'])); ?></dd>
-                    
-                    <dt>見学時間帯</dt>
-                    <dd><?php echo esc_html(parse_timeslot($form_data['timeslot'])['display']); ?></dd>
-                    
-                    <dt>申込者様</dt>
-                    <dd><?php echo esc_html($form_data['applicant_name']); ?></dd>
-                    
-                    <dt>見学者様人数</dt>
-                    <dd><?php echo calculate_total_visitors($form_data); ?>名</dd>
-                    
-                    <dt>連絡先</dt>
-                    <dd><?php echo esc_html($form_data['email']); ?></dd>
-                </dl>
+                <h1 class="main-message">予約の申込みが完了しました。<br>確認後、改めて入力いただいたメールアドレスへ<br>ご連絡いたしますので少々お待ちください。</h1>
             </div>
 
             <!-- 注意事項 -->
@@ -203,28 +169,28 @@ try {
     left: calc(50% + 15px);
     width: calc(80px - -70px);
     height: 2px;
-    background: #28a745;
+    background: #5C5548;
     top: 15px;
     transform: translateY(-50%);
 }
 
 .step.active .step-number {
-    background: #28a745;
+    background: #5C5548;
     color: white;
 }
 
 .step.active .step-label {
-    color: #28a745;
+    color: #5C5548;
     font-weight: bold;
 }
 
 .step.completed .step-number {
-    background: #28a745;
+    background: #5C5548;
     color: white;
 }
 
 .step.completed .step-label {
-    color: #28a745;
+    color: #5C5548;
     font-weight: bold;
 }
 
@@ -268,7 +234,7 @@ try {
 
 .main-message {
     font-size: 28px;
-    color: #28a745;
+    color: #5C5548;
     margin-bottom: 20px;
     font-weight: bold;
 }
