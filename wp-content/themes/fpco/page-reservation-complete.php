@@ -104,10 +104,11 @@ try {
             <!-- アクションボタン -->
             <div class="action-buttons">
                 <button type="button" class="btn-print" onclick="printReservation()">
-                    予約内容を印刷する
+                    <span class="btn-text">予約内容を印刷する</span>
                 </button>
                 <a href="<?php echo home_url(); ?>" class="btn-home">
-                    TOPへ戻る →
+                    <span class="btn-text">TOPへ戻る</span>
+                    <span class="btn-arrow">→</span>
                 </a>
             </div>
         </div>
@@ -223,7 +224,6 @@ try {
 .completion-message {
     background: white;
     padding: 40px;
-    border: 1px solid #ddd;
     border-radius: 8px;
     margin-bottom: 30px;
 }
@@ -233,10 +233,9 @@ try {
 }
 
 .main-message {
-    font-size: 28px;
+    font-size: 18px;
     color: #5C5548;
     margin-bottom: 20px;
-    font-weight: bold;
 }
 
 .sub-message {
@@ -325,40 +324,65 @@ try {
 }
 
 .btn-print {
-    padding: 15px 30px;
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 15px 30px !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    transition: background-color 0.3s ease !important;
+    text-decoration: none !important;
 }
 
 .btn-print:hover {
-    background: #5a6268;
+    background-color: #5a6268 !important;
 }
 
 .btn-home {
-    padding: 15px 30px;
-    background: #007cba;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
+    background-color: #5C5548 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 15px 40px !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    transition: background-color 0.3s ease !important;
+    text-decoration: none !important;
 }
 
 .btn-home:hover {
-    background: #005a87;
-    color: white;
+    background-color: #4a453a !important;
+    color: white !important;
+}
+
+.btn-text {
+    color: white !important;
+}
+
+.btn-arrow {
+    background-color: white !important;
+    color: #5C5548 !important;
+    border-radius: 50% !important;
+    width: 25px !important;
+    height: 25px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: bold !important;
+}
+
+.btn-print .btn-arrow {
+    background-color: white !important;
+    color: #6c757d !important;
 }
 
 .step.active .step-number {
