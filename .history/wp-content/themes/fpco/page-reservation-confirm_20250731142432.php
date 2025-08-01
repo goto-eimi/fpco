@@ -166,11 +166,12 @@ textarea:-ms-input-placeholder {
 }
 
 .info-row.long-text .info-label {
+    padding-top: 0;
     align-self: center;
 }
 
 .info-row.long-text .info-value {
-    padding: 0;
+    padding-top: 0;
     white-space: pre-wrap;
     align-self: center;
 }
