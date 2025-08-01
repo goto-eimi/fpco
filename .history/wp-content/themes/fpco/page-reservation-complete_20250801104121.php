@@ -92,7 +92,6 @@ try {
             <div class="action-buttons">
                 <button type="button" class="btn-print" onclick="printReservation()">
                     <span class="btn-text">予約内容を印刷する</span>
-                    <span class="btn-arrow">→</span>
                 </button>
                 <a href="<?php echo home_url(); ?>" class="btn-home">
                     <span class="btn-text">TOPへ戻る</span>
@@ -213,6 +212,7 @@ try {
     background: white;
     padding: 40px;
     border-radius: 8px;
+    margin-bottom: 30px;
 }
 
 .success-icon {
@@ -222,6 +222,7 @@ try {
 .main-message {
     font-size: 18px;
     color: #5C5548;
+    margin-bottom: 20px;
 }
 
 .sub-message {
@@ -278,12 +279,13 @@ try {
 
 .action-buttons {
     display: flex;
-    gap: 100px;
+    gap: 20px;
     justify-content: center;
+    margin-top: 40px;
 }
 
 .btn-print {
-    background-color: #5C5548 !important;
+    background-color: #6c757d !important;
     color: white !important;
     border: none !important;
     border-radius: 50px !important;
@@ -312,12 +314,10 @@ try {
     font-weight: bold !important;
     cursor: pointer !important;
     display: inline-flex !important;
-    justify-content: center !important;
     align-items: center !important;
     gap: 10px !important;
     transition: background-color 0.3s ease !important;
     text-decoration: none !important;
-    min-width: 20%;
 }
 
 .btn-home:hover {
@@ -347,12 +347,12 @@ try {
 }
 
 .step.active .step-number {
-    background: #5C5548;
+    background: #28a745;
     color: white;
 }
 
 .step.active .step-label {
-    color: #5C5548;
+    color: #28a745;
     font-weight: bold;
 }
 

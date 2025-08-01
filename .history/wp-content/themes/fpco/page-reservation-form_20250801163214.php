@@ -390,7 +390,7 @@ textarea:-ms-input-placeholder {
                         <span class="unit">名</span>
                     </span>
                 </div>
-                <div class="info-row conditional-child-grade" style="display: none;">
+                <div class="info-row conditional-child-grade">
                     <span class="info-label">学年</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
@@ -430,7 +430,7 @@ textarea:-ms-input-placeholder {
                         <span class="unit">名</span>
                     </span>
                 </div>
-                <div class="info-row conditional-child-grade" style="display: none;">
+                <div class="info-row conditional-child-grade">
                     <span class="info-label">学年</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
@@ -1005,16 +1005,12 @@ textarea:-ms-input-placeholder {
 /* このルールを削除 - 全てのreservation-info-boxに下部ボーダーを表示 */
 
 /* 学年フィールドのスタイル修正 */
-.conditional-child-grade[style*="display: flex"] {
-    display: flex !important;
+.conditional-child-grade {
+    display: flex;
     align-items: center;
     min-height: 92px;
     padding: 0 40px;
     position: relative;
-}
-
-.conditional-child-grade[style*="display: none"] {
-    display: none !important;
 }
 
 .conditional-child-grade .info-label {

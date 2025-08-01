@@ -7,11 +7,15 @@ class ReservationForm {
         this.form = document.getElementById('reservation-form');
         this.maxVisitors = 50;
         this.totalVisitors = 0;
+        this.isSubmitting = false; // 送信中フラグ
         
         this.init();
     }
     
     init() {
+        // カレンダーからの遷移の場合はlocalStorageをクリア
+        this.checkAndClearFormData();
+        
         this.bindEvents();
         this.restoreFormData();
         this.validateForm();
@@ -93,13 +97,21 @@ class ReservationForm {
         // フォーム送信
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         
-        // ページアンロード時にもデータを保存
-        window.addEventListener('beforeunload', () => {
+        // ページアンロード時の確認とデータ保存
+        window.addEventListener('beforeunload', (e) => {
             this.saveFormData();
+            
+            // フォーム送信中でない場合のみ確認ダイアログを表示
+            if (!this.isSubmitting && this.hasFormData()) {
+                const message = '入力内容が破棄されますがよろしいでしょうか？';
+                e.preventDefault();
+                e.returnValue = message;
+                return message;
+            }
         });
     }
     
-    toggleTravelAgencySection() {
+    toggleTravelAgencySection(preserveData = false) {
         const isTravelAgency = document.querySelector('input[name="is_travel_agency"]:checked').value === 'yes';
         const section = document.getElementById('travel-agency-section');
         
@@ -132,7 +144,11 @@ class ReservationForm {
         } else {
             section.style.display = 'none';
             this.setRequiredFields(section, false);
-            this.clearFields(section);
+            
+            // データ復元中でない場合のみフィールドをクリア
+            if (!preserveData) {
+                this.clearFields(section);
+            }
         }
         
         this.validateForm();
@@ -173,7 +189,7 @@ class ReservationForm {
         this.validateForm();
     }
     
-    toggleVisitorCategoryFields() {
+    toggleVisitorCategoryFields(preserveData = false) {
         const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
         
         // 全ての詳細セクションを非表示にする
@@ -191,7 +207,11 @@ class ReservationForm {
             if (section) {
                 section.style.display = 'none';
                 this.setRequiredFields(section, false);
-                this.clearFields(section);
+                
+                // データ復元中でない場合のみフィールドをクリア
+                if (!preserveData) {
+                    this.clearFields(section);
+                }
             }
         });
         
@@ -259,7 +279,7 @@ class ReservationForm {
         if (gradeRow) {
             const childCount = parseInt(childCountField.value) || 0;
             if (childCount > 0) {
-                gradeRow.style.display = 'block';
+                gradeRow.style.display = 'flex';
                 gradeField.classList.add('required');
                 gradeField.required = true;
             } else {
@@ -451,6 +471,9 @@ class ReservationForm {
             return;
         }
         
+        // 送信中フラグを設定
+        this.isSubmitting = true;
+        
         
         // 送信前に非表示セクション内のフィールドを無効化（送信対象から除外）
         const hiddenSections = this.form.querySelectorAll('.conditional[style*="display: none"]');
@@ -511,8 +534,8 @@ class ReservationForm {
             });
             
             // 条件付き表示セクションを復元（ラジオボタンの状態に基づいて）
-            this.toggleTravelAgencySection();
-            this.toggleVisitorCategoryFields();
+            this.toggleTravelAgencySection(true); // データ保持フラグをtrueに
+            this.toggleVisitorCategoryFields(true); // データ保持フラグをtrueに
             this.toggleTransportationFields();
             
             // 基本フィールドを復元
@@ -522,6 +545,38 @@ class ReservationForm {
                     field.value = data[key];
                 }
             });
+            
+            // 見学者分類の詳細フィールドを再度復元（clearFields後のため）
+            setTimeout(() => {
+                const selectedCategory = data['visitor_category'];
+                if (selectedCategory) {
+                    const categoryFieldPrefix = selectedCategory + '_';
+                    Object.keys(data).forEach(key => {
+                        if (key.startsWith(categoryFieldPrefix)) {
+                            const field = this.form.querySelector(`[name="${key}"]`);
+                            if (field && data[key]) {
+                                field.value = data[key];
+                            }
+                        }
+                    });
+                }
+                
+                // 旅行会社関連フィールドを再度復元
+                const isTravelAgency = data['is_travel_agency'];
+                if (isTravelAgency === 'yes') {
+                    const agencyFieldPrefixes = ['agency_'];
+                    agencyFieldPrefixes.forEach(prefix => {
+                        Object.keys(data).forEach(key => {
+                            if (key.startsWith(prefix)) {
+                                const field = this.form.querySelector(`[name="${key}"]`);
+                                if (field && data[key]) {
+                                    field.value = data[key];
+                                }
+                            }
+                        });
+                    });
+                }
+            }, 50);
             
             // 条件表示された項目内のフィールド値を確実に復元
             setTimeout(() => {
@@ -577,6 +632,49 @@ class ReservationForm {
     
     clearFormData() {
         localStorage.removeItem('reservation_form_data');
+    }
+    
+    checkAndClearFormData() {
+        // URLパラメータやreferrerをチェックしてカレンダーからの遷移かを判定
+        const urlParams = new URLSearchParams(window.location.search);
+        const referrer = document.referrer;
+        
+        // カレンダーページからの遷移の場合
+        const isFromCalendar = referrer.includes('/reservation-calendar/') || 
+                              urlParams.has('from_calendar') ||
+                              urlParams.has('date') ||
+                              urlParams.has('factory_id');
+        
+        if (isFromCalendar) {
+            // localStorageをクリア
+            this.clearFormData();
+            console.log('カレンダーからの遷移を検出：フォームデータをクリアしました');
+        }
+    }
+    
+    hasFormData() {
+        // フォームに何らかの入力があるかチェック
+        const inputs = this.form.querySelectorAll('input, select, textarea');
+        
+        for (let input of inputs) {
+            // 隠しフィールドやボタンは除外
+            if (input.type === 'hidden' || input.type === 'submit' || input.type === 'button') {
+                continue;
+            }
+            
+            // チェックボックスやラジオボタンの場合
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                if (input.checked) {
+                    return true;
+                }
+            }
+            // テキスト系フィールドの場合
+            else if (input.value && input.value.trim() !== '') {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
 

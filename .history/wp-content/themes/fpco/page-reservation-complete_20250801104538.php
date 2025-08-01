@@ -213,6 +213,7 @@ try {
     background: white;
     padding: 40px;
     border-radius: 8px;
+    margin-bottom: 30px;
 }
 
 .success-icon {
@@ -278,7 +279,7 @@ try {
 
 .action-buttons {
     display: flex;
-    gap: 100px;
+    gap: 20px;
     justify-content: center;
 }
 
@@ -312,12 +313,10 @@ try {
     font-weight: bold !important;
     cursor: pointer !important;
     display: inline-flex !important;
-    justify-content: center !important;
     align-items: center !important;
     gap: 10px !important;
     transition: background-color 0.3s ease !important;
     text-decoration: none !important;
-    min-width: 20%;
 }
 
 .btn-home:hover {
@@ -347,12 +346,12 @@ try {
 }
 
 .step.active .step-number {
-    background: #5C5548;
+    background: #28a745;
     color: white;
 }
 
 .step.active .step-label {
-    color: #5C5548;
+    color: #28a745;
     font-weight: bold;
 }
 

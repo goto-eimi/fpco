@@ -347,12 +347,12 @@ try {
 }
 
 .step.active .step-number {
-    background: #5C5548;
+    background: #28a745;
     color: white;
 }
 
 .step.active .step-label {
-    color: #5C5548;
+    color: #28a745;
     font-weight: bold;
 }
 

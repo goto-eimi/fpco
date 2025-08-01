@@ -50,7 +50,6 @@ $reservation_id = $form_data['reservation_id'] ?? '';
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #4A4A4A;
         }
         
         .header h1 {
@@ -193,12 +192,6 @@ $reservation_id = $form_data['reservation_id'] ?? '';
 
         <!-- 予約情報ボックス -->
         <div class="reservation-info-box">
-            <?php if ($reservation_id): ?>
-            <div class="info-row">
-                <span class="info-label">予約受付番号</span>
-                <span class="info-value"><?php echo esc_html($reservation_id); ?></span>
-            </div>
-            <?php endif; ?>
             
             <div class="info-row">
                 <span class="info-label">見学日</span>
@@ -296,7 +289,7 @@ $reservation_id = $form_data['reservation_id'] ?? '';
             </div>
             
             <div class="info-row">
-                <span class="info-label">申込者様携帯番号</span>
+                <span class="info-label">当日連絡先（携帯番号）</span>
                 <span class="info-value"><?php echo esc_html($form_data['mobile']); ?></span>
             </div>
             
@@ -441,17 +434,17 @@ function generate_visitor_details_rows($form_data) {
                 $html .= '</div>';
             }
             
-            if (!empty($form_data['recruit_grade'])) {
-                $html .= '<div class="info-row">';
-                $html .= '<span class="info-label">学年</span>';
-                $html .= '<span class="info-value">' . esc_html($form_data['recruit_grade']) . '年生</span>';
-                $html .= '</div>';
-            }
-            
             if (!empty($form_data['recruit_department'])) {
                 $html .= '<div class="info-row">';
                 $html .= '<span class="info-label">学部</span>';
                 $html .= '<span class="info-value">' . esc_html($form_data['recruit_department']) . '</span>';
+                $html .= '</div>';
+            }
+            
+            if (!empty($form_data['recruit_grade'])) {
+                $html .= '<div class="info-row">';
+                $html .= '<span class="info-label">学年</span>';
+                $html .= '<span class="info-value">' . esc_html($form_data['recruit_grade']) . '年生</span>';
                 $html .= '</div>';
             }
             
@@ -470,9 +463,9 @@ function generate_visitor_details_rows($form_data) {
                         $html .= '<span class="info-label">同行者様' . numberToCircle($i) . '</span>';
                         $html .= '<span class="info-value">';
                         $html .= '<div class="companion-detail">';
-                        $html .= '<span>氏名：' . esc_html($form_data["companion_{$i}_name"]) . '</span>';
+                        $html .= '<span>氏名 ' . esc_html($form_data["companion_{$i}_name"]) . '</span>';
                         if (!empty($form_data["companion_{$i}_department"])) {
-                            $html .= '<span>学部：' . esc_html($form_data["companion_{$i}_department"]) . '</span>';
+                            $html .= '<span>学部 ' . esc_html($form_data["companion_{$i}_department"]) . '</span>';
                         }
                         $html .= '</div>';
                         $html .= '</span>';

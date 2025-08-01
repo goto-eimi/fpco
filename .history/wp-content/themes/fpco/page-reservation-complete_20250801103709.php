@@ -88,15 +88,26 @@ try {
                 <h1 class="main-message">予約の申込みが完了しました。<br>確認後、改めて入力いただいたメールアドレスへ<br>ご連絡いたしますので少々お待ちください。</h1>
             </div>
 
+            <!-- 注意事項 -->
+            <div class="important-notice">
+                <h3>重要なお知らせ</h3>
+                <ul>
+                    <li>この度は工場見学にお申込みいただき、ありがとうございます。</li>
+                    <li>担当者が内容を確認後、1〜2営業日以内にメールでご連絡いたします。</li>
+                    <li>見学当日は、受付時間の10分前にお越しください。</li>
+                    <li>安全のため、見学時はヘルメットの着用が必要です（当社で準備いたします）。</li>
+                    <li>機械の稼働状況により、見学コースが変更になる場合があります。</li>
+                    <li>キャンセルやご変更の場合は、お早めにご連絡ください。</li>
+                </ul>
+            </div>
+
             <!-- アクションボタン -->
             <div class="action-buttons">
                 <button type="button" class="btn-print" onclick="printReservation()">
-                    <span class="btn-text">予約内容を印刷する</span>
-                    <span class="btn-arrow">→</span>
+                    予約内容を印刷する
                 </button>
                 <a href="<?php echo home_url(); ?>" class="btn-home">
-                    <span class="btn-text">TOPへ戻る</span>
-                    <span class="btn-arrow">→</span>
+                    TOPへ戻る →
                 </a>
             </div>
         </div>
@@ -213,6 +224,7 @@ try {
     background: white;
     padding: 40px;
     border-radius: 8px;
+    margin-bottom: 30px;
 }
 
 .success-icon {
@@ -222,6 +234,7 @@ try {
 .main-message {
     font-size: 18px;
     color: #5C5548;
+    margin-bottom: 20px;
 }
 
 .sub-message {
@@ -276,83 +289,83 @@ try {
     font-size: 16px;
 }
 
+.important-notice {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.important-notice h3 {
+    color: #856404;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.important-notice ul {
+    color: #856404;
+    margin: 0;
+    padding-left: 20px;
+}
+
+.important-notice li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
 .action-buttons {
     display: flex;
-    gap: 100px;
+    gap: 20px;
     justify-content: center;
+    margin-top: 40px;
 }
 
 .btn-print {
-    background-color: #5C5548 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 50px !important;
-    padding: 15px 30px !important;
-    font-size: 16px !important;
-    font-weight: bold !important;
-    cursor: pointer !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    transition: background-color 0.3s ease !important;
-    text-decoration: none !important;
+    padding: 15px 30px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
 }
 
 .btn-print:hover {
-    background-color: #5a6268 !important;
+    background: #5a6268;
 }
 
 .btn-home {
-    background-color: #5C5548 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 50px !important;
-    padding: 15px 40px !important;
-    font-size: 16px !important;
-    font-weight: bold !important;
-    cursor: pointer !important;
-    display: inline-flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 10px !important;
-    transition: background-color 0.3s ease !important;
-    text-decoration: none !important;
-    min-width: 20%;
+    padding: 15px 30px;
+    background: #007cba;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
 }
 
 .btn-home:hover {
-    background-color: #4a453a !important;
-    color: white !important;
-}
-
-.btn-text {
-    color: white !important;
-}
-
-.btn-arrow {
-    background-color: white !important;
-    color: #5C5548 !important;
-    border-radius: 50% !important;
-    width: 25px !important;
-    height: 25px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-weight: bold !important;
-}
-
-.btn-print .btn-arrow {
-    background-color: white !important;
-    color: #6c757d !important;
+    background: #005a87;
+    color: white;
 }
 
 .step.active .step-number {
-    background: #5C5548;
+    background: #28a745;
     color: white;
 }
 
 .step.active .step-label {
-    color: #5C5548;
+    color: #28a745;
     font-weight: bold;
 }
 
@@ -364,6 +377,11 @@ try {
     
     .main-message {
         font-size: 24px;
+    }
+    
+    .reservation-summary,
+    .important-notice {
+        padding: 20px;
     }
     
     .action-buttons {
@@ -383,7 +401,8 @@ try {
 @media print {
     .breadcrumb,
     .step-indicator,
-    .action-buttons {
+    .action-buttons,
+    .important-notice {
         display: none;
     }
     
