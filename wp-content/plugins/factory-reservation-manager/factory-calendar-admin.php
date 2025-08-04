@@ -422,6 +422,31 @@ function factory_get_factory_info() {
 }
 
 /**
+ * 過去の見学不可データを定期的にクリーンアップ
+ */
+add_action('wp', 'factory_cleanup_old_unavailable_data');
+
+function factory_cleanup_old_unavailable_data() {
+    // 1日1回実行（WordPressのtransientを使用）
+    if (get_transient('factory_cleanup_unavailable_done')) {
+        return;
+    }
+    
+    global $wpdb;
+    
+    // 過去の日付のデータを削除
+    $deleted = $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM {$wpdb->prefix}unavailable_days WHERE date < %s",
+            current_time('Y-m-d')
+        )
+    );
+    
+    // 24時間後まで実行を停止
+    set_transient('factory_cleanup_unavailable_done', true, DAY_IN_SECONDS);
+}
+
+/**
  * Ajax: 見学不可設定を保存
  */
 add_action('wp_ajax_save_unavailable', 'factory_save_unavailable');
@@ -438,6 +463,36 @@ function factory_save_unavailable() {
     $date = sanitize_text_field($_POST['date']);
     $am_unavailable = $_POST['am_unavailable'] === 'true' ? 1 : 0;
     $pm_unavailable = $_POST['pm_unavailable'] === 'true' ? 1 : 0;
+    
+    // テーブル存在確認
+    $table_name = $wpdb->prefix . 'unavailable_days';
+    $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
+    
+    // テーブルが存在しない場合は作成
+    if (!$table_exists) {
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            factory_id bigint(20) UNSIGNED NOT NULL,
+            date date NOT NULL,
+            am_unavailable tinyint(1) DEFAULT 0,
+            pm_unavailable tinyint(1) DEFAULT 0,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_factory_date (factory_id, date),
+            KEY idx_factory (factory_id)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+    
+    // 過去の日付のデータを削除（今日より前の日付）
+    $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM {$wpdb->prefix}unavailable_days WHERE date < %s",
+            current_time('Y-m-d')
+        )
+    );
     
     // 既存のレコードを確認
     $existing = $wpdb->get_row(
@@ -482,7 +537,12 @@ function factory_save_unavailable() {
         }
     }
     
-    wp_send_json_success();
+    // データベースエラーがある場合はエラーレスポンスを返す
+    if ($wpdb->last_error) {
+        wp_send_json_error('Database error: ' . $wpdb->last_error);
+    } else {
+        wp_send_json_success();
+    }
 }
 
 /**
@@ -512,12 +572,14 @@ function factory_get_unavailable_info() {
     
     if ($info) {
         $result = array(
+            'has_data' => true,
             'am_unavailable' => (bool)$info->am_unavailable,
             'pm_unavailable' => (bool)$info->pm_unavailable
         );
         wp_send_json_success($result);
     } else {
         $result = array(
+            'has_data' => false,
             'am_unavailable' => false,
             'pm_unavailable' => false
         );

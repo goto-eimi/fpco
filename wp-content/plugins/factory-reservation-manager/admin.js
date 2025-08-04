@@ -104,7 +104,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         var isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                         
                         // チェックボックスコンテナ
-                        var dateStr = arg.date.toISOString().split('T')[0]; // YYYY-MM-DD形式に変換
+                        // ローカルタイムゾーンでYYYY-MM-DD形式に変換（UTCずれを防ぐ）
+                        var year = cellDate.getFullYear();
+                        var month = String(cellDate.getMonth() + 1).padStart(2, '0');
+                        var day = String(cellDate.getDate()).padStart(2, '0');
+                        var dateStr = year + '-' + month + '-' + day;
+                        
                         var checkboxHtml = '<div style="font-size: 11px; line-height: 1.3; padding: 0 5px; margin-bottom: 10px;">' +
                             '<div style="margin-bottom: 8px;">' +
                                 '<div style="font-weight: bold;">AM</div>' +
@@ -140,32 +145,27 @@ document.addEventListener('DOMContentLoaded', function() {
                             var amCheckbox = arg.el.querySelector('.am-checkbox');
                             var pmCheckbox = arg.el.querySelector('.pm-checkbox');
                             
-                            if (isWeekend) {
-                                // 土日は常に見学不可に設定
-                                if (amCheckbox) amCheckbox.checked = true;
-                                if (pmCheckbox) pmCheckbox.checked = true;
-                                
-                                // 土日のデフォルト設定をデータベースに保存（データがない場合のみ）
-                                if (!data.success) {
-                                    fetch(factory_calendar.ajax_url, {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/x-www-form-urlencoded',
-                                        },
-                                        body: 'action=save_unavailable&factory_id=' + factoryId + 
-                                              '&date=' + dateStr + 
-                                              '&am_unavailable=true' + 
-                                              '&pm_unavailable=true' + 
-                                              '&nonce=' + factory_calendar.nonce
-                                    });
-                                }
-                            } else if (data.success) {
-                                // 平日はデータベースの設定を使用
-                                if (amCheckbox) {
-                                    amCheckbox.checked = data.data.am_unavailable || false;
-                                }
-                                if (pmCheckbox) {
-                                    pmCheckbox.checked = data.data.pm_unavailable || false;
+                            
+                            if (data.success) {
+                                if (data.data.has_data) {
+                                    // データベースの設定を使用（土日・平日問わず）
+                                    if (amCheckbox) {
+                                        amCheckbox.checked = data.data.am_unavailable || false;
+                                    }
+                                    if (pmCheckbox) {
+                                        pmCheckbox.checked = data.data.pm_unavailable || false;
+                                    }
+                                } else {
+                                    // データがない場合（土日・平日問わず）
+                                    if (isWeekend) {
+                                        // 土日はデフォルトでチェック状態にするが、データベースには保存しない
+                                        if (amCheckbox) amCheckbox.checked = true;
+                                        if (pmCheckbox) pmCheckbox.checked = true;
+                                    } else {
+                                        // 平日はチェックなし
+                                        if (amCheckbox) amCheckbox.checked = false;
+                                        if (pmCheckbox) pmCheckbox.checked = false;
+                                    }
                                 }
                             }
                         })
@@ -278,32 +278,55 @@ document.addEventListener('DOMContentLoaded', function() {
                     e.stopPropagation();
                     var date = e.target.getAttribute('data-date');
                     var isAM = e.target.classList.contains('am-checkbox');
-                    var amCheckbox = document.querySelector('.am-checkbox[data-date="' + date + '"]');
-                    var pmCheckbox = document.querySelector('.pm-checkbox[data-date="' + date + '"]');
+                    
+                    // 同じ日付のセル内でのみチェックボックスを検索
+                    var cellElement = e.target.closest('.fc-daygrid-day');
+                    if (!cellElement) {
+                        console.error('親セル要素が見つかりません');
+                        return;
+                    }
+                    
+                    var amCheckbox = cellElement.querySelector('.am-checkbox');
+                    var pmCheckbox = cellElement.querySelector('.pm-checkbox');
                     var amChecked = amCheckbox ? amCheckbox.checked : false;
                     var pmChecked = pmCheckbox ? pmCheckbox.checked : false;
+                    
+                    
+                    var requestBody = 'action=save_unavailable&factory_id=' + currentFactoryId + 
+                              '&date=' + date + 
+                              '&am_unavailable=' + amChecked + 
+                              '&pm_unavailable=' + pmChecked + 
+                              '&nonce=' + factory_calendar.nonce;
+                    
                     
                     fetch(factory_calendar.ajax_url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
-                        body: 'action=save_unavailable&factory_id=' + currentFactoryId + 
-                              '&date=' + date + 
-                              '&am_unavailable=' + amChecked + 
-                              '&pm_unavailable=' + pmChecked + 
-                              '&nonce=' + factory_calendar.nonce
+                        body: requestBody
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (!data.success) {
-                            alert('保存に失敗しました');
+                            console.error('保存エラー:', data);
+                            alert('保存に失敗しました: ' + (data.data || 'Unknown error'));
                             // 失敗時は元に戻す
                             if (isAM && amCheckbox) {
                                 amCheckbox.checked = !amChecked;
                             } else if (!isAM && pmCheckbox) {
                                 pmCheckbox.checked = !pmChecked;
                             }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('通信エラー:', error);
+                        alert('通信エラーが発生しました');
+                        // エラー時は元に戻す
+                        if (isAM && amCheckbox) {
+                            amCheckbox.checked = !amChecked;
+                        } else if (!isAM && pmCheckbox) {
+                            pmCheckbox.checked = !pmChecked;
                         }
                     });
                 }
