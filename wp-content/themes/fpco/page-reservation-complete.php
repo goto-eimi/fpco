@@ -7,51 +7,34 @@
 
 get_header(); 
 
-// デバッグ: POSTデータの確認
-error_log('Complete page - POST data: ' . print_r($_POST, true));
-
 // POSTデータを取得・処理
 $form_data = validate_and_process_reservation($_POST);
 
-// デバッグ: バリデーション結果の確認
-error_log('Complete page - Validation result: ' . ($form_data ? 'SUCCESS' : 'FAILED'));
-if ($form_data) {
-    error_log('Complete page - Form data: ' . print_r($form_data, true));
-}
-
 if (!$form_data) {
     // データが不正な場合は入力画面に戻る
-    error_log('Complete page - Redirecting to form due to validation failure');
     wp_redirect(home_url('/reservation-form/'));
     exit;
 }
 
 // 予約処理を実行
-error_log('Complete page - Starting reservation processing');
+$reservation_id = null;
+$save_success = false;
 
 try {
     $reservation_result = process_reservation($form_data);
     
-    // デバッグ: 予約処理結果の確認
-    error_log('Complete page - Reservation result: ' . print_r($reservation_result, true));
-
-    if (!$reservation_result || !$reservation_result['success']) {
-        // 予約処理に失敗した場合
-        $error_msg = isset($reservation_result['error']) ? $reservation_result['error'] : 'Unknown error';
-        error_log('Complete page - Reservation processing failed: ' . $error_msg);
-        
-        // 簡略化されたエラー処理 - データベース保存をスキップして画面表示のみ
-        $reservation_id = generate_reservation_id();
-        error_log('Complete page - Using fallback reservation ID: ' . $reservation_id);
-    } else {
+    if ($reservation_result && $reservation_result['success']) {
         $reservation_id = $reservation_result['reservation_id'];
-        error_log('Complete page - Generated reservation ID: ' . $reservation_id);
+        $save_success = true;
+    } else {
+        // 予約処理に失敗した場合もIDを生成して画面表示
+        $reservation_id = generate_reservation_id();
+        $save_success = false;
     }
 } catch (Exception $e) {
-    error_log('Complete page - Exception caught: ' . $e->getMessage());
-    // フォールバック：エラーが発生してもIDを生成して画面を表示
+    // エラーが発生してもIDを生成して画面を表示
     $reservation_id = generate_reservation_id();
-    error_log('Complete page - Using exception fallback reservation ID: ' . $reservation_id);
+    $save_success = false;
 }
 ?>
 
@@ -404,84 +387,49 @@ function printReservation() {
 // ヘルパー関数
 
 function validate_and_process_reservation($post_data) {
-    // デバッグ: バリデーション開始
-    error_log('Validation - POST data received: ' . print_r($post_data, true));
-    
     // 基本的なバリデーション
     if (empty($post_data)) {
-        error_log('Validation - POST data is empty');
         return false;
     }
     
-    if (!isset($post_data['factory_id'])) {
-        error_log('Validation - factory_id is missing');
-        return false;
+    // 必須項目チェック
+    $required_fields = ['factory_id', 'date', 'applicant_name', 'email'];
+    foreach ($required_fields as $field) {
+        if (!isset($post_data[$field]) || empty($post_data[$field])) {
+            return false;
+        }
     }
     
-    if (!isset($post_data['date'])) {
-        error_log('Validation - date is missing');
-        return false;
-    }
-    
-    if (!isset($post_data['applicant_name'])) {
-        error_log('Validation - applicant_name is missing');
-        return false;
-    }
-    
-    error_log('Validation - All required fields present');
-    
-    // セキュリティチェック（実際の実装ではより詳細な検証を行う）
     return $post_data;
 }
 
 function process_reservation($form_data) {
     global $wpdb;
     
+    // 予約IDを生成
+    $reservation_id = generate_reservation_id();
+    
+    // データベースに予約情報を保存
+    $db_result = save_reservation_to_database($reservation_id, $form_data);
+    
+    // メール送信を試行
     try {
-        // 予約IDを生成
-        $reservation_id = generate_reservation_id();
-        error_log('Process reservation - Generated ID: ' . $reservation_id);
-        
-        // データベースに予約情報を保存（エラーが発生してもスキップして続行）
-        try {
-            $result = save_reservation_to_database($reservation_id, $form_data);
-            if ($result) {
-                error_log('Process reservation - Database save succeeded');
-            } else {
-                error_log('Process reservation - Database save failed, but continuing');
-            }
-        } catch (Exception $db_e) {
-            error_log('Process reservation - Database error (continuing): ' . $db_e->getMessage());
-        }
-        
-        // メール送信（エラーが発生してもスキップして続行）
-        try {
-            send_reservation_emails($reservation_id, $form_data);
-            error_log('Process reservation - Email sending completed');
-        } catch (Exception $mail_e) {
-            error_log('Process reservation - Email error (continuing): ' . $mail_e->getMessage());
-        }
-        
-        // 該当時間帯を見学不可に設定（エラーが発生してもスキップして続行）
-        try {
-            update_calendar_availability($form_data['factory_id'], $form_data['date'], $form_data['timeslot']);
-            error_log('Process reservation - Calendar update completed');
-        } catch (Exception $cal_e) {
-            error_log('Process reservation - Calendar error (continuing): ' . $cal_e->getMessage());
-        }
-        
-        return [
-            'success' => true,
-            'reservation_id' => $reservation_id
-        ];
-        
-    } catch (Exception $e) {
-        error_log('Reservation processing critical error: ' . $e->getMessage());
-        return [
-            'success' => false,
-            'error' => $e->getMessage()
-        ];
+        send_reservation_emails($reservation_id, $form_data);
+    } catch (Exception $mail_e) {
+        // メール送信エラーは致命的ではない
     }
+    
+    // カレンダー更新を試行
+    try {
+        update_calendar_availability($form_data['factory_id'], $form_data['date'], $form_data['timeslot']);
+    } catch (Exception $cal_e) {
+        // カレンダー更新エラーは致命的ではない
+    }
+    
+    return [
+        'success' => $db_result,
+        'reservation_id' => $reservation_id
+    ];
 }
 
 function generate_reservation_id() {
@@ -497,19 +445,18 @@ function save_reservation_to_database($reservation_id, $form_data) {
     // 予約テーブルに保存
     $table_name = $wpdb->prefix . 'reservations';
     
-    // デバッグ: テーブル存在確認
+    // テーブル存在確認・作成
     $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
     if (!$table_exists) {
-        error_log("Database - Table $table_name does not exist");
-        // テーブルが存在しない場合は作成する
         create_reservations_table();
     }
     
+    // データ準備
     $reservation_data = [
         'reservation_id' => $reservation_id,
         'factory_id' => $form_data['factory_id'],
         'reservation_date' => $form_data['date'],
-        'timeslot' => $form_data['timeslot'],
+        'timeslot' => $form_data['timeslot'] ?? '',
         'applicant_name' => $form_data['applicant_name'],
         'applicant_name_kana' => $form_data['applicant_name_kana'] ?? '',
         'email' => $form_data['email'],
@@ -522,44 +469,36 @@ function save_reservation_to_database($reservation_id, $form_data) {
         'building' => $form_data['building'] ?? '',
         'transportation' => $form_data['transportation'] ?? '',
         'transportation_other' => $form_data['transportation_other'] ?? '',
-        'vehicle_count' => $form_data['vehicle_count'] ?? 0,
+        'vehicle_count' => intval($form_data['vehicle_count'] ?? 0),
         'purpose' => $form_data['purpose'] ?? '',
         'is_travel_agency' => $form_data['is_travel_agency'] ?? 'no',
         'visitor_category' => $form_data['visitor_category'] ?? '',
         'total_visitors' => calculate_total_visitors($form_data),
-        'form_data' => json_encode($form_data),
+        'form_data' => wp_json_encode($form_data, JSON_UNESCAPED_UNICODE),
         'status' => 'pending',
         'created_at' => current_time('mysql'),
         'updated_at' => current_time('mysql')
     ];
     
-    error_log('Database - Inserting reservation data: ' . print_r($reservation_data, true));
-    
+    // データベースに挿入
     $result = $wpdb->insert($table_name, $reservation_data);
     
-    if ($result === false) {
-        error_log('Database - Insert failed: ' . $wpdb->last_error);
-    } else {
-        error_log('Database - Insert successful, affected rows: ' . $result);
+    // エラーハンドリング
+    if ($result === false && $wpdb->last_error) {
+        // ログ記録（本番環境では削除または適切なログ関数を使用）
+        error_log('Database insert error: ' . $wpdb->last_error);
+        return false;
     }
     
     return $result !== false;
 }
 
 function send_reservation_emails($reservation_id, $form_data) {
-    try {
-        // ユーザーへの確認メール
-        $user_result = send_user_confirmation_email($reservation_id, $form_data);
-        error_log('Email - User confirmation: ' . ($user_result ? 'SUCCESS' : 'FAILED'));
-        
-        // 管理者への通知メール
-        $admin_result = send_admin_notification_email($reservation_id, $form_data);
-        error_log('Email - Admin notification: ' . ($admin_result ? 'SUCCESS' : 'FAILED'));
-        
-    } catch (Exception $e) {
-        error_log('Email - Exception: ' . $e->getMessage());
-        // メール送信エラーは致命的ではないので続行
-    }
+    // ユーザーへの確認メール
+    send_user_confirmation_email($reservation_id, $form_data);
+    
+    // 管理者への通知メール
+    send_admin_notification_email($reservation_id, $form_data);
 }
 
 function send_user_confirmation_email($reservation_id, $form_data) {
@@ -668,8 +607,6 @@ function create_reservations_table() {
     
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-    
-    error_log('Database - Reservations table created');
 }
 
 function calculate_total_visitors($form_data) {
@@ -710,7 +647,6 @@ function update_calendar_availability($factory_id, $date, $timeslot) {
     
     // この処理は、カレンダーシステムの実装に依存する
     // 例：APIエンドポイントにPOSTリクエストを送信
-    error_log("Calendar - Would update availability for factory $factory_id, date $date, timeslot $timeslot");
 }
 
 // 必要なヘルパー関数を追加
