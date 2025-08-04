@@ -477,7 +477,7 @@ function save_reservation_to_database($reservation_id, $form_data) {
     $reservation_data = [
         'factory_id' => $form_data['factory_id'],
         'date' => $form_data['date'],
-        'time_slot' => $form_data['timeslot'] ?? '',
+        'time_slot' => convert_timeslot_to_time_format($form_data['timeslot'] ?? ''),
         'applicant_name' => $form_data['applicant_name'],
         'applicant_kana' => $form_data['applicant_name_kana'] ?? '',
         'is_travel_agency' => ($form_data['is_travel_agency'] ?? 'no') === 'yes' ? 1 : 0,
@@ -681,6 +681,41 @@ function format_display_date($date) {
 }
 
 // 追加のヘルパー関数
+
+function convert_timeslot_to_time_format($timeslot) {
+    // timeslot形式: am-60-1, pm-90-2 などを 09:00-10:00 形式に変換
+    if (empty($timeslot)) {
+        return '';
+    }
+    
+    // 既に時間形式の場合はそのまま返す
+    if (preg_match('/^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/', $timeslot)) {
+        return $timeslot;
+    }
+    
+    $parts = explode('-', $timeslot);
+    if (count($parts) !== 3) {
+        return $timeslot; // 不正な形式の場合はそのまま返す
+    }
+    
+    $period = $parts[0]; // am または pm
+    $duration = intval($parts[1]); // 60 または 90
+    $session = intval($parts[2]); // 1 または 2
+    
+    // 時間テーブル
+    $time_mappings = [
+        'am-60-1' => '09:00-10:00',
+        'am-60-2' => '10:30-11:30',
+        'am-90-1' => '09:00-10:30',
+        'am-90-2' => '10:00-11:30',
+        'pm-60-1' => '14:00-15:00',
+        'pm-60-2' => '15:30-16:30',
+        'pm-90-1' => '14:00-15:30',
+        'pm-90-2' => '15:00-16:30'
+    ];
+    
+    return $time_mappings[$timeslot] ?? $timeslot;
+}
 
 function prepare_type_data($form_data) {
     $category = $form_data['visitor_category'] ?? '';
