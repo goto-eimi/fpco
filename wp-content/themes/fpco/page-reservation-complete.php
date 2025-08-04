@@ -442,39 +442,60 @@ function generate_reservation_id() {
 function save_reservation_to_database($reservation_id, $form_data) {
     global $wpdb;
     
-    // 予約テーブルに保存
+    // 既存のテーブル構造に合わせて保存
     $table_name = $wpdb->prefix . 'reservations';
     
-    // テーブル存在確認・作成
-    $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
-    if (!$table_exists) {
-        create_reservations_table();
+    // 旅行会社データの準備
+    $agency_data = null;
+    if (($form_data['is_travel_agency'] ?? 'no') === 'yes') {
+        $agency_data = wp_json_encode([
+            'name' => $form_data['agency_name'] ?? '',
+            'zip' => $form_data['agency_postal_code'] ?? '',
+            'prefecture' => $form_data['agency_prefecture'] ?? '',
+            'city' => $form_data['agency_city'] ?? '',
+            'address' => $form_data['agency_address'] ?? '',
+            'phone' => $form_data['agency_phone'] ?? '',
+            'fax' => $form_data['agency_fax'] ?? '',
+            'contact_mobile' => $form_data['agency_contact_mobile'] ?? '',
+            'contact_email' => $form_data['agency_contact_email'] ?? ''
+        ], JSON_UNESCAPED_UNICODE);
     }
     
-    // データ準備
+    // 見学者分類別の詳細データ準備
+    $type_data = prepare_type_data($form_data);
+    
+    // 住所データの結合
+    $address_building = trim(($form_data['address'] ?? '') . ' ' . ($form_data['building'] ?? ''));
+    
+    // 交通機関の台数
+    $transportation_count = 0;
+    if (in_array($form_data['transportation'] ?? '', ['car', 'chartered_bus', 'taxi']) && !empty($form_data['vehicle_count'])) {
+        $transportation_count = intval($form_data['vehicle_count']);
+    }
+    
+    // データベースの実際のフィールド名に合わせて保存
     $reservation_data = [
-        'reservation_id' => $reservation_id,
         'factory_id' => $form_data['factory_id'],
-        'reservation_date' => $form_data['date'],
-        'timeslot' => $form_data['timeslot'] ?? '',
+        'date' => $form_data['date'],
+        'time_slot' => $form_data['timeslot'] ?? '',
         'applicant_name' => $form_data['applicant_name'],
-        'applicant_name_kana' => $form_data['applicant_name_kana'] ?? '',
-        'email' => $form_data['email'],
+        'applicant_kana' => $form_data['applicant_name_kana'] ?? '',
+        'is_travel_agency' => ($form_data['is_travel_agency'] ?? 'no') === 'yes' ? 1 : 0,
+        'agency_data' => $agency_data,
+        'reservation_type' => map_visitor_category_to_reservation_type($form_data['visitor_category'] ?? ''),
+        'type_data' => $type_data,
+        'address_zip' => $form_data['postal_code'] ?? '',
+        'address_prefecture' => $form_data['prefecture'] ?? '',
+        'address_city' => $form_data['city'] ?? '',
+        'address_street' => $address_building,
         'phone' => $form_data['phone'] ?? '',
-        'mobile' => $form_data['mobile'] ?? '',
-        'postal_code' => $form_data['postal_code'] ?? '',
-        'prefecture' => $form_data['prefecture'] ?? '',
-        'city' => $form_data['city'] ?? '',
-        'address' => $form_data['address'] ?? '',
-        'building' => $form_data['building'] ?? '',
-        'transportation' => $form_data['transportation'] ?? '',
-        'transportation_other' => $form_data['transportation_other'] ?? '',
-        'vehicle_count' => intval($form_data['vehicle_count'] ?? 0),
+        'day_of_contact' => $form_data['mobile'] ?? '',
+        'email' => $form_data['email'],
+        'transportation_method' => $form_data['transportation'] ?? '',
+        'transportation_count' => $transportation_count,
         'purpose' => $form_data['purpose'] ?? '',
-        'is_travel_agency' => $form_data['is_travel_agency'] ?? 'no',
-        'visitor_category' => $form_data['visitor_category'] ?? '',
-        'total_visitors' => calculate_total_visitors($form_data),
-        'form_data' => wp_json_encode($form_data, JSON_UNESCAPED_UNICODE),
+        'participant_count' => calculate_total_visitors($form_data),
+        'participants_child_count' => calculate_child_count($form_data),
         'status' => 'pending',
         'created_at' => current_time('mysql'),
         'updated_at' => current_time('mysql')
@@ -485,7 +506,6 @@ function save_reservation_to_database($reservation_id, $form_data) {
     
     // エラーハンドリング
     if ($result === false && $wpdb->last_error) {
-        // ログ記録（本番環境では削除または適切なログ関数を使用）
         error_log('Database insert error: ' . $wpdb->last_error);
         return false;
     }
@@ -567,47 +587,6 @@ function send_admin_notification_email($reservation_id, $form_data) {
     return wp_mail($admin_email, $subject, $message);
 }
 
-function create_reservations_table() {
-    global $wpdb;
-    
-    $table_name = $wpdb->prefix . 'reservations';
-    
-    $charset_collate = $wpdb->get_charset_collate();
-    
-    $sql = "CREATE TABLE $table_name (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        reservation_id varchar(20) NOT NULL,
-        factory_id varchar(10) NOT NULL,
-        reservation_date date NOT NULL,
-        timeslot varchar(20) NOT NULL,
-        applicant_name varchar(100) NOT NULL,
-        applicant_name_kana varchar(100),
-        email varchar(100) NOT NULL,
-        phone varchar(20),
-        mobile varchar(20),
-        postal_code varchar(10),
-        prefecture varchar(20),
-        city varchar(50),
-        address varchar(100),
-        building varchar(100),
-        transportation varchar(50),
-        transportation_other varchar(100),
-        vehicle_count int DEFAULT 0,
-        purpose text,
-        is_travel_agency varchar(10) DEFAULT 'no',
-        visitor_category varchar(50),
-        total_visitors int DEFAULT 0,
-        form_data longtext,
-        status varchar(20) DEFAULT 'pending',
-        created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        UNIQUE KEY reservation_id (reservation_id)
-    ) $charset_collate;";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
 
 function calculate_total_visitors($form_data) {
     // 総見学者数を計算
@@ -697,6 +676,136 @@ function format_display_date($date) {
         return date('Y年m月d日', $timestamp);
     }
     return $date;
+}
+
+// 追加のヘルパー関数
+
+function prepare_type_data($form_data) {
+    $category = $form_data['visitor_category'] ?? '';
+    $type_data = [];
+    
+    switch ($category) {
+        case 'school':
+            $type_data = [
+                'school_name' => $form_data['school_name'] ?? '',
+                'school_name_kana' => $form_data['school_kana'] ?? '',
+                'representative_name' => $form_data['school_representative_name'] ?? '',
+                'representative_name_kana' => $form_data['school_representative_kana'] ?? '',
+                'grade' => $form_data['grade'] ?? '',
+                'class_count' => $form_data['class_count'] ?? '',
+                'student_count' => $form_data['school_student_count'] ?? 0,
+                'supervisor_count' => $form_data['school_supervisor_count'] ?? 0
+            ];
+            break;
+            
+        case 'recruit':
+            $type_data = [
+                'school_name' => $form_data['recruit_school_name'] ?? '',
+                'department' => $form_data['recruit_department'] ?? '',
+                'grade' => $form_data['recruit_grade'] ?? '',
+                'visitor_count' => $form_data['recruit_visitor_count'] ?? 1
+            ];
+            
+            // 同行者データを追加
+            $companionCount = intval($form_data['recruit_visitor_count'] ?? 1) - 1;
+            if ($companionCount > 0) {
+                $companions = [];
+                for ($i = 1; $i <= $companionCount; $i++) {
+                    if (!empty($form_data["companion_{$i}_name"])) {
+                        $companions[] = [
+                            'name' => $form_data["companion_{$i}_name"],
+                            'department' => $form_data["companion_{$i}_department"] ?? ''
+                        ];
+                    }
+                }
+                if (!empty($companions)) {
+                    $type_data['companions'] = $companions;
+                }
+            }
+            break;
+            
+        case 'family':
+            $type_data = [
+                'company_name' => $form_data['family_organization_name'] ?? '',
+                'company_name_kana' => $form_data['family_organization_kana'] ?? '',
+                'adult_count' => $form_data['family_adult_count'] ?? 0,
+                'child_count' => $form_data['family_child_count'] ?? 0,
+                'child_grade' => $form_data['family_child_grade'] ?? ''
+            ];
+            break;
+            
+        case 'company':
+            $type_data = [
+                'company_name' => $form_data['company_name'] ?? '',
+                'company_name_kana' => $form_data['company_kana'] ?? '',
+                'adult_count' => $form_data['company_adult_count'] ?? 0,
+                'child_count' => $form_data['company_child_count'] ?? 0,
+                'child_grade' => $form_data['company_child_grade'] ?? ''
+            ];
+            break;
+            
+        case 'government':
+            $type_data = [
+                'organization_name' => $form_data['government_name'] ?? '',
+                'organization_name_kana' => $form_data['government_kana'] ?? '',
+                'adult_count' => $form_data['government_adult_count'] ?? 0,
+                'child_count' => $form_data['government_child_count'] ?? 0,
+                'child_grade' => $form_data['government_child_grade'] ?? ''
+            ];
+            break;
+            
+        case 'other':
+            $type_data = [
+                'company_name' => $form_data['other_group_name'] ?? '',
+                'company_name_kana' => $form_data['other_group_kana'] ?? '',
+                'adult_count' => $form_data['other_adult_count'] ?? 0,
+                'child_count' => $form_data['other_child_count'] ?? 0,
+                'child_grade' => $form_data['other_child_grade'] ?? ''
+            ];
+            break;
+    }
+    
+    return wp_json_encode($type_data, JSON_UNESCAPED_UNICODE);
+}
+
+function map_visitor_category_to_reservation_type($category) {
+    $mapping = [
+        'school' => 'school',
+        'recruit' => 'personal',
+        'family' => 'personal',
+        'company' => 'corporate',
+        'government' => 'municipal',
+        'other' => 'other'
+    ];
+    
+    return $mapping[$category] ?? 'personal';
+}
+
+function calculate_child_count($form_data) {
+    $category = $form_data['visitor_category'] ?? '';
+    $child_count = 0;
+    
+    switch ($category) {
+        case 'school':
+            $child_count = intval($form_data['school_student_count'] ?? 0);
+            break;
+        case 'family':
+            $child_count = intval($form_data['family_child_count'] ?? 0);
+            break;
+        case 'company':
+            $child_count = intval($form_data['company_child_count'] ?? 0);
+            break;
+        case 'government':
+            $child_count = intval($form_data['government_child_count'] ?? 0);
+            break;
+        case 'other':
+            $child_count = intval($form_data['other_child_count'] ?? 0);
+            break;
+        default:
+            $child_count = intval($form_data['total_child_count'] ?? 0);
+    }
+    
+    return $child_count;
 }
 
 get_footer();
