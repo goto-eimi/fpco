@@ -2233,20 +2233,18 @@ function reservation_management_admin_page() {
         function updateReplyEmailButton() {
             if (statusSelect && replyEmailBtn) {
                 const status = statusSelect.value;
-                const isEditMode = <?php echo $is_edit_mode ? 'true' : 'false'; ?>;
+                // 管理画面では全てのステータスでボタンを表示し、
+                // 実際の送信可否は返信メール画面でチェック
+                replyEmailBtn.style.display = 'inline-block';
+                replyEmailBtn.disabled = false;
                 
-                // 編集モードの場合は、保存されたステータスをチェック
-                const savedStatus = isEditMode ? '<?php echo esc_js($form_data['reservation_status'] ?? 'new'); ?>' : status;
-                
-                // 「確認中」の時のみボタンを表示
-                // 編集モードの場合は、保存済みステータスが「確認中」である必要がある
-                if (status === 'pending' && (!isEditMode || savedStatus === 'pending')) {
-                    replyEmailBtn.style.display = 'inline-block';
-                    replyEmailBtn.disabled = false;
+                // ステータスに応じてボタンのスタイルを変更
+                if (status === 'pending') {
                     replyEmailBtn.className = 'btn-reply-email btn-primary';
                     replyEmailBtn.textContent = '返信メールを作成';
                 } else {
-                    replyEmailBtn.style.display = 'none';
+                    replyEmailBtn.className = 'btn-reply-email btn-secondary';
+                    replyEmailBtn.textContent = '返信メールを作成';
                 }
             }
         }
@@ -2262,8 +2260,8 @@ function reservation_management_admin_page() {
         // 返信メールボタンクリック時の処理
         if (replyEmailBtn) {
             replyEmailBtn.addEventListener('click', function() {
-                // PHPから予約IDを取得
-                const reservationId = '<?php echo $is_edit_mode && $reservation_id ? esc_js($reservation_id) : ''; ?>';
+                const currentUrl = new URL(window.location.href);
+                const reservationId = currentUrl.searchParams.get('reservation_id');
                 
                 if (!reservationId) {
                     alert('予約データを保存してから返信メールを作成してください。');
