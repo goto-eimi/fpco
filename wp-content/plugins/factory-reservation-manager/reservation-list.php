@@ -191,15 +191,41 @@ function get_reservations($conditions) {
 /**
  * 予約タイプの表示名を取得
  */
-function get_reservation_type_display_name($type) {
-    $type_names = [
-        'school' => '学校（小学校・中学校・大学）',
+function get_reservation_type_display_name($type, $type_data = null) {
+    // フロントエンドのvisitor_categoryの値に直接対応
+    $frontend_type_names = [
+        'school' => '小学校・中学校・大学',
+        'recruit' => '個人（大学生・高校生のリクルート）',
+        'family' => '個人・親子見学・ご家族など',
+        'company' => '企業（研修など）',
+        'government' => '自治体主体ツアーなど',
+        'other' => 'その他（グループ・団体）'
+    ];
+    
+    // まずフロントエンドの値をチェック
+    if (isset($frontend_type_names[$type])) {
+        return $frontend_type_names[$type];
+    }
+    
+    // 管理画面の値体系（後方互換性のため）
+    $backend_type_names = [
         'personal' => '個人',
         'corporate' => '企業',
-        'municipal' => '自治体',
-        'other' => 'その他'
+        'municipal' => '自治体'
     ];
-    return isset($type_names[$type]) ? $type_names[$type] : '未設定';
+    
+    // personalタイプの場合は、type_dataから詳細を判定
+    if ($type === 'personal' && $type_data) {
+        $data = is_string($type_data) ? json_decode($type_data, true) : $type_data;
+        if ($data && isset($data['school_name'])) {
+            // recruit_school_nameがあればリクルート
+            return '個人（大学生・高校生のリクルート）';
+        }
+        // それ以外は家族
+        return '個人・親子見学・ご家族など';
+    }
+    
+    return isset($backend_type_names[$type]) ? $backend_type_names[$type] : '未設定';
 }
 
 /**
@@ -296,7 +322,7 @@ function export_reservations_csv($conditions) {
         $organization_kana = '';
         $representative_name = '';
         
-        switch ($reservation['reservation_type']) {
+        switch ($reservation['visitor_category'] ?? $reservation['reservation_type']) {
             case 'school':
                 $organization_name = $type_data['school_name'] ?? '';
                 $organization_kana = $type_data['school_name_kana'] ?? '';
@@ -355,7 +381,7 @@ function export_reservations_csv($conditions) {
             $reservation['email'] ?? '',
             ($reservation['is_travel_agency'] ?? false) ? 'はい' : 'いいえ',
             $agency_data['name'] ?? '',
-            get_reservation_type_display_name($reservation['reservation_type'] ?? ''),
+            get_reservation_type_display_name($reservation['visitor_category'] ?? $reservation['reservation_type'] ?? '', $reservation['type_data'] ?? null),
             $organization_name,
             $organization_kana,
             $representative_name,
@@ -641,7 +667,7 @@ function reservation_list_admin_page() {
                                     <?php echo esc_html($reservation['phone'] ?? ''); ?>
                                 </td>
                                 <td class="reservation-type">
-                                    <?php echo esc_html(get_reservation_type_display_name($reservation['reservation_type'] ?? '')); ?>
+                                    <?php echo esc_html(get_reservation_type_display_name($reservation['visitor_category'] ?? $reservation['reservation_type'] ?? '', $reservation['type_data'] ?? null)); ?>
                                 </td>
                                 <td class="reservation-status">
                                     <span class="status-badge status-<?php echo esc_attr($reservation['status'] ?? ''); ?>">

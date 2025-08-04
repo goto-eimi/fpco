@@ -741,24 +741,92 @@ function convert_reservation_to_form_data($reservation) {
         }
     }
     
-    // 予約タイプ（DB値をフォーム値に逆変換）
-    $reservation_type_reverse_mapping = [
-        'school' => 'school',
-        'personal' => 'family', // personalの場合は代表的なfamilyを使用
-        'corporate' => 'company',
-        'municipal' => 'municipality',
-        'other' => 'other'
-    ];
-    $db_type = $reservation['reservation_type'] ?? '';
-    $form_data['reservation_type'] = $reservation_type_reverse_mapping[$db_type] ?? 'other';
+    // 予約タイプの判定
+    // 1. まずvisitor_categoryフィールドを確認（フロントエンドからの保存）
+    if (!empty($reservation['visitor_category'])) {
+        // visitor_categoryの値を直接使用
+        if ($reservation['visitor_category'] === 'recruit') {
+            $form_data['reservation_type'] = 'student_recruit';
+        } elseif ($reservation['visitor_category'] === 'family') {
+            $form_data['reservation_type'] = 'family';
+        } elseif ($reservation['visitor_category'] === 'company') {
+            $form_data['reservation_type'] = 'company';
+        } elseif ($reservation['visitor_category'] === 'government') {
+            $form_data['reservation_type'] = 'municipality';
+        } else {
+            $form_data['reservation_type'] = $reservation['visitor_category'];
+        }
+    } else {
+        // 2. visitor_categoryがない場合は既存のマッピングを使用（後方互換性）
+        $reservation_type_reverse_mapping = [
+            'school' => 'school',
+            'personal' => 'family', // デフォルトはfamily
+            'corporate' => 'company',
+            'municipal' => 'municipality',
+            'other' => 'other'
+        ];
+        
+        // 3. personalの場合は、type_dataから詳細を判定
+        $db_type = $reservation['reservation_type'] ?? '';
+        if ($db_type === 'personal' && !empty($reservation['type_data'])) {
+            $type_data = json_decode($reservation['type_data'], true);
+            if ($type_data && isset($type_data['school_name'])) {
+                // school_nameがあればリクルート
+                $form_data['reservation_type'] = 'student_recruit';
+            } else {
+                $form_data['reservation_type'] = 'family';
+            }
+        } else {
+            $form_data['reservation_type'] = $reservation_type_reverse_mapping[$db_type] ?? 'other';
+        }
+    }
     
     // タイプ別データ
     if (!empty($reservation['type_data'])) {
         $type_data = json_decode($reservation['type_data'], true);
         if ($type_data) {
-            // タイプごとのデータを展開
-            foreach ($type_data as $key => $value) {
-                $form_data[$key] = $value;
+            // リクルートタイプの場合は特別なフィールドマッピングを適用
+            if (($form_data['reservation_type'] ?? '') === 'student_recruit') {
+                // フロントエンドのフィールド名を管理画面のフィールド名にマッピング
+                $recruit_mapping = [
+                    'school_name' => 'recruit_school_name',
+                    'department' => 'recruit_department',
+                    'grade' => 'recruit_grade',
+                    'visitor_count' => 'recruit_visitor_count'
+                ];
+                
+                foreach ($type_data as $key => $value) {
+                    if (isset($recruit_mapping[$key])) {
+                        $form_data[$recruit_mapping[$key]] = $value;
+                    } else {
+                        $form_data[$key] = $value;
+                    }
+                }
+                
+                // 同行者情報の復元
+                if (isset($type_data['companions']) && is_array($type_data['companions'])) {
+                    foreach ($type_data['companions'] as $index => $companion) {
+                        $companion_num = $index + 1;
+                        $form_data["companion_name_{$companion_num}"] = $companion['name'] ?? '';
+                        $form_data["companion_department_{$companion_num}"] = $companion['department'] ?? '';
+                    }
+                }
+            } else {
+                // その他のタイプはそのまま展開
+                foreach ($type_data as $key => $value) {
+                    $form_data[$key] = $value;
+                }
+            }
+        }
+    }
+    
+    // form_dataフィールドも確認（フロントエンドからの完全なデータ）
+    if (!empty($reservation['form_data'])) {
+        $frontend_data = json_decode($reservation['form_data'], true);
+        if ($frontend_data && isset($frontend_data['visitor_category'])) {
+            // visitor_categoryを優先的に使用
+            if ($frontend_data['visitor_category'] === 'recruit') {
+                $form_data['reservation_type'] = 'student_recruit';
             }
         }
     }
