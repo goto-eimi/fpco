@@ -929,21 +929,21 @@ function reservation_management_admin_page() {
         <?php endif; ?>
         
         <?php
-        // メッセージ表示（新規追加ボタンの下）
+        // メッセージ表示（新規追加ボタンの下、noticeクラスを使わない）
         if ($success_message) {
-            echo '<div class="notice notice-success is-dismissible" style="margin-top: 20px;"><p>' . esc_html($success_message) . '</p></div>';
+            echo '<div class="updated inline" style="margin: 20px 0; padding: 12px; background: #fff; border-left: 4px solid #46b450; box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);"><p style="margin: 0.5em 0; font-size: 14px;">' . esc_html($success_message) . '</p></div>';
         }
         
         // トップのエラーメッセージ表示（必須項目未入力の場合）
         if (!empty($field_errors)) {
-            echo '<div class="notice notice-error is-dismissible" style="margin-top: 20px;"><p>必須項目が未入力です。</p></div>';
+            echo '<div class="error inline" style="margin: 20px 0; padding: 12px; background: #fff; border-left: 4px solid #dc3232; box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);"><p style="margin: 0.5em 0; font-size: 14px;">必須項目が未入力です。</p></div>';
         }
         
         // transientからのメッセージ表示（リダイレクト後の場合）
         if (isset($_GET['success'])) {
             $message = get_transient('reservation_success_message');
             if ($message) {
-                echo '<div class="notice notice-success is-dismissible" style="margin-top: 20px;"><p>' . esc_html($message) . '</p></div>';
+                echo '<div class="updated inline" style="margin: 20px 0; padding: 12px; background: #fff; border-left: 4px solid #46b450; box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);"><p style="margin: 0.5em 0; font-size: 14px;">' . esc_html($message) . '</p></div>';
                 delete_transient('reservation_success_message');
             }
         }
@@ -953,14 +953,14 @@ function reservation_management_admin_page() {
             $error_message = get_transient('reservation_error_message');
             
             if ($transient_errors) {
-                echo '<div class="notice notice-error is-dismissible" style="margin-top: 20px;">';
+                echo '<div class="error inline" style="margin: 20px 0; padding: 12px; background: #fff; border-left: 4px solid #dc3232; box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);">';
                 foreach ($transient_errors as $error) {
-                    echo '<p>' . esc_html($error) . '</p>';
+                    echo '<p style="margin: 0.5em 0; font-size: 14px;">' . esc_html($error) . '</p>';
                 }
                 echo '</div>';
                 delete_transient('reservation_errors');
             } elseif ($error_message) {
-                echo '<div class="notice notice-error is-dismissible" style="margin-top: 20px;"><p>' . esc_html($error_message) . '</p></div>';
+                echo '<div class="error inline" style="margin: 20px 0; padding: 12px; background: #fff; border-left: 4px solid #dc3232; box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);"><p style="margin: 0.5em 0; font-size: 14px;">' . esc_html($error_message) . '</p></div>';
                 delete_transient('reservation_error_message');
             }
         }
