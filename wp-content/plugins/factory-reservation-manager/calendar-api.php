@@ -300,16 +300,24 @@ function calculate_time_slot_status($date, $time_period, $factory_id, $reservati
             $time_slot = $reservation['time_slot'];
             
             // AM/PMの判定（時間帯文字列から判断）
-            $is_am_slot = (strpos($time_slot, 'AM') !== false) || 
-                         (preg_match('/^(0[0-9]|1[0-1])/', $time_slot));
-            $is_pm_slot = (strpos($time_slot, 'PM') !== false) || 
-                         (preg_match('/^(1[2-9]|2[0-3])/', $time_slot));
-            
+            // データベースの時間フォーマット: "09:00-10:00", "10:00-12:00", "14:00-15:00" など
             $slot_matches = false;
-            if ($time_period === 'am' && $is_am_slot) {
-                $slot_matches = true;
-            } elseif ($time_period === 'pm' && $is_pm_slot) {
-                $slot_matches = true;
+            
+            if (!empty($time_slot) && strpos($time_slot, '-') !== false) {
+                // 開始時間を取得
+                $start_time = trim(explode('-', $time_slot)[0]);
+                
+                // 時間から時を抽出
+                if (preg_match('/^(\d{1,2}):/', $start_time, $matches)) {
+                    $start_hour = intval($matches[1]);
+                    
+                    // AM: 9時-11時台、PM: 12時-17時台
+                    if ($time_period === 'am' && $start_hour >= 9 && $start_hour <= 11) {
+                        $slot_matches = true;
+                    } elseif ($time_period === 'pm' && $start_hour >= 12 && $start_hour <= 17) {
+                        $slot_matches = true;
+                    }
+                }
             }
             
             if ($slot_matches) {
