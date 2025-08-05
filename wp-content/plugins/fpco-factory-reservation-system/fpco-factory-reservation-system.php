@@ -78,8 +78,8 @@ class FPCO_Factory_Reservation_System {
         // ユーザー管理機能
         require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-user-management.php';
         
-        // カレンダーAPI
-        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-calendar-api.php';
+        // カレンダーAPI（元ファイルから移植）
+        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/calendar-api-functions.php';
         
         // データベース管理
         require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-database.php';
@@ -89,28 +89,28 @@ class FPCO_Factory_Reservation_System {
      * 管理画面機能ファイルの読み込み
      */
     private function load_admin_includes() {
-        // カレンダー管理
-        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-calendar-admin.php';
+        // カレンダー管理（元ファイルから移植）
+        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/factory-calendar-admin-functions.php';
         
         // 予約管理（元ファイルから移植）
         require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/reservation-management-functions.php';
         
-        // 予約一覧
-        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-reservation-list.php';
+        // 予約一覧（元ファイルから移植）
+        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/reservation-list-functions.php';
         
-        // 返信メール機能
-        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-reply-email.php';
+        // 返信メール機能（元ファイルから移植）
+        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/reply-email-functions.php';
         
-        // 工場ユーザー管理
-        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-factory-user-management.php';
+        // 工場ユーザー管理（元ファイルから移植）
+        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/factory-user-management-functions.php';
     }
     
     /**
      * フロントエンド機能ファイルの読み込み
      */
     private function load_frontend_includes() {
-        // ショートコード
-        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-shortcodes.php';
+        // ショートコード（元ファイルから移植）
+        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/calendar-shortcode-functions.php';
     }
     
     /**

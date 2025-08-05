@@ -1,0 +1,321 @@
+/* 予約返信メール画面のスタイル */
+
+.wrap {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 予約情報表示エリア */
+.reservation-info-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.reservation-info-section h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #495057;
+    border-bottom: 2px solid #007cba;
+    padding-bottom: 5px;
+}
+
+.reservation-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.info-row {
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-row strong {
+    display: inline-block;
+    width: 120px;
+    color: #495057;
+}
+
+/* メール作成エリア */
+.email-form-section {
+    background: white;
+}
+
+/* 新しい枠のスタイル */
+.email-section-box {
+    background: #ffffff !important;
+    border: 3px solid #007cba !important;
+    border-radius: 10px !important;
+    margin-bottom: 25px !important;
+    box-shadow: 0 4px 8px rgba(0,123,186,0.2) !important;
+    overflow: hidden !important;
+}
+
+.section-title {
+    background: #007cba !important;
+    color: white !important;
+    margin: 0 !important;
+    padding: 15px 20px !important;
+    border-radius: 0 !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #005a87 !important;
+}
+
+.section-content {
+    padding: 25px !important;
+    background: #f8f9fa !important;
+}
+
+/* メール送信先の情報表示 */
+.recipients-info {
+    margin: 0 !important;
+}
+
+.info-item {
+    display: flex !important;
+    margin-bottom: 15px !important;
+    align-items: center !important;
+    background: white !important;
+    padding: 12px !important;
+    border-radius: 6px !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.info-item:last-child {
+    margin-bottom: 0 !important;
+}
+
+.info-item .label {
+    font-weight: 600 !important;
+    color: #007cba !important;
+    min-width: 160px !important;
+    margin-right: 15px !important;
+    font-size: 14px !important;
+}
+
+.info-item .value {
+    color: #212529 !important;
+    font-family: monospace !important;
+    background: #e3f2fd !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+    border: 1px solid #007cba !important;
+    font-weight: 500 !important;
+}
+
+.email-form-section h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #495057;
+    border-bottom: 2px solid #28a745;
+    padding-bottom: 5px;
+}
+
+.email-form-section h3 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: #495057;
+    font-size: 16px;
+}
+
+/* 送信先表示 */
+.email-recipients {
+    background: #e8f4fd;
+    border: 1px solid #b8daff;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+.recipients-info div {
+    margin-bottom: 5px;
+}
+
+.recipients-info strong {
+    display: inline-block;
+    width: 30px;
+    color: #0056b3;
+}
+
+/* テンプレート選択 */
+.template-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+}
+
+.template-section h3 {
+    margin: 0;
+    margin-right: 10px;
+}
+
+.template-section select {
+    min-width: 200px;
+    padding: 5px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+/* 件名・本文入力 */
+.subject-section, .body-section {
+    margin-bottom: 25px;
+}
+
+.subject-section input, .body-section textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.subject-section input:focus, .body-section textarea:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 5px rgba(0, 124, 186, 0.3);
+}
+
+.char-count {
+    text-align: right;
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* プレースホルダー一覧 */
+.placeholders-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+.placeholders-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.placeholder-item {
+    background: white;
+    padding: 8px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #495057;
+}
+
+.placeholder-item:hover {
+    background: #e9ecef;
+    cursor: pointer;
+}
+
+/* 送信ボタンエリア */
+.submit-section {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 20px 0;
+    border-top: 2px solid #dee2e6;
+    margin-top: 30px;
+}
+
+.submit-section .button-primary {
+    background: #28a745;
+    border-color: #28a745;
+    padding: 10px 25px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.submit-section .button-primary:hover {
+    background: #218838;
+    border-color: #1e7e34;
+}
+
+.submit-section .button {
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+/* 必須項目マーク */
+.required {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* 返信メールボタンのスタイル */
+.btn-reply-email {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-reply-email.btn-primary {
+    background-color: #007cba;
+    color: white;
+}
+
+.btn-reply-email.btn-primary:hover {
+    background-color: #005a87;
+}
+
+.btn-reply-email.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-reply-email.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .wrap {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .reservation-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .template-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .template-section h3 {
+        margin-bottom: 5px;
+    }
+    
+    .placeholders-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .submit-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
