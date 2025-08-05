@@ -111,6 +111,23 @@ function fpco_get_reservations($conditions) {
     $where_clauses = ['1=1'];
     $params = [];
     
+    // 工場フィルタリング（工場アカウントの場合）
+    $current_user = wp_get_current_user();
+    $is_admin = ($current_user->ID == 1 || $current_user->user_login == 'admin' || current_user_can('manage_options'));
+    
+    if (!$is_admin) {
+        // 工場アカウントの場合は、割り当てられた工場の予約のみ表示
+        $assigned_factory = get_user_meta($current_user->ID, 'assigned_factory', true);
+        
+        if ($assigned_factory) {
+            $where_clauses[] = 'r.factory_id = %d';
+            $params[] = intval($assigned_factory);
+        } else {
+            // 工場が割り当てられていない場合は何も表示しない
+            $where_clauses[] = '1=0';
+        }
+    }
+    
     // 予約番号検索
     if (!empty($conditions['reservation_number'])) {
         $where_clauses[] = 'r.id LIKE %s';
@@ -235,6 +252,23 @@ function fpco_export_reservations_csv($conditions) {
     
     $where_clauses = ['1=1'];
     $params = [];
+    
+    // 工場フィルタリング（工場アカウントの場合）- fpco_get_reservations関数と同じロジック
+    $current_user = wp_get_current_user();
+    $is_admin = ($current_user->ID == 1 || $current_user->user_login == 'admin' || current_user_can('manage_options'));
+    
+    if (!$is_admin) {
+        // 工場アカウントの場合は、割り当てられた工場の予約のみエクスポート
+        $assigned_factory = get_user_meta($current_user->ID, 'assigned_factory', true);
+        
+        if ($assigned_factory) {
+            $where_clauses[] = 'r.factory_id = %d';
+            $params[] = intval($assigned_factory);
+        } else {
+            // 工場が割り当てられていない場合は何もエクスポートしない
+            $where_clauses[] = '1=0';
+        }
+    }
     
     // 検索条件を適用（fpco_get_reservations関数と同じロジック）
     if (!empty($conditions['reservation_number'])) {
