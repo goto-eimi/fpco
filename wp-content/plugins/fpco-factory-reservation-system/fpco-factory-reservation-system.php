@@ -75,9 +75,6 @@ class FPCO_Factory_Reservation_System {
      * 共通機能ファイルの読み込み
      */
     private function load_includes() {
-        // ユーザー管理機能
-        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-user-management.php';
-        
         // カレンダーAPI（元ファイルから移植）
         require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/calendar-api-functions.php';
         
