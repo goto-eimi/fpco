@@ -212,10 +212,13 @@ function get_field_value($field, $form_data) {
                                 はい
                             </label>
                         </div>
-                        <?php if (has_field_error('is_travel_agency', $field_errors)): ?>
-                            <span class="field-error"><?php echo esc_html(get_field_error('is_travel_agency', $field_errors)); ?></span>
-                        <?php endif; ?>
                     </div>
+                    <?php if (has_field_error('is_travel_agency', $field_errors)): ?>
+                        <div class="form-field">
+                            <label class="form-label"></label>
+                            <span class="field-error"><?php echo esc_html(get_field_error('is_travel_agency', $field_errors)); ?></span>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- 旅行会社情報（条件付き表示） -->
@@ -338,10 +341,13 @@ function get_field_value($field, $form_data) {
                                 その他
                             </label>
                         </div>
-                        <?php if (has_field_error('reservation_type', $field_errors)): ?>
-                            <span class="field-error"><?php echo esc_html(get_field_error('reservation_type', $field_errors)); ?></span>
-                        <?php endif; ?>
                     </div>
+                    <?php if (has_field_error('reservation_type', $field_errors)): ?>
+                        <div class="form-field">
+                            <label class="form-label"></label>
+                            <span class="field-error"><?php echo esc_html(get_field_error('reservation_type', $field_errors)); ?></span>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- 学校見学の詳細 -->
@@ -655,13 +661,19 @@ function get_field_value($field, $form_data) {
                                 <input type="text" name="transportation_other_text" class="transportation-other-input form-input <?php echo has_field_error('transportation_other_text', $field_errors) ? 'error-field' : ''; ?>" value="<?php echo get_field_value('transportation_other_text', $form_data); ?>" placeholder="その他の交通手段を入力" disabled>
                             </div>
                         </div>
-                        <?php if (has_field_error('transportation', $field_errors)): ?>
-                            <span class="field-error"><?php echo esc_html(get_field_error('transportation', $field_errors)); ?></span>
-                        <?php endif; ?>
-                        <?php if (has_field_error('transportation_other_text', $field_errors)): ?>
-                            <span class="field-error"><?php echo esc_html(get_field_error('transportation_other_text', $field_errors)); ?></span>
-                        <?php endif; ?>
                     </div>
+                    <?php if (has_field_error('transportation', $field_errors)): ?>
+                        <div class="form-field">
+                            <label class="form-label"></label>
+                            <span class="field-error"><?php echo esc_html(get_field_error('transportation', $field_errors)); ?></span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (has_field_error('transportation_other_text', $field_errors)): ?>
+                        <div class="form-field">
+                            <label class="form-label"></label>
+                            <span class="field-error"><?php echo esc_html(get_field_error('transportation_other_text', $field_errors)); ?></span>
+                        </div>
+                    <?php endif; ?>
                     
                     <div class="form-field" id="vehicle-count-field" style="display: none;">
                         <label class="form-label">台数 <span class="required">*</span></label>
