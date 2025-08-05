@@ -163,9 +163,12 @@ function fpco_get_factory_timeslots($factory_id) {
 
 /**
  * ユーザー編集画面にカスタムフィールドを追加
+ * 重複を避けるため、他のプラグインの関数が存在しない場合のみ実行
  */
-add_action('show_user_profile', 'fpco_factory_add_user_fields');
-add_action('edit_user_profile', 'fpco_factory_add_user_fields');
+if (!function_exists('change_user_profile_fields') && !function_exists('factory_add_user_fields')) {
+    add_action('show_user_profile', 'fpco_factory_add_user_fields');
+    add_action('edit_user_profile', 'fpco_factory_add_user_fields');
+}
 
 function fpco_factory_add_user_fields($user) {
     // 権限チェック：管理者または自分自身のプロフィール表示
@@ -407,9 +410,12 @@ function fpco_factory_add_user_fields($user) {
 
 /**
  * ユーザー情報を保存
- */
-add_action('personal_options_update', 'fpco_factory_save_user_fields');
-add_action('edit_user_profile_update', 'fpco_factory_save_user_fields');
+ * 重複を避けるため、他のプラグインの関数が存在しない場合のみ実行
+ */  
+if (!function_exists('change_user_profile_fields') && !function_exists('factory_save_user_fields')) {
+    add_action('personal_options_update', 'fpco_factory_save_user_fields');
+    add_action('edit_user_profile_update', 'fpco_factory_save_user_fields');
+}
 
 function fpco_factory_save_user_fields($user_id) {
     // 管理者のみが編集可能

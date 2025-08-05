@@ -12,9 +12,12 @@ if (!defined('ABSPATH')) {
 
 /**
  * ユーザー編集画面にカスタムフィールドを追加
+ * 重複を避けるため、他のプラグインの関数が存在しない場合のみ実行
  */
-add_action('show_user_profile', 'factory_add_user_fields');
-add_action('edit_user_profile', 'factory_add_user_fields');
+if (!function_exists('change_user_profile_fields') && !function_exists('fpco_factory_add_user_fields')) {
+    add_action('show_user_profile', 'factory_add_user_fields');
+    add_action('edit_user_profile', 'factory_add_user_fields');
+}
 
 // 工場ごとの見学時間帯設定
 function get_factory_timeslots($factory_id) {
@@ -408,9 +411,12 @@ function factory_add_user_fields($user) {
 
 /**
  * ユーザー情報を保存
+ * 重複を避けるため、他のプラグインの関数が存在しない場合のみ実行
  */
-add_action('personal_options_update', 'factory_save_user_fields');
-add_action('edit_user_profile_update', 'factory_save_user_fields');
+if (!function_exists('change_user_profile_fields') && !function_exists('fpco_factory_save_user_fields')) {
+    add_action('personal_options_update', 'factory_save_user_fields');
+    add_action('edit_user_profile_update', 'factory_save_user_fields');
+}
 
 function factory_save_user_fields($user_id) {
     // 管理者のみが編集可能
