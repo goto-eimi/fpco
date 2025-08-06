@@ -9,6 +9,8 @@ class ReservationForm {
         this.totalVisitors = 0;
         this.isSubmitting = false; // 送信中フラグ
         
+        console.log('ReservationForm初期化 - window.factoryCapacity:', window.factoryCapacity, 'maxVisitors:', this.maxVisitors);
+        
         this.init();
     }
     
@@ -34,7 +36,14 @@ class ReservationForm {
         
         // 見学者分類の切り替え
         document.querySelectorAll('input[name="visitor_category"]').forEach(radio => {
-            radio.addEventListener('change', () => this.toggleVisitorCategoryFields());
+            radio.addEventListener('change', () => {
+                this.toggleVisitorCategoryFields();
+                // カテゴリ変更時も人数チェックを実行
+                setTimeout(() => {
+                    this.calculateTotalVisitors();
+                    this.validateVisitorCount();
+                }, 100);
+            });
         });
         
         // 見学者人数の変更（recruit用の同行者フィールド生成）
@@ -58,6 +67,7 @@ class ReservationForm {
                 e.target.name.includes('_visitor_count') ||
                 e.target.id === 'total_visitor_count'
             )) {
+                console.log('人数フィールド変更検知:', e.target.name, e.target.value);
                 this.calculateTotalVisitors();
                 this.validateVisitorCount();
             }
@@ -377,12 +387,18 @@ class ReservationForm {
         const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
         let total = 0;
         
+        console.log('calculateTotalVisitors - selectedCategory:', selectedCategory);
+        
         if (selectedCategory) {
             switch (selectedCategory) {
                 case 'school':
                     // 児童・生徒 + 引率者
-                    const studentCount = parseInt(document.getElementById('school_student_count')?.value) || 0;
-                    const supervisorCount = parseInt(document.getElementById('school_supervisor_count')?.value) || 0;
+                    const studentField = document.getElementById('school_student_count');
+                    const supervisorField = document.getElementById('school_supervisor_count');
+                    const studentCount = parseInt(studentField?.value) || 0;
+                    const supervisorCount = parseInt(supervisorField?.value) || 0;
+                    console.log('school - studentField:', studentField, 'value:', studentField?.value, 'count:', studentCount);
+                    console.log('school - supervisorField:', supervisorField, 'value:', supervisorField?.value, 'count:', supervisorCount);
                     total = studentCount + supervisorCount;
                     break;
                 case 'recruit':
@@ -423,12 +439,15 @@ class ReservationForm {
         }
         
         this.totalVisitors = total;
+        console.log('calculateTotalVisitors - total:', total);
         return total;
     }
     
     validateVisitorCount() {
         const total = this.calculateTotalVisitors();
         let errorMessage = '';
+        
+        console.log('validateVisitorCount - total:', total, 'maxVisitors:', this.maxVisitors, 'factoryCapacity:', window.factoryCapacity);
         
         // 既存のエラーメッセージ要素を削除
         const existingErrors = document.querySelectorAll('.visitor-count-error');
@@ -466,11 +485,20 @@ class ReservationForm {
                 if (totalVisitorCount && targetSection === totalVisitorCount.closest('.info-row')) {
                     // 統一フォームの場合
                     targetSection.insertAdjacentElement('afterend', errorDiv);
+                } else if (targetSection.classList.contains('info-row')) {
+                    // info-row要素の場合は直後に追加
+                    targetSection.insertAdjacentElement('afterend', errorDiv);
                 } else {
                     // カテゴリー別フォームの場合
-                    const lastCountField = targetSection.querySelector('.info-row:last-of-type');
-                    if (lastCountField) {
-                        lastCountField.insertAdjacentElement('afterend', errorDiv);
+                    // 人数入力フィールドを含むinfo-rowを探す
+                    const countFields = targetSection.querySelectorAll('input[type="number"][name*="_count"]');
+                    if (countFields.length > 0) {
+                        const lastCountFieldRow = countFields[countFields.length - 1].closest('.info-row');
+                        if (lastCountFieldRow) {
+                            lastCountFieldRow.insertAdjacentElement('afterend', errorDiv);
+                        } else {
+                            targetSection.appendChild(errorDiv);
+                        }
                     } else {
                         targetSection.appendChild(errorDiv);
                     }
@@ -816,5 +844,7 @@ class ReservationForm {
 
 // DOM読み込み完了後に初期化
 document.addEventListener('DOMContentLoaded', function() {
+    // window.factoryCapacityが設定されていることを確認
+    console.log('DOMContentLoaded - window.factoryCapacity:', window.factoryCapacity);
     new ReservationForm();
 });
