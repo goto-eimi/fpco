@@ -15,6 +15,19 @@ $timeslot = isset($_GET['timeslot']) ? sanitize_text_field($_GET['timeslot']) : 
 // 工場名を取得
 $factory_name = get_factory_name($factory_id);
 
+// 工場のcapacityを取得
+global $wpdb;
+$factory_capacity = 50; // デフォルト値
+if ($factory_id) {
+    $capacity = $wpdb->get_var($wpdb->prepare(
+        "SELECT capacity FROM {$wpdb->prefix}factorys WHERE id = %d",
+        $factory_id
+    ));
+    if ($capacity) {
+        $factory_capacity = intval($capacity);
+    }
+}
+
 // 時間帯情報を解析
 $timeslot_info = parse_timeslot($timeslot);
 ?>
@@ -309,7 +322,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（児童・生徒）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="school_student_count" name="school_student_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" class="count-box" id="school_student_count" name="school_student_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -317,7 +330,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（引率）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="school_supervisor_count" name="school_supervisor_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" class="count-box" id="school_supervisor_count" name="school_supervisor_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -350,7 +363,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="1" class="required count-box">
+                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required count-box">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -378,7 +391,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="family_adult_count" name="family_adult_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" class="count-box" id="family_adult_count" name="family_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -418,7 +431,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="company_adult_count" name="company_adult_count" min="1" max="50" placeholder="" class="required">
+                        <input type="number" id="company_adult_count" name="company_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -458,7 +471,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="50" placeholder="1" class="required">
+                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -498,7 +511,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="50" placeholder="" class="required count-box">
+                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required count-box">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -624,10 +637,10 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="total_visitor_count" name="total_visitor_count" min="1" max="50" placeholder="1" required>
+                        <input type="number" id="total_visitor_count" name="total_visitor_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" required>
                         <span class="unit" style="font-size: 15px;">名</span>
                         <span style="margin: 0 20px; font-size: 15px;">内小学生以下</span>
-                        <input type="number" id="total_child_count" name="total_child_count" min="0" max="50" placeholder="1">
+                        <input type="number" id="total_child_count" name="total_child_count" min="0" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1">
                         <span class="unit" style="font-size: 15px;">名</span>
                     </span>
                 </div>
@@ -683,7 +696,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（児童・生徒）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="school_student_count" name="school_student_count" min="1" max="50" placeholder="" class="required">
+                        <input type="number" id="school_student_count" name="school_student_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -691,7 +704,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（引率）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="school_supervisor_count" name="school_supervisor_count" min="1" max="50" placeholder="" class="required">
+                        <input type="number" id="school_supervisor_count" name="school_supervisor_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -724,7 +737,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="50" placeholder="" class="required count-box">
+                        <input type="number" id="recruit_visitor_count" name="recruit_visitor_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required count-box">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -752,7 +765,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="family_adult_count" name="family_adult_count" min="1" max="50" placeholder="" class="required">
+                        <input type="number" id="family_adult_count" name="family_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -791,7 +804,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="company_adult_count" name="company_adult_count" min="1" max="50" placeholder="" class="required">
+                        <input type="number" id="company_adult_count" name="company_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -830,7 +843,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="50" placeholder="" class="required">
+                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -869,7 +882,7 @@ textarea:-ms-input-placeholder {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="50" placeholder="" class="required count-box">
+                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required count-box">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -1657,6 +1670,10 @@ textarea:-ms-input-placeholder {
 }
 </style>
 
+<script>
+// PHPから工場のcapacityをJavaScriptに渡す
+window.factoryCapacity = <?php echo intval($factory_capacity); ?>;
+</script>
 <script src="<?php echo get_template_directory_uri(); ?>/assets/js/reservation-form.js"></script>
 
 <?php

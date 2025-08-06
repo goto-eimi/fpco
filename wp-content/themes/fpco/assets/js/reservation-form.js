@@ -5,7 +5,7 @@
 class ReservationForm {
     constructor() {
         this.form = document.getElementById('reservation-form');
-        this.maxVisitors = 50;
+        this.maxVisitors = window.factoryCapacity || 50; // 工場のcapacityを使用、なければデフォルト50
         this.totalVisitors = 0;
         this.isSubmitting = false; // 送信中フラグ
         
@@ -48,6 +48,18 @@ class ReservationForm {
         document.addEventListener('change', (e) => {
             if (e.target.name && e.target.name.includes('_child_count')) {
                 this.toggleChildGradeField(e.target);
+            }
+        });
+        
+        // 人数フィールドの変更を監視して合計を計算
+        document.addEventListener('input', (e) => {
+            if (e.target.type === 'number' && (
+                e.target.name.includes('_count') || 
+                e.target.name.includes('_visitor_count') ||
+                e.target.id === 'total_visitor_count'
+            )) {
+                this.calculateTotalVisitors();
+                this.validateVisitorCount();
             }
         });
         
@@ -360,6 +372,90 @@ class ReservationForm {
         }
     }
     
+    calculateTotalVisitors() {
+        const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
+        let total = 0;
+        
+        if (selectedCategory) {
+            switch (selectedCategory) {
+                case 'school':
+                    const studentCount = parseInt(document.getElementById('school_student_count')?.value) || 0;
+                    const supervisorCount = parseInt(document.getElementById('school_supervisor_count')?.value) || 0;
+                    total = studentCount + supervisorCount;
+                    break;
+                case 'recruit':
+                    total = parseInt(document.getElementById('recruit_visitor_count')?.value) || 0;
+                    break;
+                case 'family':
+                    const familyAdultCount = parseInt(document.getElementById('family_adult_count')?.value) || 0;
+                    const familyChildCount = parseInt(document.getElementById('family_child_count')?.value) || 0;
+                    total = familyAdultCount + familyChildCount;
+                    break;
+                case 'company':
+                    const companyAdultCount = parseInt(document.getElementById('company_adult_count')?.value) || 0;
+                    const companyChildCount = parseInt(document.getElementById('company_child_count')?.value) || 0;
+                    total = companyAdultCount + companyChildCount;
+                    break;
+                case 'government':
+                    const governmentAdultCount = parseInt(document.getElementById('government_adult_count')?.value) || 0;
+                    const governmentChildCount = parseInt(document.getElementById('government_child_count')?.value) || 0;
+                    total = governmentAdultCount + governmentChildCount;
+                    break;
+                case 'other':
+                    const otherAdultCount = parseInt(document.getElementById('other_adult_count')?.value) || 0;
+                    const otherChildCount = parseInt(document.getElementById('other_child_count')?.value) || 0;
+                    total = otherAdultCount + otherChildCount;
+                    break;
+            }
+        }
+        
+        // 統一フォームの場合
+        const totalVisitorCount = document.getElementById('total_visitor_count');
+        if (totalVisitorCount && totalVisitorCount.value) {
+            total = parseInt(totalVisitorCount.value) || 0;
+        }
+        
+        this.totalVisitors = total;
+        return total;
+    }
+    
+    validateVisitorCount() {
+        const total = this.calculateTotalVisitors();
+        let errorMessage = '';
+        
+        // 既存のエラーメッセージ要素を削除
+        const existingError = document.querySelector('.visitor-count-error');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        if (total > this.maxVisitors) {
+            errorMessage = `見学者様の合計人数が上限（${this.maxVisitors}名）を超えています。現在の合計：${total}名`;
+            
+            // エラーメッセージを表示
+            const selectedCategory = document.querySelector('input[name="visitor_category"]:checked');
+            if (selectedCategory) {
+                const categorySection = document.getElementById(selectedCategory.value + '-details');
+                if (categorySection) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'visitor-count-error';
+                    errorDiv.style.cssText = 'color: #dc3545; font-size: 14px; margin-top: 10px; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;';
+                    errorDiv.textContent = errorMessage;
+                    
+                    // 人数入力フィールドの後に追加
+                    const lastCountField = categorySection.querySelector('.info-row:last-of-type');
+                    if (lastCountField) {
+                        lastCountField.insertAdjacentElement('afterend', errorDiv);
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        return true;
+    }
+    
     validateField(field) {
         const formGroup = field.closest('.form-group') || field.closest('.info-row');
         const errorMessage = formGroup.querySelector('.error-message');
@@ -432,7 +528,7 @@ class ReservationForm {
         });
         
         // 人数制限チェック
-        if (this.totalVisitors > this.maxVisitors) {
+        if (!this.validateVisitorCount()) {
             isValid = false;
         }
         
