@@ -9,8 +9,6 @@ class ReservationForm {
         this.totalVisitors = 0;
         this.isSubmitting = false; // 送信中フラグ
         
-        console.log('ReservationForm初期化 - window.factoryCapacity:', window.factoryCapacity, 'maxVisitors:', this.maxVisitors);
-        
         this.init();
     }
     
@@ -67,7 +65,6 @@ class ReservationForm {
                 e.target.name.includes('_visitor_count') ||
                 e.target.id === 'total_visitor_count'
             )) {
-                console.log('人数フィールド変更検知:', e.target.name, e.target.value);
                 this.calculateTotalVisitors();
                 this.validateVisitorCount();
             }
@@ -387,8 +384,6 @@ class ReservationForm {
         const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
         let total = 0;
         
-        console.log('calculateTotalVisitors - selectedCategory:', selectedCategory);
-        
         if (selectedCategory) {
             switch (selectedCategory) {
                 case 'school':
@@ -397,8 +392,6 @@ class ReservationForm {
                     const supervisorField = document.getElementById('school_supervisor_count');
                     const studentCount = parseInt(studentField?.value) || 0;
                     const supervisorCount = parseInt(supervisorField?.value) || 0;
-                    console.log('school - studentField:', studentField, 'value:', studentField?.value, 'count:', studentCount);
-                    console.log('school - supervisorField:', supervisorField, 'value:', supervisorField?.value, 'count:', supervisorCount);
                     total = studentCount + supervisorCount;
                     break;
                 case 'recruit':
@@ -439,15 +432,12 @@ class ReservationForm {
         }
         
         this.totalVisitors = total;
-        console.log('calculateTotalVisitors - total:', total);
         return total;
     }
     
     validateVisitorCount() {
         const total = this.calculateTotalVisitors();
         let errorMessage = '';
-        
-        console.log('validateVisitorCount - total:', total, 'maxVisitors:', this.maxVisitors, 'factoryCapacity:', window.factoryCapacity);
         
         // 既存のエラーメッセージ要素を削除
         const existingErrors = document.querySelectorAll('.visitor-count-error');
@@ -844,7 +834,5 @@ class ReservationForm {
 
 // DOM読み込み完了後に初期化
 document.addEventListener('DOMContentLoaded', function() {
-    // window.factoryCapacityが設定されていることを確認
-    console.log('DOMContentLoaded - window.factoryCapacity:', window.factoryCapacity);
     new ReservationForm();
 });
