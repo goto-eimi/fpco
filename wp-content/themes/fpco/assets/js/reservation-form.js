@@ -431,30 +431,55 @@ class ReservationForm {
         let errorMessage = '';
         
         // 既存のエラーメッセージ要素を削除
-        const existingError = document.querySelector('.visitor-count-error');
-        if (existingError) {
-            existingError.remove();
-        }
+        const existingErrors = document.querySelectorAll('.visitor-count-error');
+        existingErrors.forEach(error => error.remove());
         
         if (total > this.maxVisitors) {
             errorMessage = `見学者様の合計人数が上限（${this.maxVisitors}名）を超えています。現在の合計：${total}名`;
             
             // エラーメッセージを表示
             const selectedCategory = document.querySelector('input[name="visitor_category"]:checked');
+            let targetSection = null;
+            
             if (selectedCategory) {
-                const categorySection = document.getElementById(selectedCategory.value + '-details');
-                if (categorySection) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'visitor-count-error';
-                    errorDiv.style.cssText = 'color: #dc3545; font-size: 14px; margin-top: 10px; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;';
-                    errorDiv.textContent = errorMessage;
-                    
-                    // 人数入力フィールドの後に追加
-                    const lastCountField = categorySection.querySelector('.info-row:last-of-type');
+                targetSection = document.getElementById(selectedCategory.value + '-details');
+            }
+            
+            // 統一フォームの場合
+            const totalVisitorCount = document.getElementById('total_visitor_count');
+            if (totalVisitorCount && totalVisitorCount.closest('.info-row').style.display !== 'none') {
+                targetSection = totalVisitorCount.closest('.info-row');
+            }
+            
+            if (targetSection) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'visitor-count-error';
+                errorDiv.style.cssText = 'color: #dc3545; font-size: 16px; font-weight: bold; margin: 15px 0; padding: 15px; background: #f8d7da; border: 2px solid #dc3545; border-radius: 6px; box-shadow: 0 2px 4px rgba(220,53,69,0.2);';
+                errorDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;">⚠️</span>
+                        <span>${errorMessage}</span>
+                    </div>
+                `;
+                
+                // 人数入力フィールドの後に追加
+                if (totalVisitorCount && targetSection === totalVisitorCount.closest('.info-row')) {
+                    // 統一フォームの場合
+                    targetSection.insertAdjacentElement('afterend', errorDiv);
+                } else {
+                    // カテゴリー別フォームの場合
+                    const lastCountField = targetSection.querySelector('.info-row:last-of-type');
                     if (lastCountField) {
                         lastCountField.insertAdjacentElement('afterend', errorDiv);
+                    } else {
+                        targetSection.appendChild(errorDiv);
                     }
                 }
+                
+                // スクロールしてエラーメッセージを表示
+                setTimeout(() => {
+                    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
             }
             
             return false;
@@ -568,6 +593,14 @@ class ReservationForm {
     
     handleSubmit(e) {
         e.preventDefault();
+        
+        // 人数制限チェックを先に実行
+        if (!this.validateVisitorCount()) {
+            // 人数オーバーの場合は専用のアラートを表示
+            const total = this.calculateTotalVisitors();
+            alert(`見学者様の合計人数が上限（${this.maxVisitors}名）を超えています。\n現在の合計：${total}名\n\n人数を調整してから再度お試しください。`);
+            return;
+        }
         
         if (!this.validateForm()) {
             alert('入力内容を確認してください');
