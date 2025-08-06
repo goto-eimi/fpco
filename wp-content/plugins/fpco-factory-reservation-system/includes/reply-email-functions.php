@@ -257,9 +257,7 @@ function fpco_reply_email_admin_page() {
         if ($result['success']) {
             echo '<script>
                 alert("' . esc_js($result['message']) . '");
-                setTimeout(function() {
-                    window.location.href = "admin.php?page=reservation-management";
-                }, 3000);
+                window.location.href = "admin.php?page=reservation-list";
             </script>';
         }
     }
@@ -338,7 +336,7 @@ function fpco_reply_email_admin_page() {
                     onclick="return confirm('このメールを送信してもよろしいですか？');">
                 メールを送信
             </button>
-            <a href="admin.php?page=reservation-management" class="button" style="margin-left: 10px;">キャンセル</a>
+            <a href="admin.php?page=reservation-list" class="button" style="margin-left: 10px;">キャンセル</a>
         </div>
         </form>
         
