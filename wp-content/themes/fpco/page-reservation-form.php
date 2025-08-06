@@ -59,6 +59,20 @@ textarea:-ms-input-placeholder {
     color: #E5E5E5 !important;
 }
 
+/* 数字入力欄のスピナー（上下矢印）を非表示 */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
 .reservation-info-box {
     max-width: none !important;
     width: 100% !important;
