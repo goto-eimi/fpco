@@ -2255,7 +2255,7 @@ function fpco_reservation_management_admin_page() {
                     // その他のステータス：非アクティブ
                     replyEmailBtn.disabled = true;
                     replyEmailBtn.className = 'btn-reply-email btn-secondary';
-                    replyEmailBtn.textContent = '返信メールを作成';
+                    replyEmailBtn.textContent = '返信メールを作成（無効）';
                     replyEmailBtn.style.opacity = '0.5';
                     replyEmailBtn.style.cursor = 'not-allowed';
                 }
