@@ -373,35 +373,42 @@ class ReservationForm {
     }
     
     calculateTotalVisitors() {
+        // 見学者様人数のみを計算（申込者は含まない）
         const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
         let total = 0;
         
         if (selectedCategory) {
             switch (selectedCategory) {
                 case 'school':
+                    // 児童・生徒 + 引率者
                     const studentCount = parseInt(document.getElementById('school_student_count')?.value) || 0;
                     const supervisorCount = parseInt(document.getElementById('school_supervisor_count')?.value) || 0;
                     total = studentCount + supervisorCount;
                     break;
                 case 'recruit':
+                    // リクルートの場合は見学者人数（申込者含む）
                     total = parseInt(document.getElementById('recruit_visitor_count')?.value) || 0;
                     break;
                 case 'family':
+                    // 見学者（大人）+ 見学者（子ども）
                     const familyAdultCount = parseInt(document.getElementById('family_adult_count')?.value) || 0;
                     const familyChildCount = parseInt(document.getElementById('family_child_count')?.value) || 0;
                     total = familyAdultCount + familyChildCount;
                     break;
                 case 'company':
+                    // 見学者（大人）+ 見学者（子ども）
                     const companyAdultCount = parseInt(document.getElementById('company_adult_count')?.value) || 0;
                     const companyChildCount = parseInt(document.getElementById('company_child_count')?.value) || 0;
                     total = companyAdultCount + companyChildCount;
                     break;
                 case 'government':
+                    // 見学者（大人）+ 見学者（子ども）
                     const governmentAdultCount = parseInt(document.getElementById('government_adult_count')?.value) || 0;
                     const governmentChildCount = parseInt(document.getElementById('government_child_count')?.value) || 0;
                     total = governmentAdultCount + governmentChildCount;
                     break;
                 case 'other':
+                    // 見学者（大人）+ 見学者（子ども）
                     const otherAdultCount = parseInt(document.getElementById('other_adult_count')?.value) || 0;
                     const otherChildCount = parseInt(document.getElementById('other_child_count')?.value) || 0;
                     total = otherAdultCount + otherChildCount;
