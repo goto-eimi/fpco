@@ -175,7 +175,7 @@ function fpco_get_reservations($conditions) {
     $where_sql = implode(' AND ', $where_clauses);
     
     // ソート条件
-    $allowed_orderby = ['id', 'date', 'status', 'applicant_name', 'time_slot'];
+    $allowed_orderby = ['id', 'date', 'status', 'applicant_name', 'time_slot', 'reservation_type'];
     $orderby = in_array($conditions['orderby'], $allowed_orderby) ? $conditions['orderby'] : 'id';
     $order = strtoupper($conditions['order']) === 'ASC' ? 'ASC' : 'DESC';
     
@@ -725,7 +725,18 @@ function fpco_reservation_list_admin_page() {
                                 </a>
                             </th>
                             <th>電話番号</th>
-                            <th>予約タイプ</th>
+                            <th class="sortable <?php echo $conditions['orderby'] === 'reservation_type' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
+                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'reservation_type', 'order' => ($conditions['orderby'] === 'reservation_type' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
+                                    予約タイプ
+                                    <span class="sorting-indicator">
+                                        <?php if ($conditions['orderby'] === 'reservation_type'): ?>
+                                            <span class="dashicons dashicons-arrow-<?php echo strtolower($conditions['order']) === 'asc' ? 'up' : 'down'; ?>-alt2"></span>
+                                        <?php else: ?>
+                                            <span class="dashicons dashicons-sort"></span>
+                                        <?php endif; ?>
+                                    </span>
+                                </a>
+                            </th>
                             <th class="sortable <?php echo $conditions['orderby'] === 'status' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
                                 <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'status', 'order' => ($conditions['orderby'] === 'status' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
                                     ステータス
