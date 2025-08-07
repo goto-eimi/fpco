@@ -886,8 +886,14 @@ function fpco_reservation_management_admin_page() {
             if (!$is_admin) {
                 $assigned_factory = get_user_meta($current_user->ID, 'assigned_factory', true);
                 if ($assigned_factory != $reservation['factory_id']) {
-                    $errors[] = 'この予約を編集する権限がありません。';
-                    $reservation = null; // 予約データをクリア
+                    // JavaScriptでアラートを表示してリダイレクト
+                    ?>
+                    <script>
+                        alert('この予約にアクセスする権限がありません。');
+                        window.location.href = 'admin.php?page=reservation-list';
+                    </script>
+                    <?php
+                    exit;
                 }
             }
             
