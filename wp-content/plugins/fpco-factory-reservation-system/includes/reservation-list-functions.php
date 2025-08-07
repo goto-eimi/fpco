@@ -168,7 +168,7 @@ function fpco_get_reservations($conditions) {
     $where_sql = implode(' AND ', $where_clauses);
     
     // ソート条件
-    $allowed_orderby = ['id', 'date', 'status', 'applicant_name'];
+    $allowed_orderby = ['id', 'date', 'status', 'applicant_name', 'time_slot'];
     $orderby = in_array($conditions['orderby'], $allowed_orderby) ? $conditions['orderby'] : 'id';
     $order = strtoupper($conditions['order']) === 'ASC' ? 'ASC' : 'DESC';
     
@@ -182,13 +182,22 @@ function fpco_get_reservations($conditions) {
     $offset = ($page - 1) * $per_page;
     $total_pages = ceil($total_items / $per_page);
     
-    // データ取得
-    $sql = "SELECT r.*, f.name as factory_name 
-            FROM {$wpdb->prefix}reservations r 
-            LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
-            WHERE {$where_sql} 
-            ORDER BY r.{$orderby} {$order} 
-            LIMIT %d OFFSET %d";
+    // データ取得（time_slotでソートする場合は、日付も考慮してソート）
+    if ($orderby === 'time_slot') {
+        $sql = "SELECT r.*, f.name as factory_name 
+                FROM {$wpdb->prefix}reservations r 
+                LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
+                WHERE {$where_sql} 
+                ORDER BY r.date {$order}, r.time_slot {$order} 
+                LIMIT %d OFFSET %d";
+    } else {
+        $sql = "SELECT r.*, f.name as factory_name 
+                FROM {$wpdb->prefix}reservations r 
+                LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
+                WHERE {$where_sql} 
+                ORDER BY r.{$orderby} {$order} 
+                LIMIT %d OFFSET %d";
+    }
     
     $reservations = $wpdb->get_results(
         $wpdb->prepare($sql, ...array_merge($params, [$per_page, $offset])),
@@ -638,9 +647,21 @@ function fpco_reservation_list_admin_page() {
                             <th>予約者</th>
                             <th class="sortable <?php echo $conditions['orderby'] === 'date' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
                                 <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'date', 'order' => ($conditions['orderby'] === 'date' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
-                                    予約日時
+                                    予約日
                                     <span class="sorting-indicator">
                                         <?php if ($conditions['orderby'] === 'date'): ?>
+                                            <span class="dashicons dashicons-arrow-<?php echo strtolower($conditions['order']) === 'asc' ? 'up' : 'down'; ?>-alt2"></span>
+                                        <?php else: ?>
+                                            <span class="dashicons dashicons-sort"></span>
+                                        <?php endif; ?>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="sortable <?php echo $conditions['orderby'] === 'time_slot' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
+                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'time_slot', 'order' => ($conditions['orderby'] === 'time_slot' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
+                                    予約時間
+                                    <span class="sorting-indicator">
+                                        <?php if ($conditions['orderby'] === 'time_slot'): ?>
                                             <span class="dashicons dashicons-arrow-<?php echo strtolower($conditions['order']) === 'asc' ? 'up' : 'down'; ?>-alt2"></span>
                                         <?php else: ?>
                                             <span class="dashicons dashicons-sort"></span>
@@ -689,11 +710,16 @@ function fpco_reservation_list_admin_page() {
                                         ?>
                                     </div>
                                 </td>
-                                <td class="reservation-datetime">
+                                <td class="reservation-date">
                                     <?php 
                                     $date_str = $reservation['date'] ? date('Y年n月j日', strtotime($reservation['date'])) : '';
+                                    echo esc_html($date_str);
+                                    ?>
+                                </td>
+                                <td class="reservation-time">
+                                    <?php 
                                     $time_str = $reservation['time_slot'] ?? '';
-                                    echo esc_html($date_str . ' ' . $time_str);
+                                    echo esc_html($time_str);
                                     ?>
                                 </td>
                                 <td class="reservation-phone">
