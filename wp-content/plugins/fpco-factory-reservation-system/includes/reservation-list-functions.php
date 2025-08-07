@@ -182,36 +182,36 @@ function fpco_get_reservations($conditions) {
     $offset = ($page - 1) * $per_page;
     $total_pages = ceil($total_items / $per_page);
     
-    // データ取得（time_slotでソートする場合は、時間の文字列をソート可能な形式で変換）
-    if ($orderby === 'time_slot') {
-        $sql = "SELECT r.*, f.name as factory_name,
-                       CASE 
-                           WHEN r.time_slot REGEXP '^[0-9]{1,2}:[0-9]{2}-[0-9]{1,2}:[0-9]{2}$' THEN
-                               CONCAT(
-                                   LPAD(SUBSTRING_INDEX(r.time_slot, ':', 1), 2, '0'),
-                                   ':',
-                                   SUBSTRING(SUBSTRING_INDEX(r.time_slot, '-', 1), -2)
-                               )
-                           ELSE r.time_slot
-                       END as time_sort_key
-                FROM {$wpdb->prefix}reservations r 
-                LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
-                WHERE {$where_sql} 
-                ORDER BY r.date {$order}, time_sort_key {$order} 
-                LIMIT %d OFFSET %d";
-    } else {
-        $sql = "SELECT r.*, f.name as factory_name 
-                FROM {$wpdb->prefix}reservations r 
-                LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
-                WHERE {$where_sql} 
-                ORDER BY r.{$orderby} {$order} 
-                LIMIT %d OFFSET %d";
-    }
+    // データ取得
+    $sql = "SELECT r.*, f.name as factory_name 
+            FROM {$wpdb->prefix}reservations r 
+            LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
+            WHERE {$where_sql} 
+            ORDER BY r.{$orderby} {$order} 
+            LIMIT %d OFFSET %d";
     
     $reservations = $wpdb->get_results(
         $wpdb->prepare($sql, ...array_merge($params, [$per_page, $offset])),
         ARRAY_A
     );
+    
+    // time_slotでソートする場合は、PHP側で追加ソートを実行
+    if ($orderby === 'time_slot' && !empty($reservations)) {
+        usort($reservations, function($a, $b) use ($order) {
+            // まず日付でソート
+            $date_compare = strcmp($a['date'], $b['date']);
+            if ($date_compare !== 0) {
+                return $order === 'ASC' ? $date_compare : -$date_compare;
+            }
+            
+            // 日付が同じ場合は時間でソート
+            $time_a = fpco_extract_start_time($a['time_slot']);
+            $time_b = fpco_extract_start_time($b['time_slot']);
+            
+            $time_compare = strcmp($time_a, $time_b);
+            return $order === 'ASC' ? $time_compare : -$time_compare;
+        });
+    }
     
     return [
         'data' => $reservations,
@@ -220,6 +220,21 @@ function fpco_get_reservations($conditions) {
         'current_page' => $page,
         'per_page' => $per_page
     ];
+}
+
+/**
+ * time_slotから開始時刻を抽出してソート用文字列に変換
+ */
+function fpco_extract_start_time($time_slot) {
+    // HH:MM-HH:MM形式から開始時刻を抽出
+    if (preg_match('/^(\d{1,2}):(\d{2})-/', $time_slot, $matches)) {
+        $hour = str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+        $minute = $matches[2];
+        return $hour . ':' . $minute;
+    }
+    
+    // AM/PMの場合はそのまま返す（文字列ソート）
+    return $time_slot;
 }
 
 /**
