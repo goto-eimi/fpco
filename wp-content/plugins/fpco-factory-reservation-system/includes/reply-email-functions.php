@@ -89,6 +89,23 @@ function fpco_get_email_templates() {
  * プレースホルダー変数を実際の値に置換
  */
 function fpco_replace_placeholders($text, $reservation_data) {
+    // type_data列のJSONデータから組織名を取得
+    $organization_name = '';
+    if (!empty($reservation_data['type_data'])) {
+        $type_data = json_decode($reservation_data['type_data'], true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            // 予約タイプに応じて組織名を取得
+            if (isset($type_data['school_name'])) {
+                $organization_name = $type_data['school_name']; // 学校名
+            } elseif (isset($type_data['company_name'])) {
+                $organization_name = $type_data['company_name']; // 会社・団体名
+            } elseif (isset($type_data['organization_name'])) {
+                $organization_name = $type_data['organization_name']; // その他の組織名
+            }
+        }
+    }
+    
+    
     // null値対策でデータを安全に取得
     $placeholders = [
         '{申込者名}' => $reservation_data['applicant_name'] ?? '',
@@ -98,7 +115,7 @@ function fpco_replace_placeholders($text, $reservation_data) {
         '{見学時間}' => '60', // デフォルト、後で実際のデータに置換
         '{見学者人数}' => $reservation_data['participant_count'] ?? '',
         '{予約番号}' => $reservation_data['id'] ?? '',
-        '{組織名}' => $reservation_data['organization_name'] ?? ''
+        '{組織名}' => $organization_name
     ];
     
     // nullでないことを確認してから置換
@@ -141,10 +158,38 @@ function fpco_send_reservation_email($reservation_id, $subject, $body, $template
         return ['success' => false, 'message' => '送信先メールアドレスが設定されていません。'];
     }
     
+    // 管理者メールアドレスを取得
+    $admin_email = get_option('admin_email');
+    
+    // 予約した工場のメールアドレスを取得
+    $factory_email = '';
+    $factory_users = get_users([
+        'meta_key' => 'assigned_factory',
+        'meta_value' => $reservation['factory_id'],
+        'fields' => ['user_email']
+    ]);
+    
+    if (!empty($factory_users)) {
+        $factory_email = $factory_users[0]->user_email;
+    }
+    
+    // BCCリストを作成
+    $bcc_list = [];
+    if ($admin_email && $admin_email !== $to) {
+        $bcc_list[] = $admin_email;
+    }
+    if ($factory_email && $factory_email !== $to && $factory_email !== $admin_email) {
+        $bcc_list[] = $factory_email;
+    }
+    
     $headers = [
         'Content-Type: text/plain; charset=UTF-8',
-        'Bcc: admin@example.com', // 管理者メール（実際のメールアドレスに変更）
     ];
+    
+    // BCCヘッダーを追加
+    if (!empty($bcc_list)) {
+        $headers[] = 'Bcc: ' . implode(', ', $bcc_list);
+    }
     
     // メール送信
     $sent = wp_mail($to, $final_subject, $final_body, $headers);
@@ -218,6 +263,7 @@ function fpco_handle_email_form_submission() {
     return fpco_send_reservation_email($reservation_id, $subject, $body, $template_type);
 }
 
+
 /**
  * 管理画面表示
  */
@@ -231,6 +277,10 @@ function fpco_reply_email_admin_page() {
         echo '<div class="wrap"><h1>エラー</h1><p>予約IDが指定されていません。</p></div>';
         return;
     }
+    
+    // 現在のユーザー情報を取得
+    $current_user = wp_get_current_user();
+    $is_admin = ($current_user->ID == 1 || $current_user->user_login == 'admin' || current_user_can('manage_options'));
     
     // 予約データを取得
     $reservation = $wpdb->get_row(
@@ -249,11 +299,21 @@ function fpco_reply_email_admin_page() {
         return;
     }
     
+    // 工場アカウントの場合は、自分の工場の予約のみアクセス可能
+    if (!$is_admin) {
+        $assigned_factory = get_user_meta($current_user->ID, 'assigned_factory', true);
+        if ($assigned_factory != $reservation['factory_id']) {
+            echo '<div class="wrap"><h1>エラー</h1><p>この予約にアクセスする権限がありません。</p></div>';
+            return;
+        }
+    }
+    
     
     // フォーム送信処理
     $result = null;
     if (isset($_POST['send_email'])) {
         $result = fpco_handle_email_form_submission();
+        
         if ($result['success']) {
             echo '<script>
                 alert("' . esc_js($result['message']) . '");
@@ -273,6 +333,7 @@ function fpco_reply_email_admin_page() {
                 <p><?php echo esc_html($result['message']); ?></p>
             </div>
         <?php endif; ?>
+        
         
         
         <!-- メール作成エリア -->

@@ -868,6 +868,10 @@ function fpco_reservation_management_admin_page() {
         $reservation_id = intval($_GET['reservation_id']);
         $is_edit_mode = true;
         
+        // 現在のユーザー情報を取得
+        $current_user = wp_get_current_user();
+        $is_admin = ($current_user->ID == 1 || $current_user->user_login == 'admin' || current_user_can('manage_options'));
+        
         // 予約データを取得
         $reservation = $wpdb->get_row(
             $wpdb->prepare(
@@ -878,8 +882,19 @@ function fpco_reservation_management_admin_page() {
         );
         
         if ($reservation) {
-            // 予約データをフォームデータに変換
-            $form_data = fpco_convert_reservation_to_form_data($reservation);
+            // 工場アカウントの場合は、自分の工場の予約のみ編集可能
+            if (!$is_admin) {
+                $assigned_factory = get_user_meta($current_user->ID, 'assigned_factory', true);
+                if ($assigned_factory != $reservation['factory_id']) {
+                    $errors[] = 'この予約を編集する権限がありません。';
+                    $reservation = null; // 予約データをクリア
+                }
+            }
+            
+            if ($reservation) {
+                // 予約データをフォームデータに変換
+                $form_data = fpco_convert_reservation_to_form_data($reservation);
+            }
         } else {
             $errors[] = '指定された予約が見つかりません。';
         }
