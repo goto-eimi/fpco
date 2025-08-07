@@ -106,7 +106,6 @@
     width: 100%;
     border-collapse: collapse;
     background: white;
-    table-layout: fixed;
 }
 
 .wp-list-table th {
@@ -155,11 +154,43 @@
 }
 
 /* テーブルセル固有のスタイル */
+.wp-list-table th:nth-child(1),
+.wp-list-table td.reservation-number {
+    width: 80px;
+}
+
+.wp-list-table th:nth-child(2),
+.wp-list-table td.reservation-applicant {
+    width: 150px;
+}
+
+.wp-list-table th:nth-child(3),
+.wp-list-table td.reservation-date {
+    width: 120px;
+}
+
+.wp-list-table th:nth-child(4),
+.wp-list-table td.reservation-time {
+    width: 120px;
+}
+
+.wp-list-table th:nth-child(5),
+.wp-list-table td.reservation-phone {
+    width: 120px;
+}
+
+.wp-list-table th:nth-child(6),
+.wp-list-table td.reservation-type {
+    width: 200px;
+}
+
+.wp-list-table th:nth-child(7),
+.wp-list-table td.reservation-status {
+    width: 100px;
+}
+
 .reservation-number {
     font-weight: 600;
-    width: 80px;
-    max-width: 80px;
-    min-width: 80px;
 }
 
 .reservation-link {
@@ -169,12 +200,6 @@
 
 .reservation-link:hover {
     color: #005a87;
-}
-
-.reservation-applicant {
-    width: 100px;
-    max-width: 100px;
-    min-width: 100px;
 }
 
 .applicant-name {
@@ -189,40 +214,18 @@
     display: none;
 }
 
-.reservation-date {
-    width: 120px;
-    max-width: 120px;
-    min-width: 120px;
-    font-size: 14px;
-    white-space: nowrap;
-}
-
+.reservation-date,
 .reservation-time {
-    width: 120px;
-    max-width: 120px;
-    min-width: 120px;
     font-size: 14px;
     white-space: nowrap;
 }
 
 .reservation-phone {
-    width: 120px;
-    max-width: 120px;
-    min-width: 120px;
     font-family: monospace;
 }
 
 .reservation-type {
-    width: 140px;
-    max-width: 140px;
-    min-width: 140px;
     font-size: 13px;
-}
-
-.reservation-status {
-    width: 100px;
-    max-width: 100px;
-    min-width: 100px;
 }
 
 /* ステータスバッジ */
@@ -339,8 +342,7 @@
     }
     
     .wp-list-table {
-        min-width: 900px;
-        table-layout: auto;
+        min-width: 990px;
     }
 }
 
