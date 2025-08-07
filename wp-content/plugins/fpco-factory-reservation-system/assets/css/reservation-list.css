@@ -155,7 +155,8 @@
 
 /* テーブルセル固有のスタイル */
 .wp-list-table {
-    width: 990px;
+    width: 100%;
+    min-width: 990px;
 }
 
 .wp-list-table th:nth-child(1),
@@ -343,9 +344,11 @@
     .reservations-table-container {
         border: 1px solid #dee2e6;
         border-radius: 6px;
+        overflow-x: auto;
     }
     
     .wp-list-table {
+        width: 990px;
         min-width: 990px;
     }
 }
