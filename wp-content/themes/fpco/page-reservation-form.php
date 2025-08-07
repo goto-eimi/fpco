@@ -915,6 +915,11 @@ input[type="number"] {
                     </span>
                 </div>
                 </div>
+                <!-- エラーメッセージ表示エリア（フォーム枠内の最下部） -->
+                <div id="error-messages" style="display: none; margin: 20px 40px; padding: 15px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+                    <h4 style="margin-top: 0; font-size: 16px;">入力内容にエラーがあります</h4>
+                    <ul id="error-list" style="margin-bottom: 0; padding-left: 20px;"></ul>
+                </div>
             </div>
         </form>
         
@@ -924,11 +929,6 @@ input[type="number"] {
                 <span class="btn-text">入力内容の確認</span>
                 <span class="btn-arrow">→</span>
             </button>
-            <!-- エラーメッセージ表示エリア -->
-            <div id="error-messages" style="display: none; margin-top: 15px; padding: 15px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
-                <h4 style="margin-top: 0; font-size: 16px;">入力内容にエラーがあります</h4>
-                <ul id="error-list" style="margin-bottom: 0; padding-left: 20px;"></ul>
-            </div>
         </div>
     </div>
 </main>
