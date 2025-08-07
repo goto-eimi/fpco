@@ -507,6 +507,12 @@ class ReservationForm {
     }
     
     validateField(field) {
+        // 非表示の項目はバリデーションしない
+        const hiddenParent = field.closest('.conditional[style*="display: none"]');
+        if (hiddenParent) {
+            return true;
+        }
+        
         const formGroup = field.closest('.form-group') || field.closest('.info-row');
         const errorMessage = formGroup.querySelector('.error-message');
         let isValid = true;
