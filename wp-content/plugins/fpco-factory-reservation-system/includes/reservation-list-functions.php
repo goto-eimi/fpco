@@ -233,7 +233,16 @@ function fpco_extract_start_time($time_slot) {
         return $hour . ':' . $minute;
     }
     
-    // AM/PMの場合はそのまま返す（文字列ソート）
+    // AM/PMの場合は時刻に変換してソート
+    if (stripos($time_slot, 'AM') !== false) {
+        return '08:00'; // AM全体を8:00として扱う
+    }
+    
+    if (stripos($time_slot, 'PM') !== false) {
+        return '14:00'; // PM全体を14:00として扱う
+    }
+    
+    // その他の場合はそのまま返す
     return $time_slot;
 }
 
