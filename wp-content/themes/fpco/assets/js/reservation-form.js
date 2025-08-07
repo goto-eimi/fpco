@@ -518,40 +518,99 @@ class ReservationForm {
         let isValid = true;
         let message = '';
         
-        // 必須項目チェック
-        if (field.required && !field.value.trim()) {
-            isValid = false;
-            message = `※ ${field.previousElementSibling.textContent.replace(' *', '')}は必須項目です`;
-        }
-        
-        // 各種形式チェック
-        if (field.value.trim()) {
-            switch (field.type) {
-                case 'email':
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRegex.test(field.value)) {
+        // フィールド固有のバリデーション
+        switch (field.id) {
+            case 'applicant_name':
+                if (field.required && !field.value.trim()) {
+                    isValid = false;
+                    message = '申込者様氏名を入力してください';
+                }
+                break;
+                
+            case 'applicant_name_kana':
+                if (field.required && !field.value.trim()) {
+                    isValid = false;
+                    message = '申込者様氏名（ふりがな）を入力してください';
+                } else if (field.value.trim() && !/^[ぁ-んー\s]+$/.test(field.value)) {
+                    isValid = false;
+                    message = '申込者様氏名（ふりがな）はひらがなで入力してください';
+                }
+                break;
+                
+            case 'postal_code':
+            case 'agency_postal_code':
+                if (field.required && !field.value.trim()) {
+                    isValid = false;
+                    message = '郵便番号を入力してください';
+                } else if (field.value.trim()) {
+                    const cleanedValue = field.value.replace(/[^0-9]/g, '');
+                    if (cleanedValue.length !== 7) {
                         isValid = false;
-                        message = '正しいメールアドレスを入力してください';
+                        message = '郵便番号は7桁の半角数字でご入力ください';
                     }
-                    break;
+                }
+                break;
+                
+            case 'city':
+            case 'agency_city':
+                if (field.required && !field.value.trim()) {
+                    isValid = false;
+                    message = '市区町村名を入力してください';
+                }
+                break;
+                
+            case 'address':
+            case 'agency_address':
+                if (field.required && !field.value.trim()) {
+                    isValid = false;
+                    message = '番地・ビル名を入力してください';
+                }
+                break;
+                
+            default:
+                // ラジオボタンのバリデーション
+                if (field.type === 'radio') {
+                    const radioGroup = document.getElementsByName(field.name);
+                    const isChecked = Array.from(radioGroup).some(radio => radio.checked);
+                    if (field.required && !isChecked) {
+                        isValid = false;
+                        if (field.name === 'is_travel_agency') {
+                            message = '申込者様は旅行会社の方ですか？を選択してください';
+                        } else if (field.name === 'visitor_category') {
+                            message = '見学者様の分類を選択してください';
+                        } else {
+                            message = `${this.getFieldLabel(field)}を選択してください`;
+                        }
+                    }
+                } else {
+                    // その他の必須項目チェック
+                    if (field.required && !field.value.trim()) {
+                        isValid = false;
+                        message = `${this.getFieldLabel(field)}を入力してください`;
+                    }
                     
-                case 'tel':
-                    const phoneRegex = /^[0-9]{10,11}$/;
-                    if (!phoneRegex.test(field.value.replace(/[^0-9]/g, ''))) {
-                        isValid = false;
-                        message = '正しい電話番号を入力してください';
+                    // その他の形式チェック
+                    if (field.value.trim()) {
+                        switch (field.type) {
+                            case 'email':
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                if (!emailRegex.test(field.value)) {
+                                    isValid = false;
+                                    message = '正しいメールアドレスを入力してください';
+                                }
+                                break;
+                                
+                            case 'tel':
+                                const phoneRegex = /^[0-9]{10,11}$/;
+                                if (!phoneRegex.test(field.value.replace(/[^0-9]/g, ''))) {
+                                    isValid = false;
+                                    message = '正しい電話番号を入力してください';
+                                }
+                                break;
+                        }
                     }
-                    break;
-            }
-        }
-        
-        // 特別なバリデーション
-        if (field.id === 'postal_code' || field.id === 'agency_postal_code') {
-            const cleanedValue = field.value.replace(/[^0-9]/g, '');
-            if (field.value && cleanedValue.length !== 7) {
-                isValid = false;
-                message = '郵便番号は7桁の数字で入力してください（ハイフンなし）';
-            }
+                }
+                break;
         }
         
         // エラー表示の更新
@@ -571,6 +630,7 @@ class ReservationForm {
         const submitBtn = document.querySelector('.btn-submit');
         let isValid = true;
         const errors = [];
+        const errorMessages = {};
         
         // 必須項目のチェック（表示されているフィールドのみ）
         const requiredFields = this.form.querySelectorAll('[required]');
@@ -580,9 +640,34 @@ class ReservationForm {
             if (!hiddenParent) {
                 if (!this.validateField(field)) {
                     isValid = false;
-                    // エラーメッセージを収集
-                    const fieldLabel = this.getFieldLabel(field);
-                    errors.push(fieldLabel);
+                    // エラーメッセージを収集（重複を避ける）
+                    const message = this.getFieldErrorMessage(field);
+                    if (message && !errorMessages[message]) {
+                        errorMessages[message] = true;
+                        errors.push(message);
+                    }
+                }
+            }
+        });
+        
+        // ラジオボタングループのバリデーション
+        const radioGroups = ['is_travel_agency', 'visitor_category'];
+        radioGroups.forEach(groupName => {
+            const radios = this.form.querySelectorAll(`input[name="${groupName}"]`);
+            if (radios.length > 0) {
+                const isChecked = Array.from(radios).some(radio => radio.checked);
+                if (!isChecked) {
+                    isValid = false;
+                    let message = '';
+                    if (groupName === 'is_travel_agency') {
+                        message = '申込者様は旅行会社の方ですか？を選択してください';
+                    } else if (groupName === 'visitor_category') {
+                        message = '見学者様の分類を選択してください';
+                    }
+                    if (message && !errorMessages[message]) {
+                        errorMessages[message] = true;
+                        errors.push(message);
+                    }
                 }
             }
         });
@@ -591,7 +676,11 @@ class ReservationForm {
         if (!this.validateVisitorCount()) {
             isValid = false;
             const total = this.calculateTotalVisitors();
-            errors.push(`見学者様の合計人数が上限（${this.maxVisitors}名）を超えています（現在：${total}名）`);
+            const message = `見学者様の合計人数が上限（${this.maxVisitors}名）を超えています（現在：${total}名）`;
+            if (!errorMessages[message]) {
+                errorMessages[message] = true;
+                errors.push(message);
+            }
         }
         
         // エラーメッセージの表示
@@ -857,6 +946,66 @@ class ReservationForm {
         // ラベルが見つからない場合はフィールド名から推測
         const fieldName = field.name || field.id;
         return fieldName || '不明なフィールド';
+    }
+    
+    getFieldErrorMessage(field) {
+        // フィールド固有のエラーメッセージを取得
+        switch (field.id) {
+            case 'applicant_name':
+                return '申込者様氏名を入力してください';
+                
+            case 'applicant_name_kana':
+                if (!field.value.trim()) {
+                    return '申込者様氏名（ふりがな）を入力してください';
+                } else if (!/^[ぁ-んー\s]+$/.test(field.value)) {
+                    return '申込者様氏名（ふりがな）はひらがなで入力してください';
+                }
+                break;
+                
+            case 'postal_code':
+            case 'agency_postal_code':
+                if (!field.value.trim()) {
+                    return '郵便番号を入力してください';
+                } else {
+                    const cleanedValue = field.value.replace(/[^0-9]/g, '');
+                    if (cleanedValue.length !== 7) {
+                        return '郵便番号は7桁の半角数字でご入力ください';
+                    }
+                }
+                break;
+                
+            case 'prefecture':
+            case 'agency_prefecture':
+                return '都道府県を選択してください';
+                
+            case 'city':
+            case 'agency_city':
+                return '市区町村名を入力してください';
+                
+            case 'address':
+            case 'agency_address':
+                return '番地・ビル名を入力してください';
+                
+            default:
+                // ラジオボタンの場合
+                if (field.type === 'radio') {
+                    if (field.name === 'is_travel_agency') {
+                        return '申込者様は旅行会社の方ですか？を選択してください';
+                    } else if (field.name === 'visitor_category') {
+                        return '見学者様の分類を選択してください';
+                    }
+                }
+                
+                // その他のフィールド
+                const label = this.getFieldLabel(field);
+                if (field.type === 'email' && field.value.trim()) {
+                    return '正しいメールアドレスを入力してください';
+                } else if (field.type === 'tel' && field.value.trim()) {
+                    return '正しい電話番号を入力してください';
+                } else {
+                    return `${label}を入力してください`;
+                }
+        }
     }
     
     displayFormErrors(errors) {
