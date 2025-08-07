@@ -103,9 +103,9 @@
 }
 
 .wp-list-table {
-    width: auto;
     border-collapse: collapse;
     background: white;
+    table-layout: fixed;
 }
 
 .wp-list-table th {
@@ -154,6 +154,10 @@
 }
 
 /* テーブルセル固有のスタイル */
+.wp-list-table {
+    width: 990px;
+}
+
 .wp-list-table th:nth-child(1),
 .wp-list-table td:nth-child(1) {
     width: 80px;
@@ -187,12 +191,6 @@
 .wp-list-table th:nth-child(7),
 .wp-list-table td:nth-child(7) {
     width: 100px;
-}
-
-.wp-list-table th:last-child,
-.wp-list-table td:last-child {
-    width: auto;
-    min-width: 100px;
 }
 
 .reservation-number {
