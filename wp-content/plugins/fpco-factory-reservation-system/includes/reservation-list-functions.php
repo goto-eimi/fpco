@@ -540,21 +540,9 @@ function fpco_reservation_list_admin_page() {
                     
                     <div class="search-field">
                         <label for="time_slot">予約時間</label>
-                        <select name="time_slot" id="time_slot">
-                            <option value="">全て</option>
-                            <option value="AM" <?php selected($conditions['time_slot'], 'AM'); ?>>AM</option>
-                            <option value="PM" <?php selected($conditions['time_slot'], 'PM'); ?>>PM</option>
-                            <option value="9:00 ~ 10:00" <?php selected($conditions['time_slot'], '9:00 ~ 10:00'); ?>>9:00 ~ 10:00</option>
-                            <option value="9:30 ~ 10:30" <?php selected($conditions['time_slot'], '9:30 ~ 10:30'); ?>>9:30 ~ 10:30</option>
-                            <option value="10:00 ~ 11:00" <?php selected($conditions['time_slot'], '10:00 ~ 11:00'); ?>>10:00 ~ 11:00</option>
-                            <option value="10:30 ~ 11:30" <?php selected($conditions['time_slot'], '10:30 ~ 11:30'); ?>>10:30 ~ 11:30</option>
-                            <option value="11:00 ~ 12:00" <?php selected($conditions['time_slot'], '11:00 ~ 12:00'); ?>>11:00 ~ 12:00</option>
-                            <option value="14:00 ~ 15:00" <?php selected($conditions['time_slot'], '14:00 ~ 15:00'); ?>>14:00 ~ 15:00</option>
-                            <option value="14:30 ~ 15:30" <?php selected($conditions['time_slot'], '14:30 ~ 15:30'); ?>>14:30 ~ 15:30</option>
-                            <option value="15:00 ~ 16:00" <?php selected($conditions['time_slot'], '15:00 ~ 16:00'); ?>>15:00 ~ 16:00</option>
-                            <option value="15:30 ~ 16:30" <?php selected($conditions['time_slot'], '15:30 ~ 16:30'); ?>>15:30 ~ 16:30</option>
-                            <option value="16:00 ~ 17:00" <?php selected($conditions['time_slot'], '16:00 ~ 17:00'); ?>>16:00 ~ 17:00</option>
-                        </select>
+                        <input type="text" name="time_slot" id="time_slot" 
+                               value="<?php echo esc_attr($conditions['time_slot'] ?? ''); ?>" 
+                               placeholder="例: 9:00-10:00 または AM/PM">
                     </div>
                     
                     <div class="search-field">
