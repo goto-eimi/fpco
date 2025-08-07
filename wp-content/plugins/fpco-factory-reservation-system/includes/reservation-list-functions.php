@@ -182,13 +182,22 @@ function fpco_get_reservations($conditions) {
     $offset = ($page - 1) * $per_page;
     $total_pages = ceil($total_items / $per_page);
     
-    // データ取得（time_slotでソートする場合は、日付も考慮してソート）
+    // データ取得（time_slotでソートする場合は、時間の文字列をソート可能な形式で変換）
     if ($orderby === 'time_slot') {
-        $sql = "SELECT r.*, f.name as factory_name 
+        $sql = "SELECT r.*, f.name as factory_name,
+                       CASE 
+                           WHEN r.time_slot REGEXP '^[0-9]{1,2}:[0-9]{2}-[0-9]{1,2}:[0-9]{2}$' THEN
+                               CONCAT(
+                                   LPAD(SUBSTRING_INDEX(r.time_slot, ':', 1), 2, '0'),
+                                   ':',
+                                   SUBSTRING(SUBSTRING_INDEX(r.time_slot, '-', 1), -2)
+                               )
+                           ELSE r.time_slot
+                       END as time_sort_key
                 FROM {$wpdb->prefix}reservations r 
                 LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
                 WHERE {$where_sql} 
-                ORDER BY r.date {$order}, r.time_slot {$order} 
+                ORDER BY r.date {$order}, time_sort_key {$order} 
                 LIMIT %d OFFSET %d";
     } else {
         $sql = "SELECT r.*, f.name as factory_name 
