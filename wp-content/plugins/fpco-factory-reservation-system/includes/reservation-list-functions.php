@@ -148,11 +148,17 @@ function fpco_get_reservations($conditions) {
     // 時間帯検索（部分一致対応）
     if (!empty($conditions['time_slot'])) {
         if ($conditions['time_slot'] === 'AM') {
-            $where_clauses[] = 'r.time_slot LIKE %s';
+            // AM検索：AM文字列を含むか、8:00-11:59の時間帯
+            $where_clauses[] = '(r.time_slot LIKE %s OR 
+                                (r.time_slot REGEXP %s))';
             $params[] = '%AM%';
+            $params[] = '^([8-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
         } elseif ($conditions['time_slot'] === 'PM') {
-            $where_clauses[] = 'r.time_slot LIKE %s';
+            // PM検索：PM文字列を含むか、12:00-18:00の時間帯
+            $where_clauses[] = '(r.time_slot LIKE %s OR 
+                                (r.time_slot REGEXP %s))';
             $params[] = '%PM%';
+            $params[] = '^(1[2-8]:[0-9]{2})-';
         } else {
             // その他の場合は部分一致検索（例：「10:00」で「10:00-11:00」がヒット）
             $where_clauses[] = 'r.time_slot LIKE %s';
@@ -239,12 +245,12 @@ function fpco_extract_start_time($time_slot) {
         // AMで具体的な時間が含まれている場合（例: "9:00 AM", "AM 10:00"）
         if (preg_match('/(\d{1,2}):(\d{2})/', $time_slot, $matches)) {
             $hour = intval($matches[1]);
-            if ($hour >= 1 && $hour <= 11) { // 1:00-11:59は午前
+            if ($hour >= 8 && $hour <= 11) { // 8:00-11:59は午前
                 return str_pad($hour, 2, '0', STR_PAD_LEFT) . ':' . $matches[2];
             }
         }
-        // AM単体の場合は午前の中間時刻として扱う
-        return '09:00';
+        // AM単体の場合は午前の中間時刻として扱う（8:00-11:59の中間）
+        return '09:30';
     }
     
     // PM（午後）の場合は、実際に午後の時間が含まれているかチェック
@@ -252,14 +258,14 @@ function fpco_extract_start_time($time_slot) {
         // PMで具体的な時間が含まれている場合（例: "2:00 PM", "PM 15:00"）
         if (preg_match('/(\d{1,2}):(\d{2})/', $time_slot, $matches)) {
             $hour = intval($matches[1]);
-            if ($hour >= 12 && $hour <= 23) { // 12:00-23:59は午後（24時間表記）
+            if ($hour >= 12 && $hour <= 18) { // 12:00-18:59は午後（24時間表記）
                 return str_pad($hour, 2, '0', STR_PAD_LEFT) . ':' . $matches[2];
-            } elseif ($hour >= 1 && $hour <= 11) { // 1:00-11:59 PMは13:00-23:59に変換
+            } elseif ($hour >= 1 && $hour <= 6) { // 1:00-6:59 PMは13:00-18:59に変換
                 $hour = $hour + 12;
                 return str_pad($hour, 2, '0', STR_PAD_LEFT) . ':' . $matches[2];
             }
         }
-        // PM単体の場合は午後の中間時刻として扱う
+        // PM単体の場合は午後の中間時刻として扱う（12:00-18:00の中間）
         return '15:00';
     }
     
@@ -351,11 +357,17 @@ function fpco_export_reservations_csv($conditions) {
     
     if (!empty($conditions['time_slot'])) {
         if ($conditions['time_slot'] === 'AM') {
-            $where_clauses[] = 'r.time_slot LIKE %s';
+            // AM検索：AM文字列を含むか、8:00-11:59の時間帯
+            $where_clauses[] = '(r.time_slot LIKE %s OR 
+                                (r.time_slot REGEXP %s))';
             $params[] = '%AM%';
+            $params[] = '^([8-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
         } elseif ($conditions['time_slot'] === 'PM') {
-            $where_clauses[] = 'r.time_slot LIKE %s';
+            // PM検索：PM文字列を含むか、12:00-18:00の時間帯
+            $where_clauses[] = '(r.time_slot LIKE %s OR 
+                                (r.time_slot REGEXP %s))';
             $params[] = '%PM%';
+            $params[] = '^(1[2-8]:[0-9]{2})-';
         } else {
             // その他の場合は部分一致検索（例：「10:00」で「10:00-11:00」がヒット）
             $where_clauses[] = 'r.time_slot LIKE %s';
