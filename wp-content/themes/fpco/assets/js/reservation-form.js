@@ -564,6 +564,7 @@ class ReservationForm {
     validateForm() {
         const submitBtn = document.querySelector('.btn-submit');
         let isValid = true;
+        const errors = [];
         
         // 必須項目のチェック（表示されているフィールドのみ）
         const requiredFields = this.form.querySelectorAll('[required]');
@@ -573,6 +574,9 @@ class ReservationForm {
             if (!hiddenParent) {
                 if (!this.validateField(field)) {
                     isValid = false;
+                    // エラーメッセージを収集
+                    const fieldLabel = this.getFieldLabel(field);
+                    errors.push(fieldLabel);
                 }
             }
         });
@@ -580,11 +584,16 @@ class ReservationForm {
         // 人数制限チェック
         if (!this.validateVisitorCount()) {
             isValid = false;
+            const total = this.calculateTotalVisitors();
+            errors.push(`見学者様の合計人数が上限（${this.maxVisitors}名）を超えています（現在：${total}名）`);
         }
         
-        // 送信ボタンの状態更新
+        // エラーメッセージの表示
+        this.displayFormErrors(errors);
+        
+        // 送信ボタンは常に有効にする
         if (submitBtn) {
-            submitBtn.disabled = !isValid;
+            submitBtn.disabled = false;
         }
         
         return isValid;
@@ -612,22 +621,20 @@ class ReservationForm {
     handleSubmit(e) {
         e.preventDefault();
         
-        // 人数制限チェックを先に実行
-        if (!this.validateVisitorCount()) {
-            // 人数オーバーの場合は専用のアラートを表示
-            const total = this.calculateTotalVisitors();
-            alert(`見学者様の合計人数が上限（${this.maxVisitors}名）を超えています。\n現在の合計：${total}名\n\n人数を調整してから再度お試しください。`);
-            return;
-        }
+        // フォームバリデーションを実行してエラーを収集
+        const isValid = this.validateForm();
         
-        if (!this.validateForm()) {
-            alert('入力内容を確認してください');
+        if (!isValid) {
+            // エラーがある場合はエラー表示エリアにスクロール
+            const errorMessagesDiv = document.getElementById('error-messages');
+            if (errorMessagesDiv && errorMessagesDiv.style.display === 'block') {
+                errorMessagesDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
             return;
         }
         
         // 送信中フラグを設定
         this.isSubmitting = true;
-        
         
         // 送信前に非表示セクション内のフィールドを無効化（送信対象から除外）
         const hiddenSections = this.form.querySelectorAll('.conditional[style*="display: none"]');
@@ -829,6 +836,46 @@ class ReservationForm {
         }
         
         return false;
+    }
+    
+    getFieldLabel(field) {
+        // フィールドのラベルを取得
+        const infoRow = field.closest('.info-row');
+        if (infoRow) {
+            const label = infoRow.querySelector('.info-label');
+            if (label) {
+                return label.textContent.replace(/\n/g, '').trim();
+            }
+        }
+        
+        // ラベルが見つからない場合はフィールド名から推測
+        const fieldName = field.name || field.id;
+        return fieldName || '不明なフィールド';
+    }
+    
+    displayFormErrors(errors) {
+        const errorMessagesDiv = document.getElementById('error-messages');
+        const errorList = document.getElementById('error-list');
+        
+        if (!errorMessagesDiv || !errorList) return;
+        
+        if (errors.length > 0) {
+            // エラーリストをクリア
+            errorList.innerHTML = '';
+            
+            // エラーメッセージを追加
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+            
+            // エラーメッセージを表示
+            errorMessagesDiv.style.display = 'block';
+        } else {
+            // エラーがない場合は非表示
+            errorMessagesDiv.style.display = 'none';
+        }
     }
 }
 
