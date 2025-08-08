@@ -29,20 +29,24 @@ class ReservationCalendar {
         }
         
         // モーダル関連（要素が存在する場合のみ）
-        const modalClose = document.querySelector('.modal-close');
-        if (modalClose) {
-            modalClose.addEventListener('click', () => this.closeModal());
-        }
+        setTimeout(() => {
+            const modalClose = document.querySelector('.modal-close');
+            if (modalClose) {
+                modalClose.addEventListener('click', () => this.closeModal());
+            }
+        }, 100);
         
         // オーバーレイクリックで閉じる
-        const timeslotModal = document.getElementById('timeslot-modal');
-        if (timeslotModal) {
-            timeslotModal.addEventListener('click', (e) => {
-                if (e.target.id === 'timeslot-modal') {
-                    this.closeModal();
-                }
-            });
-        }
+        setTimeout(() => {
+            const timeslotModal = document.getElementById('timeslot-modal');
+            if (timeslotModal) {
+                timeslotModal.addEventListener('click', (e) => {
+                    if (e.target.id === 'timeslot-modal') {
+                        this.closeModal();
+                    }
+                });
+            }
+        }, 100);
     }
     
     getFactoryId() {
@@ -590,3 +594,10 @@ class ReservationCalendar {
 document.addEventListener('DOMContentLoaded', function() {
     window.reservationCalendar = new ReservationCalendar();
 });
+
+// グローバル関数として定義（HTML内のonclickから呼び出せるように）
+window.openTimeslotSelection = function(dateStr, period) {
+    if (window.reservationCalendar) {
+        window.reservationCalendar.openTimeslotModal(dateStr, period);
+    }
+};
