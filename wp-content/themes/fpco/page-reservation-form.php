@@ -131,7 +131,7 @@ input[type="number"] {
             </div>
         </div>
 
-        <form id="reservation-form" class="reservation-form" method="post" action="<?php echo home_url('/reservation-confirm/'); ?>">
+        <form id="reservation-form" class="reservation-form" method="post" action="<?php echo home_url('/reservation-confirm/'); ?>" novalidate>
             <!-- 予約基本情報（非表示フィールド） -->
             <input type="hidden" name="factory_id" value="<?php echo esc_attr($factory_id); ?>">
             <input type="hidden" name="date" value="<?php echo esc_attr($date); ?>">
