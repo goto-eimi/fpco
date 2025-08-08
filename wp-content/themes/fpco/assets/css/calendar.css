@@ -1,18 +1,8 @@
 /* カレンダーの基本スタイル */
 .calendar-container {
     max-width: 1200px;
-    width: 100%;
     margin: 0 auto;
     padding: 20px;
-}
-
-/* ショートコード用のカレンダーコンテナ */
-.reservation-calendar-shortcode .calendar-container {
-    max-width: none;
-    width: 100%;
-    margin: 0;
-    padding: 20px 0;
-    overflow-x: auto;
 }
 
 .calendar-controls {
@@ -54,8 +44,6 @@
     border-radius: 8px;
     background: #E0E0E0;
     padding: 20px;
-    width: 100%;
-    overflow-x: auto;
 }
 
 .calendar-grid {
@@ -65,21 +53,6 @@
     background: black;
     border: 1px solid black;
     overflow: hidden;
-    min-width: 800px;
-    width: 100%;
-}
-
-/* ショートコード用のカレンダーグリッド調整 */
-.reservation-calendar-shortcode .calendar-grid {
-    min-width: 1000px;
-    width: 100%;
-}
-
-/* ショートコード用のカレンダーグリッドコンテナ */
-.reservation-calendar-shortcode .calendar-grid-container {
-    width: 100%;
-    overflow-x: auto;
-    min-width: 1000px;
 }
 
 .calendar-day-header {
@@ -93,17 +66,9 @@
 .calendar-day {
     background: white;
     min-height: 100px;
-    min-width: 120px;
     padding: 0px 5px;
     position: relative;
     cursor: default;
-}
-
-/* ショートコード用の日付セル調整 */
-.reservation-calendar-shortcode .calendar-day {
-    min-width: 140px;
-    min-height: 120px;
-    padding: 5px;
 }
 
 .calendar-day.clickable {
