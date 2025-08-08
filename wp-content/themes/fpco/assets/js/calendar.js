@@ -74,7 +74,9 @@ class ReservationCalendar {
             const ajaxUrl = typeof calendarData !== 'undefined' && calendarData.ajaxUrl ? 
                            calendarData.ajaxUrl : '/wp-admin/admin-ajax.php';
             
-            const response = await fetch(`${ajaxUrl}?action=get_calendar_data&month=${yearMonth}&factory=${this.factoryId}`);
+            const requestUrl = `${ajaxUrl}?action=get_calendar_data&month=${yearMonth}&factory=${this.factoryId}`;
+            
+            const response = await fetch(requestUrl);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: データの取得に失敗しました`);

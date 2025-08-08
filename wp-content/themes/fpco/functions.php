@@ -222,7 +222,38 @@ function fpco_reservation_calendar_shortcode($atts) {
 
             <!-- カレンダー本体 -->
             <div id="calendar" class="calendar" data-factory-id="<?php echo esc_attr($factory_id); ?>">
-                <!-- JavaScriptで動的に生成 -->
+                <!-- PC版カレンダーグリッド -->
+                <div class="calendar-grid-container desktop-only">
+                    <div id="calendar-grid" class="calendar-grid">
+                        <!-- JavaScriptで動的に生成 -->
+                    </div>
+                </div>
+                
+                <!-- スマホ版カレンダーリスト -->
+                <div class="calendar-list-container mobile-only">
+                    <div id="calendar-list" class="calendar-list">
+                        <!-- JavaScriptで動的に生成 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 凡例 -->
+            <div class="calendar-legend">
+                <h3>凡例</h3>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-symbol available">◯</div>
+                        <div class="legend-text">空いています（クリックして予約）</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol adjusting">調整</div>
+                        <div class="legend-text">調整中</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol unavailable">×</div>
+                        <div class="legend-text">ご利用いただけません</div>
+                    </div>
+                </div>
             </div>
         </div>
         
