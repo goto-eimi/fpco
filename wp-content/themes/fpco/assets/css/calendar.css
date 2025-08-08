@@ -756,6 +756,54 @@
         min-width: 140px;
     }
     
+    /* スマホ版リスト表示の最適化 */
+    .list-date-section {
+        min-width: 22px;
+    }
+    
+    .list-weekday-section {
+        min-width: 22px;
+    }
+    
+    .list-date-section, .list-weekday-section, .list-time-section {
+        /* min-height: 45px; */
+    }
+    
+    .list-time-section {
+        background: white;
+        padding: 8px;
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: space-around;
+        /* gap: 0px; */
+    }
+    
+    .mobile-status-button {
+        display: inline-block;
+        width: 50px;
+        height: 25px;
+        border-radius: 18px;
+        text-align: center;
+        line-height: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: default;
+        border: none;
+        text-decoration: none;
+    }
+    
+    .list-am-slot, .list-pm-slot {
+        font-size: 12px;
+        font-weight: 600;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex: 1;
+        justify-content: center;
+    }
+    
     .legend-items {
         grid-template-columns: 1fr;
     }
