@@ -624,7 +624,7 @@ class ReservationForm {
         return isValid;
     }
     
-    validateForm() {
+    validateForm(showErrors = false) {
         const submitBtn = document.querySelector('.btn-submit');
         let isValid = true;
         const errors = [];
@@ -681,8 +681,10 @@ class ReservationForm {
             }
         }
         
-        // エラーメッセージの表示は無効化（リアルタイムバリデーション時）
-        // this.displayFormErrors(errors);
+        // エラーメッセージの表示（フォーム送信時のみ）
+        if (showErrors) {
+            this.displayFormErrors(errors);
+        }
         
         // 送信ボタンは常に有効にする
         if (submitBtn) {
@@ -715,64 +717,7 @@ class ReservationForm {
         e.preventDefault();
         
         // フォームバリデーションを実行してエラーを収集
-        const submitBtn = document.querySelector('.btn-submit');
-        let isValid = true;
-        const errors = [];
-        const errorMessages = {};
-        
-        // 必須項目のチェック（表示されているフィールドのみ）
-        const requiredFields = this.form.querySelectorAll('[required]');
-        requiredFields.forEach(field => {
-            // フィールドが非表示の親要素内にないかチェック
-            const hiddenParent = field.closest('.conditional[style*="display: none"]');
-            if (!hiddenParent) {
-                if (!this.validateField(field)) {
-                    isValid = false;
-                    // エラーメッセージを収集（重複を避ける）
-                    const message = this.getFieldErrorMessage(field);
-                    if (message && !errorMessages[message]) {
-                        errorMessages[message] = true;
-                        errors.push(message);
-                    }
-                }
-            }
-        });
-        
-        // ラジオボタングループのバリデーション
-        const radioGroups = ['is_travel_agency', 'visitor_category'];
-        radioGroups.forEach(groupName => {
-            const radios = this.form.querySelectorAll(`input[name="${groupName}"]`);
-            if (radios.length > 0) {
-                const isChecked = Array.from(radios).some(radio => radio.checked);
-                if (!isChecked) {
-                    isValid = false;
-                    let message = '';
-                    if (groupName === 'is_travel_agency') {
-                        message = '申込者様は旅行会社の方ですか？を選択してください';
-                    } else if (groupName === 'visitor_category') {
-                        message = '見学者様の分類を選択してください';
-                    }
-                    if (message && !errorMessages[message]) {
-                        errorMessages[message] = true;
-                        errors.push(message);
-                    }
-                }
-            }
-        });
-        
-        // 人数制限チェック
-        if (!this.validateVisitorCount()) {
-            isValid = false;
-            const total = this.calculateTotalVisitors();
-            const message = `見学者様の合計人数が上限（${this.maxVisitors}名）を超えています（現在：${total}名）`;
-            if (!errorMessages[message]) {
-                errorMessages[message] = true;
-                errors.push(message);
-            }
-        }
-        
-        // フォーム送信時のみエラーサマリーを表示
-        this.displayFormErrorsOnSubmit(errors);
+        const isValid = this.validateForm(true);
         
         if (!isValid) {
             // エラーがある場合はエラー表示エリアにスクロール
