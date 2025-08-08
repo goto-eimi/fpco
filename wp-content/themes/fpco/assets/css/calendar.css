@@ -3,6 +3,17 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    width: 100%;
+}
+
+/* ショートコード用のカレンダーコンテナ */
+.reservation-calendar-shortcode .calendar-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 10px;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .calendar-controls {
@@ -44,6 +55,21 @@
     border-radius: 8px;
     background: #E0E0E0;
     padding: 20px;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ショートコード用のカレンダーグリッドコンテナ */
+.reservation-calendar-shortcode .calendar-grid-container {
+    border: 1px solid black;
+    border-radius: 8px;
+    background: #E0E0E0;
+    padding: 10px;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 320px;
 }
 
 .calendar-grid {
@@ -53,6 +79,19 @@
     background: black;
     border: 1px solid black;
     overflow: hidden;
+    width: 100%;
+}
+
+/* ショートコード用のカレンダーグリッド */
+.reservation-calendar-shortcode .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(120px, 1fr));
+    gap: 1px;
+    background: black;
+    border: 1px solid black;
+    overflow: hidden;
+    width: 100%;
+    min-width: 840px;
 }
 
 .calendar-day-header {
@@ -590,6 +629,17 @@
     
     .mobile-only {
         display: block !important;
+    }
+    
+    /* ショートコード用のモバイル調整 */
+    .reservation-calendar-shortcode .calendar-container {
+        padding: 5px;
+        overflow-x: auto;
+    }
+    
+    .reservation-calendar-shortcode .calendar-grid-container {
+        padding: 5px;
+        min-width: 280px;
     }
     
     .calendar-controls {
