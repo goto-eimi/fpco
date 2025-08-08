@@ -369,15 +369,6 @@ class ReservationCalendar {
             };
         }
         
-        // 7日、14日、21日、28日は表示なし（受付対象外）
-        if (day === 7 || day === 14 || day === 21 || day === 28) {
-            return {
-                clickable: false,
-                am: { status: 'none', symbol: '' },
-                pm: { status: 'none', symbol: '' }
-            };
-        }
-        
         // 仕様に基づくサンプルデータ
         if (day === 1) {
             return {
@@ -387,12 +378,21 @@ class ReservationCalendar {
             };
         }
         
-        // 木曜日のサンプルデータ（weekday === 4）
+        // 木曜日のサンプルデータ（weekday === 4）- 日付より優先
         if (weekday === 4) {
             return {
                 clickable: true,
                 am: { status: 'available', symbol: '〇' },
                 pm: { status: 'adjusting', symbol: '△' }
+            };
+        }
+        
+        // 7日、14日、21日、28日は表示なし（受付対象外）- 木曜日以外
+        if (day === 7 || day === 14 || day === 21 || day === 28) {
+            return {
+                clickable: false,
+                am: { status: 'none', symbol: '' },
+                pm: { status: 'none', symbol: '' }
             };
         }
         
