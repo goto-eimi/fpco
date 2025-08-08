@@ -18,6 +18,7 @@ class ReservationForm {
         
         this.bindEvents();
         this.restoreFormData();
+        this.validateForm();
     }
     
     bindEvents() {
