@@ -673,38 +673,50 @@
     }
     
     .reservation-calendar-shortcode .calendar-day {
-        min-height: 50px;
-        font-size: 9px;
-        padding: 1px;
+        min-height: 45px;
+        font-size: 8px;
+        padding: 0px;
+    }
+    
+    .reservation-calendar-shortcode .time-slot {
+        flex-direction: column;
+        gap: 1px;
+        text-align: center;
     }
     
     .reservation-calendar-shortcode .time-label {
-        font-size: 7px;
+        font-size: 6px;
     }
     
     .reservation-calendar-shortcode .status-button {
-        width: 35px;
-        height: 14px;
-        line-height: 14px;
-        font-size: 7px;
+        width: 30px;
+        height: 12px;
+        line-height: 12px;
+        font-size: 6px;
     }
     
     /* 通常のカレンダーもモバイルでレスポンシブに */
     .calendar-day {
-        min-height: 70px;
+        min-height: 60px;
         padding: 1px;
-        font-size: 11px;
+        font-size: 10px;
+    }
+    
+    .time-slot {
+        flex-direction: column;
+        gap: 2px;
+        text-align: center;
     }
     
     .time-label {
-        font-size: 9px;
+        font-size: 8px;
     }
     
     .status-button {
-        width: 45px;
-        height: 18px;
-        line-height: 18px;
-        font-size: 9px;
+        width: 40px;
+        height: 16px;
+        line-height: 16px;
+        font-size: 8px;
     }
     
     .calendar-controls {
@@ -778,46 +790,79 @@
 
 /* 小型スマホ（320px以下）向けの追加調整 */
 @media (max-width: 320px) {
+    .calendar-container {
+        padding: 2px !important;
+    }
+    
     .reservation-calendar-shortcode .calendar-day {
-        min-height: 40px;
-        font-size: 8px;
+        min-height: 35px;
+        font-size: 7px;
         padding: 0px;
     }
     
+    .reservation-calendar-shortcode .time-slots {
+        gap: 1px;
+        padding: 0;
+        margin-bottom: 2px;
+    }
+    
+    .reservation-calendar-shortcode .time-slot {
+        flex-direction: column;
+        gap: 1px;
+        text-align: center;
+    }
+    
     .reservation-calendar-shortcode .time-label {
-        font-size: 6px;
+        font-size: 5px;
     }
     
     .reservation-calendar-shortcode .status-button {
+        width: 25px;
+        height: 10px;
+        line-height: 10px;
+        font-size: 5px;
+    }
+    
+    .calendar-day {
+        min-height: 50px;
+        padding: 0px;
+        font-size: 8px;
+    }
+    
+    .time-slots {
+        gap: 2px;
+        padding: 0 1px;
+        margin-bottom: 2px;
+    }
+    
+    .time-slot {
+        flex-direction: column;
+        gap: 1px;
+        text-align: center;
+    }
+    
+    .time-label {
+        font-size: 6px;
+    }
+    
+    .status-button {
         width: 30px;
         height: 12px;
         line-height: 12px;
         font-size: 6px;
     }
     
-    .calendar-day {
-        min-height: 60px;
-        padding: 0px;
-        font-size: 10px;
-    }
-    
-    .time-label {
-        font-size: 8px;
-    }
-    
-    .status-button {
-        width: 40px;
-        height: 16px;
-        line-height: 16px;
-        font-size: 8px;
-    }
-    
     .calendar-grid-container {
-        padding: 5px;
+        padding: 2px;
     }
     
     .reservation-calendar-shortcode .calendar-grid-container {
-        padding: 3px;
+        padding: 1px;
+    }
+    
+    .calendar-day-header {
+        padding: 4px 2px;
+        font-size: 10px;
     }
 }
 
