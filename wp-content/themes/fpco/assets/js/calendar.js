@@ -5,7 +5,7 @@
 class ReservationCalendar {
     constructor() {
         this.currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0');
-        this.factoryId = this.getFactoryIdFromURL();
+        this.factoryId = this.getFactoryId();
         this.calendarData = {};
         this.selectedDate = null;
         this.selectedTimeslot = null;
@@ -20,23 +20,44 @@ class ReservationCalendar {
     
     bindEvents() {
         // 月選択の変更
-        document.getElementById('calendar-month-select').addEventListener('change', (e) => {
-            this.currentMonth = e.target.value;
-            this.loadCalendarData(this.currentMonth);
-        });
+        const monthSelect = document.getElementById('calendar-month-select');
+        if (monthSelect) {
+            monthSelect.addEventListener('change', (e) => {
+                this.currentMonth = e.target.value;
+                this.loadCalendarData(this.currentMonth);
+            });
+        }
         
-        // モーダル関連
-        document.querySelector('.modal-close').addEventListener('click', () => this.closeModal());
+        // モーダル関連（要素が存在する場合のみ）
+        const modalClose = document.querySelector('.modal-close');
+        if (modalClose) {
+            modalClose.addEventListener('click', () => this.closeModal());
+        }
         
         // オーバーレイクリックで閉じる
-        document.getElementById('timeslot-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'timeslot-modal') {
-                this.closeModal();
-            }
-        });
+        const timeslotModal = document.getElementById('timeslot-modal');
+        if (timeslotModal) {
+            timeslotModal.addEventListener('click', (e) => {
+                if (e.target.id === 'timeslot-modal') {
+                    this.closeModal();
+                }
+            });
+        }
     }
     
-    getFactoryIdFromURL() {
+    getFactoryId() {
+        // まずdata属性から取得（ショートコード用）
+        const calendarEl = document.getElementById('calendar');
+        if (calendarEl && calendarEl.dataset.factoryId) {
+            return calendarEl.dataset.factoryId;
+        }
+        
+        // 次にcalendarDataグローバル変数から取得（ショートコード用）
+        if (typeof calendarData !== 'undefined' && calendarData.factoryId) {
+            return calendarData.factoryId;
+        }
+        
+        // 最後にURLパラメータから取得（ページテンプレート用）
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('factory') || '1';
     }
@@ -45,7 +66,11 @@ class ReservationCalendar {
         try {
             this.showLoading();
             
-            const response = await fetch(`/wp-json/reservation/v1/calendar?month=${yearMonth}&factory=${this.factoryId}`);
+            // AJAXエンドポイントURLを構築
+            const ajaxUrl = typeof calendarData !== 'undefined' && calendarData.ajaxUrl ? 
+                           calendarData.ajaxUrl : '/wp-admin/admin-ajax.php';
+            
+            const response = await fetch(`${ajaxUrl}?action=get_calendar_data&month=${yearMonth}&factory=${this.factoryId}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: データの取得に失敗しました`);
@@ -392,7 +417,11 @@ class ReservationCalendar {
         const displayDate = this.formatDisplayDate(date);
         const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
         
-        document.getElementById('modal-selected-date').textContent = displayDate + periodLabel;
+        // モーダルタイトルを更新
+        const modalTitle = document.getElementById('modal-date-title');
+        if (modalTitle) {
+            modalTitle.textContent = displayDate + periodLabel + ' - 時間帯を選択';
+        }
         
         // 時間帯選択肢を生成
         this.renderDurationOptions(dateStr, period);
@@ -526,7 +555,11 @@ class ReservationCalendar {
                 timeslot: this.selectedTimeslot
             });
             
-            window.location.href = `/reservation-form/?${params.toString()}`;
+            // 予約フォームのURLを取得（ショートコード用の設定を優先）
+            const reservationFormUrl = typeof calendarData !== 'undefined' && calendarData.reservationFormUrl ? 
+                                     calendarData.reservationFormUrl : '/reservation-form/';
+            
+            window.location.href = `${reservationFormUrl}?${params.toString()}`;
         }
     }
     

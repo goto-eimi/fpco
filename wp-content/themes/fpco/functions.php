@@ -225,6 +225,25 @@ function fpco_reservation_calendar_shortcode($atts) {
                 <!-- JavaScriptで動的に生成 -->
             </div>
         </div>
+        
+        <!-- タイムスロット選択モーダル -->
+        <div id="timeslot-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-date-title">時間帯を選択</h3>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="timeslot-options">
+                        <!-- 動的に生成される -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button button-secondary" onclick="window.reservationCalendar.closeModal()">キャンセル</button>
+                    <button type="button" class="button button-primary" id="confirm-timeslot" disabled>予約フォームへ進む</button>
+                </div>
+            </div>
+        </div>
     </div>
     <?php
     
