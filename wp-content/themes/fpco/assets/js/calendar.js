@@ -387,7 +387,8 @@ class ReservationCalendar {
             };
         }
         
-        if (day === 4) {
+        // 木曜日のサンプルデータ（weekday === 4）
+        if (weekday === 4) {
             return {
                 clickable: true,
                 am: { status: 'available', symbol: '〇' },
