@@ -612,7 +612,7 @@ function fpco_get_type_specific_data($data) {
     
     switch ($data['reservation_type']) {
         case 'school':
-            $type_data = [
+            $type_data = array_merge($type_data, [
                 'school_name' => sanitize_text_field($data['school_name']),
                 'school_name_kana' => sanitize_text_field($data['school_name_kana']),
                 'representative_name' => sanitize_text_field($data['representative_name']),
@@ -621,16 +621,16 @@ function fpco_get_type_specific_data($data) {
                 'class_count' => intval($data['class_count']),
                 'student_count' => intval($data['student_count']),
                 'supervisor_count' => intval($data['supervisor_count'])
-            ];
+            ]);
             break;
             
         case 'student_recruit':
-            $type_data = [
+            $type_data = array_merge($type_data, [
                 'school_name' => sanitize_text_field($data['recruit_school_name']),
                 'department' => sanitize_text_field($data['recruit_department']),
                 'grade' => intval($data['recruit_grade']),
                 'visitor_count' => intval($data['recruit_visitor_count'])
-            ];
+            ]);
             
             // 同行者情報
             $companions = [];
@@ -651,12 +651,12 @@ function fpco_get_type_specific_data($data) {
         case 'company':
         case 'municipality':
         case 'other':
-            $type_data = [
+            $type_data = array_merge($type_data, [
                 'company_name' => sanitize_text_field($data['company_name']),
                 'company_name_kana' => sanitize_text_field($data['company_name_kana']),
                 'adult_count' => intval($data['adult_count']),
                 'child_count' => intval($data['child_count'])
-            ];
+            ]);
             
             if (!empty($data['child_grade'])) {
                 $type_data['child_grade'] = sanitize_text_field($data['child_grade']);
