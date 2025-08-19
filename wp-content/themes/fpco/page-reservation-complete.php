@@ -496,7 +496,7 @@ function save_reservation_to_database($reservation_id, $form_data) {
         'purpose' => $form_data['purpose'] ?? '',
         'participant_count' => calculate_total_visitors($form_data),
         'participants_child_count' => calculate_child_count($form_data),
-        'status' => 'pending',
+        'status' => 'new',
         'created_at' => current_time('mysql'),
         'updated_at' => current_time('mysql')
     ];
