@@ -1033,10 +1033,33 @@ function reservation_management_admin_page() {
 
                         <!-- 見学日 -->
                         <div class="form-field">
-                            <label for="visit_date" class="form-label">
+                            <label class="form-label">
                                 見学日 <span class="required">*</span>
                             </label>
-                            <input type="date" name="visit_date" id="visit_date" class="form-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" value="<?php echo get_form_value('visit_date', $form_data); ?>">
+                            <div class="date-input-group">
+                                <?php
+                                $visit_date = get_form_value('visit_date', $form_data);
+                                $year = '';
+                                $month = '';
+                                $day = '';
+                                
+                                if ($visit_date && preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $visit_date, $matches)) {
+                                    $year = $matches[1];
+                                    $month = $matches[2];
+                                    $day = $matches[3];
+                                }
+                                ?>
+                                <input type="number" name="visit_year" id="visit_year" class="date-part-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" 
+                                       min="2024" max="2030" placeholder="年" value="<?php echo esc_attr($year); ?>" style="width: 80px;">
+                                <span class="date-separator">年</span>
+                                <input type="number" name="visit_month" id="visit_month" class="date-part-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" 
+                                       min="1" max="12" placeholder="月" value="<?php echo esc_attr($month); ?>" style="width: 60px;">
+                                <span class="date-separator">月</span>
+                                <input type="number" name="visit_day" id="visit_day" class="date-part-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" 
+                                       min="1" max="31" placeholder="日" value="<?php echo esc_attr($day); ?>" style="width: 60px;">
+                                <span class="date-separator">日</span>
+                                <input type="hidden" name="visit_date" id="visit_date" value="<?php echo esc_attr($visit_date); ?>">
+                            </div>
                             <?php display_field_error('visit_date', $field_errors); ?>
                         </div>
 
@@ -1709,6 +1732,47 @@ function reservation_management_admin_page() {
         travelAgencyYes.addEventListener('change', toggleTravelAgencyFields);
         travelAgencyNo.addEventListener('change', toggleTravelAgencyFields);
         
+        // 日付入力の自動移動とフォーマット
+        const visitYear = document.getElementById('visit_year');
+        const visitMonth = document.getElementById('visit_month');
+        const visitDay = document.getElementById('visit_day');
+        const visitDateHidden = document.getElementById('visit_date');
+        
+        function updateHiddenDateField() {
+            const year = visitYear.value;
+            const month = visitMonth.value.padStart(2, '0');
+            const day = visitDay.value.padStart(2, '0');
+            
+            if (year && month && day) {
+                visitDateHidden.value = `${year}-${month}-${day}`;
+            } else {
+                visitDateHidden.value = '';
+            }
+        }
+        
+        function autoMoveToNext(currentField, nextField, maxLength) {
+            currentField.addEventListener('input', function() {
+                if (this.value.length === maxLength) {
+                    if (nextField) {
+                        nextField.focus();
+                    }
+                }
+                updateHiddenDateField();
+            });
+        }
+        
+        // 年から月への自動移動（4桁入力後）
+        autoMoveToNext(visitYear, visitMonth, 4);
+        
+        // 月から日への自動移動（2桁入力後）
+        autoMoveToNext(visitMonth, visitDay, 2);
+        
+        // 日フィールドも更新時にhiddenフィールドを更新
+        visitDay.addEventListener('input', updateHiddenDateField);
+        
+        // 初期化時にもhiddenフィールドを更新
+        updateHiddenDateField();
+        
         // 学校・団体情報の表示/非表示制御
         const reservationTypeSchool = document.getElementById('reservation_type_school');
         const reservationTypeStudentRecruit = document.getElementById('reservation_type_student_recruit');
@@ -2279,5 +2343,45 @@ function reservation_management_admin_page() {
         }
     });
     </script>
+    
+    <style>
+    .date-input-group {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    
+    .date-part-input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    .date-part-input:focus {
+        outline: none;
+        border-color: #0073aa;
+        box-shadow: 0 0 0 1px #0073aa;
+    }
+    
+    .date-separator {
+        font-size: 14px;
+        color: #666;
+        margin: 0 2px;
+    }
+    
+    @media (max-width: 768px) {
+        .date-input-group {
+            flex-direction: row;
+            justify-content: flex-start;
+        }
+        
+        .date-part-input {
+            min-width: 60px;
+        }
+    }
+    </style>
     <?php
 }
