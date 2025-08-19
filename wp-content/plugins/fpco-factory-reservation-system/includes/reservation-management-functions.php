@@ -238,7 +238,7 @@ function fpco_handle_reservation_form_submission() {
     $format = [
         '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', 
         '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', 
-        '%s', '%d', '%d', '%s'
+        '%s', '%d', '%d', '%s', '%s'
     ];
     
     if ($is_edit_mode) {
@@ -251,8 +251,13 @@ function fpco_handle_reservation_form_submission() {
             ['%d']
         );
         
+        error_log('Debug - Update result: ' . var_export($result, true));
+        if ($wpdb->last_error) {
+            error_log('Debug - DB Error: ' . $wpdb->last_error);
+        }
+        
         if ($result === false) {
-            return ['success' => false, 'errors' => ['データベースへの更新に失敗しました。']];
+            return ['success' => false, 'errors' => ['データベースへの更新に失敗しました。エラー: ' . $wpdb->last_error]];
         } else {
             return ['success' => true, 'message' => '予約を正常に更新しました。予約番号: ' . $reservation_id];
         }
