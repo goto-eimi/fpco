@@ -272,10 +272,6 @@ function fpco_validate_reservation_form($data) {
     $required_fields = [
         'factory_id' => '見学工場',
         'visit_date' => '見学日',
-        'visit_time_start_hour' => '見学開始時間（時）',
-        'visit_time_start_minute' => '見学開始時間（分）',
-        'visit_time_end_hour' => '見学終了時間（時）',
-        'visit_time_end_minute' => '見学終了時間（分）',
         'applicant_name' => '申込者氏名',
         'applicant_kana' => '申込者氏名(ふりがな)',
         'is_travel_agency' => '旅行会社かどうか',
@@ -293,17 +289,24 @@ function fpco_validate_reservation_form($data) {
     
     foreach ($required_fields as $field => $label) {
         $value = isset($data[$field]) ? trim($data[$field]) : '';
-        
-        // 時間フィールドの場合、"00"や"0"も空として扱う
-        if (in_array($field, ['visit_time_start_hour', 'visit_time_start_minute', 'visit_time_end_hour', 'visit_time_end_minute'])) {
-            if ($value === '' || $value === null || $value === '00' || $value === '0') {
-                $add_field_error($field, $label . 'は必須項目です。');
-            }
-        } else {
-            if ($value === '' || $value === null) {
-                $add_field_error($field, $label . 'は必須項目です。');
-            }
+        if ($value === '' || $value === null) {
+            $add_field_error($field, $label . 'は必須項目です。');
         }
+    }
+    
+    // 見学時間帯の必須チェック
+    $start_hour = isset($data['visit_time_start_hour']) ? trim($data['visit_time_start_hour']) : '';
+    $start_minute = isset($data['visit_time_start_minute']) ? trim($data['visit_time_start_minute']) : '';
+    $end_hour = isset($data['visit_time_end_hour']) ? trim($data['visit_time_end_hour']) : '';
+    $end_minute = isset($data['visit_time_end_minute']) ? trim($data['visit_time_end_minute']) : '';
+    
+    $start_hour_empty = ($start_hour === '' || $start_hour === '0' || $start_hour === '00');
+    $start_minute_empty = ($start_minute === '' || $start_minute === '0' || $start_minute === '00');
+    $end_hour_empty = ($end_hour === '' || $end_hour === '0' || $end_hour === '00');
+    $end_minute_empty = ($end_minute === '' || $end_minute === '0' || $end_minute === '00');
+    
+    if ($start_hour_empty || $start_minute_empty || $end_hour_empty || $end_minute_empty) {
+        $add_field_error('visit_time', '見学時間帯は必須項目です。');
     }
 
     // ステータス値の妥当性チェック
@@ -1095,6 +1098,7 @@ function fpco_reservation_management_admin_page() {
                                            placeholder="分" style="width: 50px;" maxlength="2" value="<?php echo get_form_value('visit_time_end_minute', $form_data); ?>">
                                 </div>
                             </div>
+                            <?php display_field_error('visit_time', $field_errors); ?>
                             <?php display_field_error('visit_time_start', $field_errors); ?>
                             <?php display_field_error('visit_time_end', $field_errors); ?>
                         </div>
@@ -1909,10 +1913,6 @@ function fpco_reservation_management_admin_page() {
         const requiredFields = [
             { id: 'factory_id', name: '見学工場' },
             { id: 'visit_date', name: '見学日' },
-            { id: 'visit_time_start_hour', name: '見学開始時間（時）' },
-            { id: 'visit_time_start_minute', name: '見学開始時間（分）' },
-            { id: 'visit_time_end_hour', name: '見学終了時間（時）' },
-            { id: 'visit_time_end_minute', name: '見学終了時間（分）' },
             { id: 'applicant_name', name: '申込者氏名' },
             { id: 'applicant_kana', name: '申込者氏名(ふりがな)' },
             { id: 'applicant_zip', name: '申込者郵便番号' },
@@ -1927,22 +1927,32 @@ function fpco_reservation_management_admin_page() {
         
         requiredFields.forEach(field => {
             const element = document.getElementById(field.id);
-            if (element) {
-                const value = element.value.trim();
-                
-                // 時間フィールドの場合、"00"や"0"も空として扱う
-                const timeFields = ['visit_time_start_hour', 'visit_time_start_minute', 'visit_time_end_hour', 'visit_time_end_minute'];
-                if (timeFields.includes(field.id)) {
-                    if (!value || value === '00' || value === '0') {
-                        errors.push(field.name + 'は必須項目です。');
-                    }
-                } else {
-                    if (!value) {
-                        errors.push(field.name + 'は必須項目です。');
-                    }
-                }
+            if (element && !element.value.trim()) {
+                errors.push(field.name + 'は必須項目です。');
             }
         });
+        
+        // 見学時間帯の必須チェック
+        const startHour = document.getElementById('visit_time_start_hour');
+        const startMinute = document.getElementById('visit_time_start_minute');
+        const endHour = document.getElementById('visit_time_end_hour');
+        const endMinute = document.getElementById('visit_time_end_minute');
+        
+        if (startHour && startMinute && endHour && endMinute) {
+            const startHourValue = startHour.value.trim();
+            const startMinuteValue = startMinute.value.trim();
+            const endHourValue = endHour.value.trim();
+            const endMinuteValue = endMinute.value.trim();
+            
+            const startHourEmpty = (!startHourValue || startHourValue === '0' || startHourValue === '00');
+            const startMinuteEmpty = (!startMinuteValue || startMinuteValue === '0' || startMinuteValue === '00');
+            const endHourEmpty = (!endHourValue || endHourValue === '0' || endHourValue === '00');
+            const endMinuteEmpty = (!endMinuteValue || endMinuteValue === '0' || endMinuteValue === '00');
+            
+            if (startHourEmpty || startMinuteEmpty || endHourEmpty || endMinuteEmpty) {
+                errors.push('見学時間帯は必須項目です。');
+            }
+        }
 
         // 台数の条件付きバリデーション（車、貸切バス、タクシーの場合のみ必須）
         const transportationCar = document.getElementById('transportation_car');
