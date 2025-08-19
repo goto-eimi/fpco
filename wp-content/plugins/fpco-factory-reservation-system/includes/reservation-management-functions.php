@@ -182,6 +182,9 @@ function fpco_handle_reservation_form_submission() {
         'other' => 'other'
     ];
     
+    error_log('Debug - POST transportation: ' . ($_POST['transportation'] ?? 'NOT SET'));
+    error_log('Debug - POST transportation_other_text: ' . ($_POST['transportation_other_text'] ?? 'NOT SET'));
+    
     $transportation_input = isset($_POST['transportation']) ? sanitize_text_field($_POST['transportation']) : 'other';
     $transportation = isset($transportation_mapping[$transportation_input]) ? $transportation_mapping[$transportation_input] : 'other';
     
@@ -199,6 +202,8 @@ function fpco_handle_reservation_form_submission() {
             $limited_text = mb_substr($transportation_other_text, 0, 40);
             $transportation = 'other (' . $limited_text . ')';
             error_log('Debug - Setting transportation_method to: ' . $transportation);
+        } else {
+            error_log('Debug - transportation_other_text is empty, keeping transportation as: ' . $transportation);
         }
     }
 
@@ -2385,8 +2390,14 @@ function fpco_reservation_management_admin_page() {
             form.addEventListener('submit', function(e) {
                 // transportation_other_textが無効化されている場合、一時的に有効化
                 if (transportationOtherText && transportationOtherText.disabled) {
+                    console.log('Enabling transportation_other_text before submit, value:', transportationOtherText.value);
                     transportationOtherText.disabled = false;
                 }
+                
+                // デバッグ：フォーム送信時の値を確認
+                const formData = new FormData(form);
+                console.log('Form data transportation:', formData.get('transportation'));
+                console.log('Form data transportation_other_text:', formData.get('transportation_other_text'));
             });
         }
     });
