@@ -132,6 +132,7 @@ function fpco_handle_reservation_form_submission() {
     $is_edit_mode = isset($_POST['reservation_id']) && !empty($_POST['reservation_id']);
     $reservation_id = $is_edit_mode ? intval($_POST['reservation_id']) : null;
     
+    
     // バリデーション
     $validation_result = fpco_validate_reservation_form($_POST);
     
@@ -182,28 +183,19 @@ function fpco_handle_reservation_form_submission() {
         'other' => 'other'
     ];
     
-    error_log('Debug - POST transportation: ' . ($_POST['transportation'] ?? 'NOT SET'));
-    error_log('Debug - POST transportation_other_text: ' . ($_POST['transportation_other_text'] ?? 'NOT SET'));
     
     $transportation_input = isset($_POST['transportation']) ? sanitize_text_field($_POST['transportation']) : 'other';
     $transportation = isset($transportation_mapping[$transportation_input]) ? $transportation_mapping[$transportation_input] : 'other';
-    
-    error_log('Debug - transportation_input: ' . $transportation_input);
-    error_log('Debug - initial transportation: ' . $transportation);
     
     // 交通手段がその他の場合、詳細をtype_dataに含める
     $transportation_other_text = '';
     if ($transportation_input === 'other' && isset($_POST['transportation_other_text'])) {
         $transportation_other_text = sanitize_text_field($_POST['transportation_other_text'] ?? '');
-        error_log('Debug - transportation_other_text: ' . $transportation_other_text);
         // 「その他」の場合は内容も含めてtransportation_methodに保存
         if (!empty($transportation_other_text)) {
             // 文字数制限を考慮して最大50文字程度に制限
             $limited_text = mb_substr($transportation_other_text, 0, 40);
             $transportation = 'other (' . $limited_text . ')';
-            error_log('Debug - Setting transportation_method to: ' . $transportation);
-        } else {
-            error_log('Debug - transportation_other_text is empty, keeping transportation as: ' . $transportation);
         }
     }
 
@@ -212,39 +204,58 @@ function fpco_handle_reservation_form_submission() {
     $status_input = isset($_POST['reservation_status']) ? sanitize_text_field($_POST['reservation_status']) : FPCO_RESERVATION_STATUS_NEW;
     $status = in_array($status_input, $valid_statuses) ? $status_input : FPCO_RESERVATION_STATUS_NEW;
     
-    // 実際のテーブル構造に合わせたデータ
+    // 実際のテーブル構造に合わせたデータ（カラム順序を明確に）
     $data = [
-        'factory_id' => intval($_POST['factory_id'] ?? 0),
-        'date' => sanitize_text_field($_POST['visit_date'] ?? ''),
-        'time_slot' => $time_slot,
-        'applicant_name' => sanitize_text_field($_POST['applicant_name'] ?? ''),
-        'applicant_kana' => sanitize_text_field($_POST['applicant_kana'] ?? ''),
-        'is_travel_agency' => (isset($_POST['is_travel_agency']) && $_POST['is_travel_agency'] === 'yes') ? 1 : 0,
-        'agency_data' => $agency_data,
-        'reservation_type' => fpco_get_reservation_type_enum($_POST),
-        'type_data' => $type_data,
-        'address_zip' => sanitize_text_field($_POST['applicant_zip'] ?? ''),
-        'address_prefecture' => sanitize_text_field($_POST['applicant_prefecture'] ?? ''),
-        'address_city' => sanitize_text_field($_POST['applicant_city'] ?? ''),
-        'address_street' => sanitize_text_field($_POST['applicant_address'] ?? ''),
-        'phone' => sanitize_text_field($_POST['applicant_phone'] ?? ''),
-        'day_of_contact' => sanitize_text_field($_POST['emergency_contact'] ?? ''),
-        'email' => sanitize_email($_POST['applicant_email'] ?? ''),
-        'transportation_method' => $transportation,
-        'transportation_count' => intval($_POST['vehicle_count'] ?? 0),
-        'purpose' => sanitize_textarea_field($_POST['visit_purpose'] ?? ''),
-        'participant_count' => intval($_POST['total_visitors'] ?? 0),
-        'participants_child_count' => intval($_POST['elementary_visitors'] ?? 0),
-        'status' => $status
+        'factory_id' => intval($_POST['factory_id'] ?? 0),                      // 1. %d
+        'date' => sanitize_text_field($_POST['visit_date'] ?? ''),              // 2. %s
+        'time_slot' => $time_slot,                                              // 3. %s
+        'applicant_name' => sanitize_text_field($_POST['applicant_name'] ?? ''), // 4. %s
+        'applicant_kana' => sanitize_text_field($_POST['applicant_kana'] ?? ''), // 5. %s
+        'is_travel_agency' => (isset($_POST['is_travel_agency']) && $_POST['is_travel_agency'] === 'yes') ? 1 : 0, // 6. %d
+        'agency_data' => $agency_data,                                          // 7. %s
+        'reservation_type' => fpco_get_reservation_type_enum($_POST),           // 8. %s
+        'type_data' => $type_data,                                             // 9. %s
+        'address_zip' => sanitize_text_field($_POST['applicant_zip'] ?? ''),    // 10. %s
+        'address_prefecture' => sanitize_text_field($_POST['applicant_prefecture'] ?? ''), // 11. %s
+        'address_city' => sanitize_text_field($_POST['applicant_city'] ?? ''),  // 12. %s
+        'address_street' => sanitize_text_field($_POST['applicant_address'] ?? ''), // 13. %s
+        'phone' => sanitize_text_field($_POST['applicant_phone'] ?? ''),        // 14. %s
+        'day_of_contact' => sanitize_text_field($_POST['emergency_contact'] ?? ''), // 15. %s
+        'email' => sanitize_email($_POST['applicant_email'] ?? ''),             // 16. %s
+        'transportation_method' => $transportation,                             // 17. %s
+        'transportation_count' => intval($_POST['vehicle_count'] ?? 0),         // 18. %d
+        'purpose' => sanitize_textarea_field($_POST['visit_purpose'] ?? ''),    // 19. %s
+        'participant_count' => intval($_POST['total_visitors'] ?? 0),           // 20. %d
+        'participants_child_count' => intval($_POST['elementary_visitors'] ?? 0), // 21. %d
+        'status' => $status                                                     // 22. %s
     ];
     
-    error_log('Debug - Final data transportation_method: ' . $data['transportation_method']);
-    
+    // フォーマット配列を明確にマッピング
     $format = [
-        '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', 
-        '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', 
-        '%s', '%d', '%d', '%s', '%s'
+        '%d', // 1. factory_id
+        '%s', // 2. date
+        '%s', // 3. time_slot
+        '%s', // 4. applicant_name
+        '%s', // 5. applicant_kana
+        '%d', // 6. is_travel_agency
+        '%s', // 7. agency_data
+        '%s', // 8. reservation_type
+        '%s', // 9. type_data
+        '%s', // 10. address_zip
+        '%s', // 11. address_prefecture
+        '%s', // 12. address_city
+        '%s', // 13. address_street
+        '%s', // 14. phone
+        '%s', // 15. day_of_contact
+        '%s', // 16. email
+        '%s', // 17. transportation_method ← ここが重要！
+        '%d', // 18. transportation_count
+        '%s', // 19. purpose
+        '%d', // 20. participant_count
+        '%d', // 21. participants_child_count
+        '%s'  // 22. status
     ];
+    
     
     if ($is_edit_mode) {
         // 更新処理
@@ -255,11 +266,6 @@ function fpco_handle_reservation_form_submission() {
             $format,
             ['%d']
         );
-        
-        error_log('Debug - Update result: ' . var_export($result, true));
-        if ($wpdb->last_error) {
-            error_log('Debug - DB Error: ' . $wpdb->last_error);
-        }
         
         if ($result === false) {
             return ['success' => false, 'errors' => ['データベースへの更新に失敗しました。エラー: ' . $wpdb->last_error]];
@@ -442,8 +448,8 @@ function fpco_validate_reservation_form($data) {
     }
     
     // 交通機関「その他」の場合の入力チェック
-    if (isset($data['transportation']) && $data['transportation'] === 'other' && 
-        (!isset($data['transportation_other_text']) || $data['transportation_other_text'] === '' || $data['transportation_other_text'] === null)) {
+    if (isset($_POST['transportation']) && $_POST['transportation'] === 'other' && 
+        (!isset($_POST['transportation_other_text']) || trim($_POST['transportation_other_text']) === '')) {
         $add_field_error('transportation_other_text', '交通機関で「その他」を選択した場合は、内容を入力してください。');
     }
     
@@ -453,6 +459,7 @@ function fpco_validate_reservation_form($data) {
             'travel_agency_name' => '旅行会社氏名',
             'travel_agency_prefecture' => '旅行会社都道府県',
             'travel_agency_city' => '旅行会社市区町村',
+            'travel_agency_address' => '旅行会社番地・建物名',
             'travel_agency_phone' => '旅行会社電話番号',
             'contact_email' => '担当者メールアドレス'
         ];
@@ -991,6 +998,12 @@ function fpco_reservation_management_admin_page() {
             $field_errors = $result['field_errors'];
             // エラー時はフォームデータを保持
             $form_data = $_POST;
+            
+            // エラー時も編集モードを維持
+            if (isset($_POST['reservation_id']) && !empty($_POST['reservation_id'])) {
+                $is_edit_mode = true;
+                $reservation_id = intval($_POST['reservation_id']);
+            }
         }
     }
     
@@ -1047,7 +1060,7 @@ function fpco_reservation_management_admin_page() {
                     <h2 class="form-section-title">予約内容</h2>
                 </div>
                 <div class="form-section-content">
-                    <form method="post" action="<?php echo admin_url('admin.php?page=reservation-management'); ?>">
+                    <form method="post" action="<?php echo admin_url('admin.php?page=reservation-management' . ($is_edit_mode && $reservation_id ? '&reservation_id=' . $reservation_id : '')); ?>">
                         <?php wp_nonce_field('reservation_form', 'reservation_nonce'); ?>
                         <?php if ($is_edit_mode && $reservation_id): ?>
                             <input type="hidden" name="reservation_id" value="<?php echo esc_attr($reservation_id); ?>">
@@ -1183,7 +1196,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="travel_agency_name" class="form-label">
                                     旅行会社氏名 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="travel_agency_name" id="travel_agency_name" class="form-input" value="<?php echo get_form_value('travel_agency_name', $form_data); ?>">
+                                <input type="text" name="travel_agency_name" id="travel_agency_name" class="form-input <?php echo get_field_error_class('travel_agency_name', $field_errors); ?>" value="<?php echo get_form_value('travel_agency_name', $form_data); ?>">
                                 <?php display_field_error('travel_agency_name', $field_errors); ?>
                             </div>
 
@@ -1197,7 +1210,7 @@ function fpco_reservation_management_admin_page() {
                                     <div style="display: flex; align-items: center; margin-bottom: 8px;">
                                         <span style="margin-right: 5px;">〒</span>
                                         <input type="text" name="travel_agency_zip" id="travel_agency_zip" 
-                                               placeholder="1234567" maxlength="7" class="form-input" style="width: 100px !important;" 
+                                               placeholder="1234567" maxlength="7" class="form-input <?php echo get_field_error_class('travel_agency_zip', $field_errors); ?>" style="width: 100px !important;" 
                                                oninput="searchAddress(this.value)" value="<?php echo get_form_value('travel_agency_zip', $form_data); ?>">
                                         <?php display_field_error('travel_agency_zip', $field_errors); ?>
                                         <span style="margin-left: 10px; font-size: 12px; color: #666;">郵便番号を入力すると住所が入力されます</span>
@@ -1206,7 +1219,7 @@ function fpco_reservation_management_admin_page() {
                                     <!-- 県名 -->
                                     <div style="margin-bottom: 8px;">
                                         <select name="travel_agency_prefecture" id="travel_agency_prefecture" 
-                                                class="form-select" style="width: 150px;">
+                                                class="form-select <?php echo get_field_error_class('travel_agency_prefecture', $field_errors); ?>" style="width: 150px;">
                                             <option value="">都道府県を選択</option>
                                             <option value="北海道" <?php echo is_option_selected('travel_agency_prefecture', '北海道', $form_data); ?>>北海道</option>
                                             <option value="青森県" <?php echo is_option_selected('travel_agency_prefecture', '青森県', $form_data); ?>>青森県</option>
@@ -1262,14 +1275,14 @@ function fpco_reservation_management_admin_page() {
                                     <!-- 市区町村 -->
                                     <div style="margin-bottom: 8px;">
                                         <input type="text" name="travel_agency_city" id="travel_agency_city" 
-                                               placeholder="市区町村" class="form-input" style="width: 200px;" value="<?php echo get_form_value('travel_agency_city', $form_data); ?>">
+                                               placeholder="市区町村" class="form-input <?php echo get_field_error_class('travel_agency_city', $field_errors); ?>" style="width: 200px;" value="<?php echo get_form_value('travel_agency_city', $form_data); ?>">
                                         <?php display_field_error('travel_agency_city', $field_errors); ?>
                                     </div>
                                     
                                     <!-- 番地・建物名 -->
                                     <div>
                                         <input type="text" name="travel_agency_address" id="travel_agency_address" 
-                                               placeholder="番地・建物名" class="form-input" value="<?php echo get_form_value('travel_agency_address', $form_data); ?>">
+                                               placeholder="番地・建物名" class="form-input <?php echo get_field_error_class('travel_agency_address', $field_errors); ?>" value="<?php echo get_form_value('travel_agency_address', $form_data); ?>">
                                         <?php display_field_error('travel_agency_address', $field_errors); ?>
                                     </div>
                                 </div>
@@ -1280,7 +1293,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="travel_agency_phone" class="form-label">
                                     旅行会社電話番号 <span class="required">*</span>
                                 </label>
-                                <input type="tel" name="travel_agency_phone" id="travel_agency_phone" class="form-input" value="<?php echo get_form_value('travel_agency_phone', $form_data); ?>">
+                                <input type="tel" name="travel_agency_phone" id="travel_agency_phone" class="form-input <?php echo get_field_error_class('travel_agency_phone', $field_errors); ?>" value="<?php echo get_form_value('travel_agency_phone', $form_data); ?>">
                                 <?php display_field_error('travel_agency_phone', $field_errors); ?>
                             </div>
 
@@ -1289,7 +1302,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="travel_agency_fax" class="form-label">
                                     旅行会社FAX番号
                                 </label>
-                                <input type="tel" name="travel_agency_fax" id="travel_agency_fax" class="form-input" value="<?php echo get_form_value('travel_agency_fax', $form_data); ?>">
+                                <input type="tel" name="travel_agency_fax" id="travel_agency_fax" class="form-input <?php echo get_field_error_class('travel_agency_fax', $field_errors); ?>" value="<?php echo get_form_value('travel_agency_fax', $form_data); ?>">
                                 <?php display_field_error('travel_agency_fax', $field_errors); ?>
                             </div>
 
@@ -1298,7 +1311,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="contact_mobile" class="form-label">
                                     担当者携帯番号
                                 </label>
-                                <input type="tel" name="contact_mobile" id="contact_mobile" class="form-input" value="<?php echo get_form_value('contact_mobile', $form_data); ?>">
+                                <input type="tel" name="contact_mobile" id="contact_mobile" class="form-input <?php echo get_field_error_class('contact_mobile', $field_errors); ?>" value="<?php echo get_form_value('contact_mobile', $form_data); ?>">
                                 <?php display_field_error('contact_mobile', $field_errors); ?>
                             </div>
 
@@ -1307,7 +1320,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="contact_email" class="form-label">
                                     担当者メールアドレス <span class="required">*</span>
                                 </label>
-                                <input type="email" name="contact_email" id="contact_email" class="form-input" value="<?php echo get_form_value('contact_email', $form_data); ?>">
+                                <input type="email" name="contact_email" id="contact_email" class="form-input <?php echo get_field_error_class('contact_email', $field_errors); ?>" value="<?php echo get_form_value('contact_email', $form_data); ?>">
                                 <?php display_field_error('contact_email', $field_errors); ?>
                             </div>
                         </div>
@@ -1347,7 +1360,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="school_name" class="form-label">
                                     学校・団体名 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="school_name" id="school_name" class="form-input" value="<?php echo get_form_value('school_name', $form_data); ?>">
+                                <input type="text" name="school_name" id="school_name" class="form-input <?php echo get_field_error_class('school_name', $field_errors); ?>" value="<?php echo get_form_value('school_name', $form_data); ?>">
                                 <?php display_field_error('school_name', $field_errors); ?>
                             </div>
 
@@ -1356,7 +1369,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="school_name_kana" class="form-label">
                                     学校・団体名(ふりがな) <span class="required">*</span>
                                 </label>
-                                <input type="text" name="school_name_kana" id="school_name_kana" class="form-input" value="<?php echo get_form_value('school_name_kana', $form_data); ?>">
+                                <input type="text" name="school_name_kana" id="school_name_kana" class="form-input <?php echo get_field_error_class('school_name_kana', $field_errors); ?>" value="<?php echo get_form_value('school_name_kana', $form_data); ?>">
                                 <?php display_field_error('school_name_kana', $field_errors); ?>
                             </div>
 
@@ -1365,7 +1378,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="representative_name" class="form-label">
                                     代表者氏名
                                 </label>
-                                <input type="text" name="representative_name" id="representative_name" class="form-input" value="<?php echo get_form_value('representative_name', $form_data); ?>">
+                                <input type="text" name="representative_name" id="representative_name" class="form-input <?php echo get_field_error_class('representative_name', $field_errors); ?>" value="<?php echo get_form_value('representative_name', $form_data); ?>">
                                 <?php display_field_error('representative_name', $field_errors); ?>
                             </div>
 
@@ -1374,7 +1387,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="representative_name_kana" class="form-label">
                                     代表者氏名(ふりがな)
                                 </label>
-                                <input type="text" name="representative_name_kana" id="representative_name_kana" class="form-input" value="<?php echo get_form_value('representative_name_kana', $form_data); ?>">
+                                <input type="text" name="representative_name_kana" id="representative_name_kana" class="form-input <?php echo get_field_error_class('representative_name_kana', $field_errors); ?>" value="<?php echo get_form_value('representative_name_kana', $form_data); ?>">
                                 <?php display_field_error('representative_name_kana', $field_errors); ?>
                             </div>
 
@@ -1384,7 +1397,7 @@ function fpco_reservation_management_admin_page() {
                                     学年 <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="grade" id="grade" class="form-input" style="width: 50px !important;" min="1" max="12" value="<?php echo get_form_value('grade', $form_data); ?>">
+                                    <input type="number" name="grade" id="grade" class="form-input <?php echo get_field_error_class('grade', $field_errors); ?>" style="width: 50px !important;" min="1" max="12" value="<?php echo get_form_value('grade', $form_data); ?>">
                                 <?php display_field_error('grade', $field_errors); ?>
                                     <span style="margin-left: 5px;">年生</span>
                                 </div>
@@ -1396,7 +1409,7 @@ function fpco_reservation_management_admin_page() {
                                     クラス数 <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="class_count" id="class_count" class="form-input" style="width: 50px !important;" min="1" value="<?php echo get_form_value('class_count', $form_data); ?>">
+                                    <input type="number" name="class_count" id="class_count" class="form-input <?php echo get_field_error_class('class_count', $field_errors); ?>" style="width: 50px !important;" min="1" value="<?php echo get_form_value('class_count', $form_data); ?>">
                                 <?php display_field_error('class_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">クラス</span>
                                 </div>
@@ -1408,7 +1421,7 @@ function fpco_reservation_management_admin_page() {
                                     見学者人数(児童・生徒) <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="student_count" id="student_count" class="form-input" style="width: 50px !important;" min="0" value="<?php echo get_form_value('student_count', $form_data); ?>">
+                                    <input type="number" name="student_count" id="student_count" class="form-input <?php echo get_field_error_class('student_count', $field_errors); ?>" style="width: 50px !important;" min="0" value="<?php echo get_form_value('student_count', $form_data); ?>">
                                 <?php display_field_error('student_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
@@ -1420,7 +1433,7 @@ function fpco_reservation_management_admin_page() {
                                     見学者人数(引率) <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="supervisor_count" id="supervisor_count" class="form-input" style="width: 50px !important;" min="0" value="<?php echo get_form_value('supervisor_count', $form_data); ?>">
+                                    <input type="number" name="supervisor_count" id="supervisor_count" class="form-input <?php echo get_field_error_class('supervisor_count', $field_errors); ?>" style="width: 50px !important;" min="0" value="<?php echo get_form_value('supervisor_count', $form_data); ?>">
                                 <?php display_field_error('supervisor_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
@@ -1434,7 +1447,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="recruit_school_name" class="form-label">
                                     学校名 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="recruit_school_name" id="recruit_school_name" class="form-input" value="<?php echo get_form_value('recruit_school_name', $form_data); ?>">
+                                <input type="text" name="recruit_school_name" id="recruit_school_name" class="form-input <?php echo get_field_error_class('recruit_school_name', $field_errors); ?>" value="<?php echo get_form_value('recruit_school_name', $form_data); ?>">
                                 <?php display_field_error('recruit_school_name', $field_errors); ?>
                             </div>
 
@@ -1443,7 +1456,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="recruit_department" class="form-label">
                                     学部 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="recruit_department" id="recruit_department" class="form-input" value="<?php echo get_form_value('recruit_department', $form_data); ?>">
+                                <input type="text" name="recruit_department" id="recruit_department" class="form-input <?php echo get_field_error_class('recruit_department', $field_errors); ?>" value="<?php echo get_form_value('recruit_department', $form_data); ?>">
                                 <?php display_field_error('recruit_department', $field_errors); ?>
                             </div>
 
@@ -1453,7 +1466,7 @@ function fpco_reservation_management_admin_page() {
                                     学年 <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="recruit_grade" id="recruit_grade" class="form-input" style="width: 50px !important;" min="1" max="6" value="<?php echo get_form_value('recruit_grade', $form_data); ?>">
+                                    <input type="number" name="recruit_grade" id="recruit_grade" class="form-input <?php echo get_field_error_class('recruit_grade', $field_errors); ?>" style="width: 50px !important;" min="1" max="6" value="<?php echo get_form_value('recruit_grade', $form_data); ?>">
                                 <?php display_field_error('recruit_grade', $field_errors); ?>
                                     <span style="margin-left: 5px;">年生</span>
                                 </div>
@@ -1465,7 +1478,7 @@ function fpco_reservation_management_admin_page() {
                                     見学者様人数 <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="recruit_visitor_count" id="recruit_visitor_count" class="form-input" style="width: 50px !important;" min="1" onchange="updateCompanionFields()" value="<?php echo get_form_value('recruit_visitor_count', $form_data); ?>">
+                                    <input type="number" name="recruit_visitor_count" id="recruit_visitor_count" class="form-input <?php echo get_field_error_class('recruit_visitor_count', $field_errors); ?>" style="width: 50px !important;" min="1" onchange="updateCompanionFields()" value="<?php echo get_form_value('recruit_visitor_count', $form_data); ?>">
                                 <?php display_field_error('recruit_visitor_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
                                 </div>
@@ -1504,7 +1517,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="company_name" class="form-label">
                                     会社・団体名 <span class="required">*</span>
                                 </label>
-                                <input type="text" name="company_name" id="company_name" class="form-input" value="<?php echo get_form_value('company_name', $form_data); ?>">
+                                <input type="text" name="company_name" id="company_name" class="form-input <?php echo get_field_error_class('company_name', $field_errors); ?>" value="<?php echo get_form_value('company_name', $form_data); ?>">
                                 <?php display_field_error('company_name', $field_errors); ?>
                             </div>
 
@@ -1513,7 +1526,7 @@ function fpco_reservation_management_admin_page() {
                                 <label for="company_name_kana" class="form-label">
                                     会社・団体名(ふりがな) <span class="required">*</span>
                                 </label>
-                                <input type="text" name="company_name_kana" id="company_name_kana" class="form-input" value="<?php echo get_form_value('company_name_kana', $form_data); ?>">
+                                <input type="text" name="company_name_kana" id="company_name_kana" class="form-input <?php echo get_field_error_class('company_name_kana', $field_errors); ?>" value="<?php echo get_form_value('company_name_kana', $form_data); ?>">
                                 <?php display_field_error('company_name_kana', $field_errors); ?>
                             </div>
 
@@ -1523,9 +1536,9 @@ function fpco_reservation_management_admin_page() {
                                     見学者人数(大人) <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="adult_count" id="adult_count" class="form-input" style="width: 50px !important;" min="0" value="<?php echo get_form_value('adult_count', $form_data); ?>">
-                                <?php display_field_error('adult_count', $field_errors); ?>
+                                    <input type="number" name="adult_count" id="adult_count" class="form-input <?php echo get_field_error_class('adult_count', $field_errors); ?>" style="width: 50px !important;" min="0" value="<?php echo get_form_value('adult_count', $form_data); ?>">
                                     <span style="margin-left: 5px;">名</span>
+                                    <?php display_field_error('adult_count', $field_errors); ?>
                                 </div>
                             </div>
 
@@ -1535,9 +1548,9 @@ function fpco_reservation_management_admin_page() {
                                     見学者人数(子ども) <span class="required">*</span>
                                 </label>
                                 <div style="display: flex; align-items: center;">
-                                    <input type="number" name="child_count" id="child_count" class="form-input" style="width: 50px !important;" min="0" onchange="updateChildGradeFields()" value="<?php echo get_form_value('child_count', $form_data); ?>">
-                                <?php display_field_error('child_count', $field_errors); ?>
+                                    <input type="number" name="child_count" id="child_count" class="form-input <?php echo get_field_error_class('child_count', $field_errors); ?>" style="width: 50px !important;" min="0" onchange="updateChildGradeFields()" value="<?php echo get_form_value('child_count', $form_data); ?>">
                                     <span style="margin-left: 5px;">名</span>
+                                    <?php display_field_error('child_count', $field_errors); ?>
                                 </div>
                             </div>
 
@@ -1547,7 +1560,7 @@ function fpco_reservation_management_admin_page() {
                                     <label for="child_grade" class="form-label">
                                         学年 <span class="required">*</span>
                                     </label>
-                                    <input type="text" name="child_grade" id="child_grade" class="form-input" placeholder="例：小学1年生、小学3年生" value="<?php echo get_form_value('child_grade', $form_data); ?>">
+                                    <input type="text" name="child_grade" id="child_grade" class="form-input <?php echo get_field_error_class('child_grade', $field_errors); ?>" placeholder="例：小学1年生、小学3年生" value="<?php echo get_form_value('child_grade', $form_data); ?>">
                                     <?php display_field_error('child_grade', $field_errors); ?>
                                 </div>
                             </div>
@@ -1687,7 +1700,7 @@ function fpco_reservation_management_admin_page() {
                                 </label>
                                 <label class="radio-option transportation-other-option">
                                     <input type="radio" name="transportation" value="other" id="transportation_other" class="<?php echo get_field_error_class('transportation', $field_errors); ?>" <?php echo is_radio_checked('transportation', 'other', $form_data); ?>> その他
-                                    <input type="text" name="transportation_other_text" id="transportation_other_text" class="form-input transportation-other-input" value="<?php echo get_form_value('transportation_other_text', $form_data); ?>" <?php echo is_radio_checked('transportation', 'other', $form_data) ? '' : 'disabled'; ?>>
+                                    <input type="text" name="transportation_other_text" id="transportation_other_text" class="form-input transportation-other-input <?php echo get_field_error_class('transportation_other_text', $field_errors); ?>" value="<?php echo get_form_value('transportation_other_text', $form_data); ?>" <?php echo is_radio_checked('transportation', 'other', $form_data) ? '' : 'disabled'; ?>>
                                 </label>
                             </div>
                             <?php display_field_error('transportation', $field_errors); ?>
@@ -1766,6 +1779,17 @@ function fpco_reservation_management_admin_page() {
     </div>
     
     <script>
+    // エラークラスを適用するヘルパー関数
+    function applyErrorClass(fieldName, fieldErrors) {
+        if (fieldErrors && fieldErrors[fieldName]) {
+            return 'error-field';
+        }
+        return '';
+    }
+    
+    // PHPのfield_errorsをJavaScriptで使用できるようにする
+    const fieldErrors = <?php echo json_encode($field_errors ?? []); ?>;
+    
     // 旅行会社情報の表示/非表示制御
     document.addEventListener('DOMContentLoaded', function() {
         const travelAgencyYes = document.getElementById('travel_agency_yes');
@@ -2125,9 +2149,9 @@ function fpco_reservation_management_admin_page() {
         }
         
         // 交通機関「その他」のチェック
-        const transportationOther = document.getElementById('transportation_other');
-        const transportationOtherText = document.getElementById('transportation_other_text');
-        if (transportationOther && transportationOther.checked && transportationOtherText && !transportationOtherText.value.trim()) {
+        const transportationOtherElement = document.getElementById('transportation_other');
+        const transportationOtherTextElement = document.getElementById('transportation_other_text');
+        if (transportationOtherElement && transportationOtherElement.checked && transportationOtherTextElement && !transportationOtherTextElement.value.trim()) {
             errors.push('交通機関で「その他」を選択した場合は、内容を入力してください。');
         }
         
@@ -2137,6 +2161,7 @@ function fpco_reservation_management_admin_page() {
                 { id: 'travel_agency_name', name: '旅行会社氏名' },
                 { id: 'travel_agency_prefecture', name: '旅行会社都道府県' },
                 { id: 'travel_agency_city', name: '旅行会社市区町村' },
+                { id: 'travel_agency_address', name: '旅行会社番地・建物名' },
                 { id: 'travel_agency_phone', name: '旅行会社電話番号' },
                 { id: 'contact_email', name: '担当者メールアドレス' }
             ];
@@ -2384,20 +2409,79 @@ function fpco_reservation_management_admin_page() {
             });
         }
         
+        // ページロード時に動的フィールドにエラークラスを適用
+        function applyErrorClassesToDynamicFields() {
+            // 旅行会社関連フィールド
+            const travelAgencyFields = [
+                'travel_agency_name', 'travel_agency_zip', 'travel_agency_prefecture',
+                'travel_agency_city', 'travel_agency_address', 'travel_agency_phone',
+                'travel_agency_fax', 'contact_mobile', 'contact_email'
+            ];
+            
+            travelAgencyFields.forEach(fieldName => {
+                const element = document.getElementById(fieldName);
+                if (element && fieldErrors[fieldName]) {
+                    element.classList.add('error-field');
+                }
+            });
+            
+            // 学校フィールド
+            const schoolFields = [
+                'school_name', 'school_name_kana', 'representative_name', 'representative_name_kana',
+                'grade', 'class_count', 'student_count', 'supervisor_count'
+            ];
+            
+            schoolFields.forEach(fieldName => {
+                const element = document.getElementById(fieldName);
+                if (element && fieldErrors[fieldName]) {
+                    element.classList.add('error-field');
+                }
+            });
+            
+            // リクルートフィールド
+            const recruitFields = [
+                'recruit_school_name', 'recruit_department', 'recruit_grade', 'recruit_visitor_count'
+            ];
+            
+            recruitFields.forEach(fieldName => {
+                const element = document.getElementById(fieldName);
+                if (element && fieldErrors[fieldName]) {
+                    element.classList.add('error-field');
+                }
+            });
+            
+            // 一般フィールド（企業、家族など）
+            const generalFields = [
+                'company_name', 'company_name_kana', 'adult_count', 'child_count', 'child_grade'
+            ];
+            
+            generalFields.forEach(fieldName => {
+                const element = document.getElementById(fieldName);
+                if (element && fieldErrors[fieldName]) {
+                    element.classList.add('error-field');
+                }
+            });
+            
+            // 交通機関「その他」フィールド
+            const transportationOtherText = document.getElementById('transportation_other_text');
+            if (transportationOtherText && fieldErrors['transportation_other_text']) {
+                transportationOtherText.classList.add('error-field');
+            }
+        }
+        
+        // ページロード時にエラークラスを適用
+        applyErrorClassesToDynamicFields();
+        
         // フォーム送信前にdisabledフィールドを一時的に有効化
         const form = document.querySelector('form');
         if (form) {
             form.addEventListener('submit', function(e) {
                 // transportation_other_textが無効化されている場合、一時的に有効化
-                if (transportationOtherText && transportationOtherText.disabled) {
-                    console.log('Enabling transportation_other_text before submit, value:', transportationOtherText.value);
-                    transportationOtherText.disabled = false;
+                const transportationOtherTextElement = document.getElementById('transportation_other_text');
+                if (transportationOtherTextElement && transportationOtherTextElement.disabled) {
+                    transportationOtherTextElement.disabled = false;
                 }
                 
-                // デバッグ：フォーム送信時の値を確認
-                const formData = new FormData(form);
-                console.log('Form data transportation:', formData.get('transportation'));
-                console.log('Form data transportation_other_text:', formData.get('transportation_other_text'));
             });
         }
     });
