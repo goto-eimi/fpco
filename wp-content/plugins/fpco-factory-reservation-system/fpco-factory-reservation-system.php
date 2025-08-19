@@ -198,7 +198,7 @@ class FPCO_Factory_Reservation_System {
             phone varchar(20) DEFAULT NULL,
             day_of_contact varchar(20) DEFAULT NULL,
             email varchar(100) NOT NULL,
-            transportation_method varchar(50) DEFAULT NULL,
+            transportation_method varchar(100) DEFAULT NULL,
             transportation_count int DEFAULT 0,
             purpose text DEFAULT NULL,
             participant_count int DEFAULT 0,
