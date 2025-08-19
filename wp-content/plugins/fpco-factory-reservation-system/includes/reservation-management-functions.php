@@ -608,6 +608,9 @@ function fpco_get_type_specific_data($data) {
     if (isset($data['transportation']) && $data['transportation'] === 'other' && 
         isset($data['transportation_other_text']) && !empty($data['transportation_other_text'])) {
         $type_data['transportation_other_detail'] = sanitize_text_field($data['transportation_other_text']);
+        error_log('Debug - Saving transportation_other_detail: ' . $data['transportation_other_text']);
+    } else {
+        error_log('Debug - Not saving transportation_other_detail. transportation: ' . ($data['transportation'] ?? 'null') . ', text: ' . ($data['transportation_other_text'] ?? 'null'));
     }
     
     switch ($data['reservation_type']) {
@@ -664,7 +667,9 @@ function fpco_get_type_specific_data($data) {
             break;
     }
     
-    return json_encode($type_data, JSON_UNESCAPED_UNICODE);
+    $json_result = json_encode($type_data, JSON_UNESCAPED_UNICODE);
+    error_log('Debug - Final type_data JSON: ' . $json_result);
+    return $json_result;
 }
 
 /**
@@ -860,6 +865,10 @@ function fpco_convert_reservation_to_form_data($reservation) {
     // transportation_other_textをtype_dataから取得
     $type_data = json_decode($reservation['type_data'] ?? '{}', true);
     $form_data['transportation_other_text'] = $type_data['transportation_other_detail'] ?? '';
+    
+    // デバッグ：type_dataの内容を確認
+    error_log('Debug - type_data: ' . ($reservation['type_data'] ?? 'null'));
+    error_log('Debug - transportation_other_text: ' . $form_data['transportation_other_text']);
     
     // その他
     $form_data['visit_purpose'] = $reservation['purpose'] ?? '';
