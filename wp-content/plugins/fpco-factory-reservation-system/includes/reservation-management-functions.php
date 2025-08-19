@@ -1082,19 +1082,19 @@ function fpco_reservation_management_admin_page() {
                             <div class="time-range">
                                 <!-- 開始時間 -->
                                 <div style="display: inline-block;">
-                                    <input type="text" name="visit_time_start_hour" id="visit_time_start_hour" class="time-input <?php echo get_field_error_class('visit_time_start', $field_errors); ?>" 
+                                    <input type="text" name="visit_time_start_hour" id="visit_time_start_hour" class="time-input <?php echo get_field_error_class('visit_time', $field_errors) . ' ' . get_field_error_class('visit_time_start', $field_errors); ?>" 
                                            placeholder="時" style="width: 50px;" maxlength="2" value="<?php echo get_form_value('visit_time_start_hour', $form_data); ?>">
                                     <span>:</span>
-                                    <input type="text" name="visit_time_start_minute" id="visit_time_start_minute" class="time-input <?php echo get_field_error_class('visit_time_start', $field_errors); ?>" 
+                                    <input type="text" name="visit_time_start_minute" id="visit_time_start_minute" class="time-input <?php echo get_field_error_class('visit_time', $field_errors) . ' ' . get_field_error_class('visit_time_start', $field_errors); ?>" 
                                            placeholder="分" style="width: 50px;" maxlength="2" value="<?php echo get_form_value('visit_time_start_minute', $form_data); ?>">
                                 </div>
                                 <span style="margin: 0 10px;">〜</span>
                                 <!-- 終了時間 -->
                                 <div style="display: inline-block;">
-                                    <input type="text" name="visit_time_end_hour" id="visit_time_end_hour" class="time-input <?php echo get_field_error_class('visit_time_end', $field_errors); ?>" 
+                                    <input type="text" name="visit_time_end_hour" id="visit_time_end_hour" class="time-input <?php echo get_field_error_class('visit_time', $field_errors) . ' ' . get_field_error_class('visit_time_end', $field_errors); ?>" 
                                            placeholder="時" style="width: 50px;" maxlength="2" value="<?php echo get_form_value('visit_time_end_hour', $form_data); ?>">
                                     <span>:</span>
-                                    <input type="text" name="visit_time_end_minute" id="visit_time_end_minute" class="time-input <?php echo get_field_error_class('visit_time_end', $field_errors); ?>" 
+                                    <input type="text" name="visit_time_end_minute" id="visit_time_end_minute" class="time-input <?php echo get_field_error_class('visit_time', $field_errors) . ' ' . get_field_error_class('visit_time_end', $field_errors); ?>" 
                                            placeholder="分" style="width: 50px;" maxlength="2" value="<?php echo get_form_value('visit_time_end_minute', $form_data); ?>">
                                 </div>
                             </div>
