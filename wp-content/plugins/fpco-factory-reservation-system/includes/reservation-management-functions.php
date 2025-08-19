@@ -189,6 +189,10 @@ function fpco_handle_reservation_form_submission() {
     $transportation_other_text = '';
     if ($transportation_input === 'other' && isset($_POST['transportation_other_text'])) {
         $transportation_other_text = sanitize_text_field($_POST['transportation_other_text'] ?? '');
+        // 「その他」の場合は内容も含めてtransportation_methodに保存
+        if (!empty($transportation_other_text)) {
+            $transportation = 'other (' . $transportation_other_text . ')';
+        }
     }
 
     // ステータス値の妥当性チェック
@@ -848,18 +852,29 @@ function fpco_convert_reservation_to_form_data($reservation) {
     }
     
     // 交通手段
-    $transportation_reverse_mapping = [
-        'car' => 'car',
-        'bus' => 'chartered_bus',
-        'taxi' => 'taxi',
-        'other' => 'other'
-    ];
-    $form_data['transportation'] = $transportation_reverse_mapping[$reservation['transportation_method'] ?? ''] ?? 'other';
+    $transportation_method = $reservation['transportation_method'] ?? '';
+    $transportation_other_text = '';
+    
+    // transportation_methodから「その他」の内容を抽出
+    if (strpos($transportation_method, 'other (') === 0) {
+        $form_data['transportation'] = 'other';
+        // "other (内容)" から内容部分を抽出
+        $transportation_other_text = substr($transportation_method, 7, -1); // "other (" と ")" を除去
+    } else {
+        $transportation_reverse_mapping = [
+            'car' => 'car',
+            'bus' => 'chartered_bus',
+            'taxi' => 'taxi',
+            'other' => 'other'
+        ];
+        $form_data['transportation'] = $transportation_reverse_mapping[$transportation_method] ?? 'other';
+    }
+    
     $form_data['vehicle_count'] = $reservation['transportation_count'] ?? '';
     
-    // transportation_other_textをtype_dataから取得
+    // transportation_other_textを設定（type_dataからも補完）
     $type_data = json_decode($reservation['type_data'] ?? '{}', true);
-    $form_data['transportation_other_text'] = $type_data['transportation_other_detail'] ?? '';
+    $form_data['transportation_other_text'] = $transportation_other_text ?: ($type_data['transportation_other_detail'] ?? '');
     
     // その他
     $form_data['visit_purpose'] = $reservation['purpose'] ?? '';
