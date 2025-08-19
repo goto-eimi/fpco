@@ -192,6 +192,7 @@ function fpco_handle_reservation_form_submission() {
         // 「その他」の場合は内容も含めてtransportation_methodに保存
         if (!empty($transportation_other_text)) {
             $transportation = 'other (' . $transportation_other_text . ')';
+            error_log('Debug - Setting transportation_method to: ' . $transportation);
         }
     }
 
@@ -220,8 +221,6 @@ function fpco_handle_reservation_form_submission() {
         'email' => sanitize_email($_POST['applicant_email'] ?? ''),
         'transportation_method' => $transportation,
         'transportation_count' => intval($_POST['vehicle_count'] ?? 0),
-        'transportation' => $transportation_input,
-        'transportation_other_text' => $transportation_other_text,
         'purpose' => sanitize_textarea_field($_POST['visit_purpose'] ?? ''),
         'participant_count' => intval($_POST['total_visitors'] ?? 0),
         'participants_child_count' => intval($_POST['elementary_visitors'] ?? 0),
@@ -230,7 +229,7 @@ function fpco_handle_reservation_form_submission() {
     
     $format = [
         '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', 
-        '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', 
+        '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', 
         '%s', '%d', '%d', '%s'
     ];
     
