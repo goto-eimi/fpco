@@ -292,8 +292,17 @@ function fpco_validate_reservation_form($data) {
     ];
     
     foreach ($required_fields as $field => $label) {
-        if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
-            $add_field_error($field, $label . 'は必須項目です。');
+        $value = isset($data[$field]) ? trim($data[$field]) : '';
+        
+        // 時間フィールドの場合、"00"や"0"も空として扱う
+        if (in_array($field, ['visit_time_start_hour', 'visit_time_start_minute', 'visit_time_end_hour', 'visit_time_end_minute'])) {
+            if ($value === '' || $value === null || $value === '00' || $value === '0') {
+                $add_field_error($field, $label . 'は必須項目です。');
+            }
+        } else {
+            if ($value === '' || $value === null) {
+                $add_field_error($field, $label . 'は必須項目です。');
+            }
         }
     }
 
@@ -1918,8 +1927,20 @@ function fpco_reservation_management_admin_page() {
         
         requiredFields.forEach(field => {
             const element = document.getElementById(field.id);
-            if (element && !element.value.trim()) {
-                errors.push(field.name + 'は必須項目です。');
+            if (element) {
+                const value = element.value.trim();
+                
+                // 時間フィールドの場合、"00"や"0"も空として扱う
+                const timeFields = ['visit_time_start_hour', 'visit_time_start_minute', 'visit_time_end_hour', 'visit_time_end_minute'];
+                if (timeFields.includes(field.id)) {
+                    if (!value || value === '00' || value === '0') {
+                        errors.push(field.name + 'は必須項目です。');
+                    }
+                } else {
+                    if (!value) {
+                        errors.push(field.name + 'は必須項目です。');
+                    }
+                }
             }
         });
 
