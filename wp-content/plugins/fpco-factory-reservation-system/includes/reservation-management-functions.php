@@ -313,16 +313,34 @@ function fpco_validate_reservation_form($data) {
     // 日付の形式・範囲チェック
     if (!empty($data['visit_date'])) {
         $visit_date = $data['visit_date'];
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $visit_date)) {
-            $add_field_error('visit_date', '見学日の形式が正しくありません。');
-        } else {
+        $date_obj = null;
+        
+        // 複数の日付形式をサポート
+        if (preg_match('/^\d{4}\/\d{1,2}\/\d{1,2}$/', $visit_date)) {
+            // YYYY/MM/DD または YYYY/M/D 形式
+            $date_obj = DateTime::createFromFormat('Y/m/d', $visit_date);
+        } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $visit_date)) {
+            // YYYY-MM-DD 形式
             $date_obj = DateTime::createFromFormat('Y-m-d', $visit_date);
-            if (!$date_obj || $date_obj->format('Y-m-d') !== $visit_date) {
+        }
+        
+        if (!$date_obj) {
+            $add_field_error('visit_date', '見学日の形式が正しくありません。YYYY/MM/DD形式で入力してください。');
+        } else {
+            // 日付の妥当性チェック
+            $errors = DateTime::getLastErrors();
+            if ($errors && ($errors['warning_count'] > 0 || $errors['error_count'] > 0)) {
                 $add_field_error('visit_date', '見学日が正しくありません。');
             } else {
                 $today = new DateTime();
+                $today->setTime(0, 0, 0); // 時間を0にして日付のみで比較
+                $date_obj->setTime(0, 0, 0);
+                
                 if ($date_obj < $today) {
                     $add_field_error('visit_date', '見学日は今日以降の日付を選択してください。');
+                } else {
+                    // データベース保存用に YYYY-MM-DD 形式に統一
+                    $data['visit_date'] = $date_obj->format('Y-m-d');
                 }
             }
         }
