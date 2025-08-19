@@ -1814,18 +1814,31 @@ function fpco_reservation_management_admin_page() {
         }
 
         function toggleVehicleCountField() {
+            if (!transportationCar || !transportationCharteredBus || !transportationTaxi) {
+                console.log('交通機関の要素が見つかりません');
+                return;
+            }
+            
             const showVehicleCount = transportationCar.checked || 
                                    transportationCharteredBus.checked || 
                                    transportationTaxi.checked;
             
+            console.log('台数表示判定:', showVehicleCount, {
+                car: transportationCar.checked,
+                bus: transportationCharteredBus.checked,
+                taxi: transportationTaxi.checked
+            });
+            
             if (vehicleCountField) {
-                vehicleCountField.style.display = showVehicleCount ? 'flex' : 'none';
+                vehicleCountField.style.display = showVehicleCount ? '' : 'none';
                 
                 // フィールドが非表示の場合は値をクリアして必須バリデーションをスキップ
                 const vehicleCountInput = document.getElementById('vehicle_count');
                 if (!showVehicleCount && vehicleCountInput) {
                     vehicleCountInput.value = '';
                 }
+            } else {
+                console.log('vehicleCountFieldが見つかりません');
             }
         }
         
