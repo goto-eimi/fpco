@@ -1398,8 +1398,8 @@ function fpco_reservation_management_admin_page() {
                                 </label>
                                 <div style="display: flex; align-items: center;">
                                     <input type="number" name="grade" id="grade" class="form-input <?php echo get_field_error_class('grade', $field_errors); ?>" style="width: 50px !important;" min="1" max="12" value="<?php echo get_form_value('grade', $form_data); ?>">
-                                <?php display_field_error('grade', $field_errors); ?>
                                     <span style="margin-left: 5px;">年生</span>
+                                    <?php display_field_error('grade', $field_errors); ?>
                                 </div>
                             </div>
 
@@ -1410,8 +1410,8 @@ function fpco_reservation_management_admin_page() {
                                 </label>
                                 <div style="display: flex; align-items: center;">
                                     <input type="number" name="class_count" id="class_count" class="form-input <?php echo get_field_error_class('class_count', $field_errors); ?>" style="width: 50px !important;" min="1" value="<?php echo get_form_value('class_count', $form_data); ?>">
-                                <?php display_field_error('class_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">クラス</span>
+                                    <?php display_field_error('class_count', $field_errors); ?>
                                 </div>
                             </div>
 
@@ -1422,8 +1422,8 @@ function fpco_reservation_management_admin_page() {
                                 </label>
                                 <div style="display: flex; align-items: center;">
                                     <input type="number" name="student_count" id="student_count" class="form-input <?php echo get_field_error_class('student_count', $field_errors); ?>" style="width: 50px !important;" min="0" value="<?php echo get_form_value('student_count', $form_data); ?>">
-                                <?php display_field_error('student_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
+                                    <?php display_field_error('student_count', $field_errors); ?>
                                 </div>
                             </div>
 
@@ -1434,8 +1434,8 @@ function fpco_reservation_management_admin_page() {
                                 </label>
                                 <div style="display: flex; align-items: center;">
                                     <input type="number" name="supervisor_count" id="supervisor_count" class="form-input <?php echo get_field_error_class('supervisor_count', $field_errors); ?>" style="width: 50px !important;" min="0" value="<?php echo get_form_value('supervisor_count', $form_data); ?>">
-                                <?php display_field_error('supervisor_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
+                                    <?php display_field_error('supervisor_count', $field_errors); ?>
                                 </div>
                             </div>
                         </div>
@@ -1467,8 +1467,8 @@ function fpco_reservation_management_admin_page() {
                                 </label>
                                 <div style="display: flex; align-items: center;">
                                     <input type="number" name="recruit_grade" id="recruit_grade" class="form-input <?php echo get_field_error_class('recruit_grade', $field_errors); ?>" style="width: 50px !important;" min="1" max="6" value="<?php echo get_form_value('recruit_grade', $form_data); ?>">
-                                <?php display_field_error('recruit_grade', $field_errors); ?>
                                     <span style="margin-left: 5px;">年生</span>
+                                    <?php display_field_error('recruit_grade', $field_errors); ?>
                                 </div>
                             </div>
 
