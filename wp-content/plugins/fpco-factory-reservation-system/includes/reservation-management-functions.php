@@ -2318,37 +2318,56 @@ function fpco_reservation_management_admin_page() {
         const visitDateInput = document.getElementById('visit_date');
         if (visitDateInput) {
             visitDateInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/[^\d]/g, ''); // 数字以外を削除
+                let value = e.target.value;
+                let cursorPosition = e.target.selectionStart;
                 
-                if (value.length >= 5) {
-                    // YYYY/MM の形に整形
-                    value = value.substring(0, 4) + '/' + value.substring(4, 6) + '/' + value.substring(6, 8);
-                } else if (value.length >= 3) {
-                    // YYYY/M の形に整形
-                    value = value.substring(0, 4) + '/' + value.substring(4);
+                // 数字以外を削除（ただし既存のスラッシュは一時的に保持）
+                let numbersOnly = value.replace(/[^\d]/g, '');
+                
+                // 自動フォーマット
+                let formatted = '';
+                if (numbersOnly.length >= 8) {
+                    formatted = numbersOnly.substring(0, 4) + '/' + 
+                               numbersOnly.substring(4, 6) + '/' + 
+                               numbersOnly.substring(6, 8);
+                } else if (numbersOnly.length >= 6) {
+                    formatted = numbersOnly.substring(0, 4) + '/' + 
+                               numbersOnly.substring(4, 6) + '/' + 
+                               numbersOnly.substring(6);
+                } else if (numbersOnly.length >= 4) {
+                    formatted = numbersOnly.substring(0, 4) + '/' + 
+                               numbersOnly.substring(4);
+                } else {
+                    formatted = numbersOnly;
                 }
                 
-                e.target.value = value;
+                // 値を設定
+                e.target.value = formatted;
+                
+                // カーソル位置を調整
+                if (formatted.length > value.length && cursorPosition === value.length) {
+                    e.target.setSelectionRange(formatted.length, formatted.length);
+                }
             });
             
             visitDateInput.addEventListener('blur', function(e) {
-                let value = e.target.value;
-                if (value) {
+                let value = e.target.value.trim();
+                if (value && value.length > 0) {
                     // 日付の妥当性をチェック
                     const datePattern = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/;
                     const match = value.match(datePattern);
                     
                     if (match) {
-                        const year = parseInt(match[1]);
-                        const month = parseInt(match[2]);
-                        const day = parseInt(match[3]);
+                        const year = parseInt(match[1], 10);
+                        const month = parseInt(match[2], 10);
+                        const day = parseInt(match[3], 10);
                         
                         // 基本的な日付チェック
-                        if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+                        if (year >= 2024 && year <= 2030 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
                             // 0埋めして正規化
                             const formattedValue = year + '/' + 
-                                                 month.toString().padStart(2, '0') + '/' + 
-                                                 day.toString().padStart(2, '0');
+                                                 String(month).padStart(2, '0') + '/' + 
+                                                 String(day).padStart(2, '0');
                             e.target.value = formattedValue;
                         }
                     }
