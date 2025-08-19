@@ -1656,7 +1656,7 @@ function fpco_reservation_management_admin_page() {
                         </div>
 
                         <!-- 台数 -->
-                        <div class="form-field">
+                        <div class="form-field" id="vehicle-count-field" style="display: none;">
                             <label for="vehicle_count" class="form-label">
                                 台数 <span class="required">*</span>
                             </label>
@@ -1801,7 +1801,7 @@ function fpco_reservation_management_admin_page() {
         const transportationLocalBus = document.getElementById('transportation_local_bus');
         const transportationTaxi = document.getElementById('transportation_taxi');
         const transportationOtherText = document.getElementById('transportation_other_text');
-        const vehicleCountField = document.getElementById('vehicle_count').closest('.form-field');
+        const vehicleCountField = document.getElementById('vehicle-count-field');
         
         function toggleTransportationOtherField() {
             if (transportationOther.checked) {
