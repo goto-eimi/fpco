@@ -1479,8 +1479,8 @@ function fpco_reservation_management_admin_page() {
                                 </label>
                                 <div style="display: flex; align-items: center;">
                                     <input type="number" name="recruit_visitor_count" id="recruit_visitor_count" class="form-input <?php echo get_field_error_class('recruit_visitor_count', $field_errors); ?>" style="width: 50px !important;" min="1" onchange="updateCompanionFields()" value="<?php echo get_form_value('recruit_visitor_count', $form_data); ?>">
-                                <?php display_field_error('recruit_visitor_count', $field_errors); ?>
                                     <span style="margin-left: 5px;">名</span>
+                                    <?php display_field_error('recruit_visitor_count', $field_errors); ?>
                                 </div>
                             </div>
 
