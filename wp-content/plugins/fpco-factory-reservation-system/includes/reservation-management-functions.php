@@ -216,6 +216,8 @@ function fpco_handle_reservation_form_submission() {
         'email' => sanitize_email($_POST['applicant_email'] ?? ''),
         'transportation_method' => $transportation,
         'transportation_count' => intval($_POST['vehicle_count'] ?? 0),
+        'transportation' => $transportation_input,
+        'transportation_other_text' => $transportation_other_text,
         'purpose' => sanitize_textarea_field($_POST['visit_purpose'] ?? ''),
         'participant_count' => intval($_POST['total_visitors'] ?? 0),
         'participants_child_count' => intval($_POST['elementary_visitors'] ?? 0),
@@ -854,6 +856,10 @@ function fpco_convert_reservation_to_form_data($reservation) {
     ];
     $form_data['transportation'] = $transportation_reverse_mapping[$reservation['transportation_method'] ?? ''] ?? 'other';
     $form_data['vehicle_count'] = $reservation['transportation_count'] ?? '';
+    
+    // transportation_other_textをtype_dataから取得
+    $type_data = json_decode($reservation['type_data'] ?? '{}', true);
+    $form_data['transportation_other_text'] = $type_data['transportation_other_detail'] ?? '';
     
     // その他
     $form_data['visit_purpose'] = $reservation['purpose'] ?? '';
