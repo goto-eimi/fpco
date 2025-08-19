@@ -1058,7 +1058,7 @@ function fpco_reservation_management_admin_page() {
                             <label for="visit_date" class="form-label">
                                 見学日 <span class="required">*</span>
                             </label>
-                            <input type="date" name="visit_date" id="visit_date" class="form-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" value="<?php echo get_form_value('visit_date', $form_data); ?>">
+                            <input type="text" name="visit_date" id="visit_date" class="form-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" value="<?php echo get_form_value('visit_date', $form_data); ?>" placeholder="YYYY/MM/DD" maxlength="10">
                             <?php display_field_error('visit_date', $field_errors); ?>
                         </div>
 
@@ -2311,6 +2311,48 @@ function fpco_reservation_management_admin_page() {
                 // 返信メール作成画面へ遷移
                 const replyUrl = 'admin.php?page=reply-email&reservation_id=' + reservationId;
                 window.location.href = replyUrl;
+            });
+        }
+        
+        // 見学日入力フィールドの自動フォーマット
+        const visitDateInput = document.getElementById('visit_date');
+        if (visitDateInput) {
+            visitDateInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^\d]/g, ''); // 数字以外を削除
+                
+                if (value.length >= 5) {
+                    // YYYY/MM の形に整形
+                    value = value.substring(0, 4) + '/' + value.substring(4, 6) + '/' + value.substring(6, 8);
+                } else if (value.length >= 3) {
+                    // YYYY/M の形に整形
+                    value = value.substring(0, 4) + '/' + value.substring(4);
+                }
+                
+                e.target.value = value;
+            });
+            
+            visitDateInput.addEventListener('blur', function(e) {
+                let value = e.target.value;
+                if (value) {
+                    // 日付の妥当性をチェック
+                    const datePattern = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/;
+                    const match = value.match(datePattern);
+                    
+                    if (match) {
+                        const year = parseInt(match[1]);
+                        const month = parseInt(match[2]);
+                        const day = parseInt(match[3]);
+                        
+                        // 基本的な日付チェック
+                        if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+                            // 0埋めして正規化
+                            const formattedValue = year + '/' + 
+                                                 month.toString().padStart(2, '0') + '/' + 
+                                                 day.toString().padStart(2, '0');
+                            e.target.value = formattedValue;
+                        }
+                    }
+                }
             });
         }
     });
