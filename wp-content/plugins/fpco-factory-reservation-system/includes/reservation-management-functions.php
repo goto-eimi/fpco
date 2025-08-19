@@ -1815,19 +1815,12 @@ function fpco_reservation_management_admin_page() {
 
         function toggleVehicleCountField() {
             if (!transportationCar || !transportationCharteredBus || !transportationTaxi) {
-                console.log('交通機関の要素が見つかりません');
                 return;
             }
             
             const showVehicleCount = transportationCar.checked || 
                                    transportationCharteredBus.checked || 
                                    transportationTaxi.checked;
-            
-            console.log('台数表示判定:', showVehicleCount, {
-                car: transportationCar.checked,
-                bus: transportationCharteredBus.checked,
-                taxi: transportationTaxi.checked
-            });
             
             if (vehicleCountField) {
                 vehicleCountField.style.display = showVehicleCount ? '' : 'none';
@@ -1837,8 +1830,6 @@ function fpco_reservation_management_admin_page() {
                 if (!showVehicleCount && vehicleCountInput) {
                     vehicleCountInput.value = '';
                 }
-            } else {
-                console.log('vehicleCountFieldが見つかりません');
             }
         }
         
@@ -2024,13 +2015,7 @@ function fpco_reservation_management_admin_page() {
             }
         }
         
-        // 時間の範囲チェック
-        const startHour = document.getElementById('visit_time_start_hour');
-        const startMinute = document.getElementById('visit_time_start_minute');
-        const endHour = document.getElementById('visit_time_end_hour');
-        const endMinute = document.getElementById('visit_time_end_minute');
-        
-        // 時間の範囲チェック
+        // 時間の範囲チェック（既に上で宣言済みの変数を使用）
         if (startHour && startHour.value && (parseInt(startHour.value) < 0 || parseInt(startHour.value) > 23)) {
             errors.push('開始時間（時）は0〜23の範囲で入力してください。');
         }
