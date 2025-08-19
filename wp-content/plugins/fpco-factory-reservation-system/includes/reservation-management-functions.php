@@ -1071,7 +1071,7 @@ function fpco_reservation_management_admin_page() {
                             <label for="visit_date" class="form-label">
                                 見学日 <span class="required">*</span>
                             </label>
-                            <input type="text" name="visit_date" id="visit_date" class="form-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" value="<?php echo get_form_value('visit_date', $form_data); ?>" placeholder="YYYY/MM/DD" maxlength="10">
+                            <input type="date" name="visit_date" id="visit_date" class="form-input <?php echo get_field_error_class('visit_date', $field_errors); ?>" value="<?php echo get_form_value('visit_date', $form_data); ?>" max="9999-12-31">
                             <?php display_field_error('visit_date', $field_errors); ?>
                         </div>
 
@@ -2342,88 +2342,6 @@ function fpco_reservation_management_admin_page() {
                 // 返信メール作成画面へ遷移
                 const replyUrl = 'admin.php?page=reply-email&reservation_id=' + reservationId;
                 window.location.href = replyUrl;
-            });
-        }
-        
-        // 見学日入力フィールドの自動フォーマット
-        const visitDateInput = document.getElementById('visit_date');
-        if (visitDateInput) {
-            visitDateInput.addEventListener('input', function(e) {
-                let value = e.target.value;
-                let cursorPosition = e.target.selectionStart;
-                
-                // 数字以外を削除（ただし既存のスラッシュは一時的に保持）
-                let numbersOnly = value.replace(/[^\d]/g, '');
-                
-                // 自動フォーマット
-                let formatted = '';
-                if (numbersOnly.length >= 8) {
-                    formatted = numbersOnly.substring(0, 4) + '/' + 
-                               numbersOnly.substring(4, 6) + '/' + 
-                               numbersOnly.substring(6, 8);
-                } else if (numbersOnly.length >= 6) {
-                    formatted = numbersOnly.substring(0, 4) + '/' + 
-                               numbersOnly.substring(4, 6) + '/' + 
-                               numbersOnly.substring(6);
-                } else if (numbersOnly.length >= 4) {
-                    formatted = numbersOnly.substring(0, 4) + '/' + 
-                               numbersOnly.substring(4);
-                } else {
-                    formatted = numbersOnly;
-                }
-                
-                // 値を設定
-                e.target.value = formatted;
-                
-                // カーソル位置を調整
-                if (formatted.length > value.length && cursorPosition === value.length) {
-                    e.target.setSelectionRange(formatted.length, formatted.length);
-                }
-            });
-            
-            visitDateInput.addEventListener('blur', function(e) {
-                let value = e.target.value.trim();
-                if (value && value.length > 0) {
-                    // 日付の妥当性をチェック
-                    const datePattern = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/;
-                    const match = value.match(datePattern);
-                    
-                    if (match) {
-                        const year = parseInt(match[1], 10);
-                        const month = parseInt(match[2], 10);
-                        const day = parseInt(match[3], 10);
-                        
-                        // 基本的な日付チェック
-                        if (year >= 2024 && year <= 2030 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-                            // 0埋めして正規化
-                            const formattedValue = year + '/' + 
-                                                 String(month).padStart(2, '0') + '/' + 
-                                                 String(day).padStart(2, '0');
-                            e.target.value = formattedValue;
-                        }
-                    }
-                }
-            });
-        }
-        
-        // フォーム送信時に日付形式を変換
-        const form = document.querySelector('form');
-        if (form && visitDateInput) {
-            form.addEventListener('submit', function(e) {
-                // YYYY/MM/DD を YYYY-MM-DD に変換
-                let dateValue = visitDateInput.value;
-                if (dateValue && dateValue.includes('/')) {
-                    const converted = dateValue.replace(/\//g, '-');
-                    // 一時的に隠しフィールドを作成してサーバーに送信
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'visit_date';
-                    hiddenInput.value = converted;
-                    form.appendChild(hiddenInput);
-                    
-                    // 元のフィールドの名前を変更して送信されないようにする
-                    visitDateInput.name = 'visit_date_display';
-                }
             });
         }
     });
