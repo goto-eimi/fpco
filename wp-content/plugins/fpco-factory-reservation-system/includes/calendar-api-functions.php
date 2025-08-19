@@ -14,12 +14,6 @@ if (!defined('ABSPATH')) {
  */
 add_action('rest_api_init', 'fpco_register_calendar_api_routes');
 
-/**
- * admin-ajax.phpアクションを登録
- */
-add_action('wp_ajax_get_calendar_data', 'fpco_ajax_get_calendar_data');
-add_action('wp_ajax_nopriv_get_calendar_data', 'fpco_ajax_get_calendar_data');
-
 function fpco_register_calendar_api_routes() {
     register_rest_route('reservation/v1', '/calendar', array(
         'methods' => 'GET',
@@ -362,44 +356,4 @@ function fpco_is_japanese_holiday($date) {
     return false;
 }
 
-/**
- * admin-ajax.php用のカレンダーデータ取得ハンドラー
- */
-function fpco_ajax_get_calendar_data() {
-    // パラメータの検証とサニタイズ
-    $month = isset($_GET['month']) ? sanitize_text_field($_GET['month']) : '';
-    $factory = isset($_GET['factory']) ? sanitize_text_field($_GET['factory']) : '';
-    
-    if (empty($month) || empty($factory)) {
-        wp_send_json_error('必要なパラメータが不足しています。');
-        return;
-    }
-    
-    // 月の形式を検証
-    if (!preg_match('/^\d{4}-\d{1,2}$/', $month)) {
-        wp_send_json_error('月の形式が不正です。');
-        return;
-    }
-    
-    // 工場IDを検証
-    $factory_id = intval($factory);
-    if ($factory_id < 1 || $factory_id > 9) {
-        wp_send_json_error('工場IDが不正です。');
-        return;
-    }
-    
-    // REST APIと同じロジックを使用してデータを取得
-    $request = new WP_REST_Request('GET', '/reservation/v1/calendar');
-    $request->set_param('month', $month);
-    $request->set_param('factory', $factory);
-    
-    $response = fpco_get_calendar_data($request);
-    $data = $response->get_data();
-    
-    if ($data['success']) {
-        wp_send_json_success($data['data']);
-    } else {
-        wp_send_json_error($data['message']);
-    }
-}
 ?>
