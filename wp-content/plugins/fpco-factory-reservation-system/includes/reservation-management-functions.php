@@ -185,13 +185,19 @@ function fpco_handle_reservation_form_submission() {
     $transportation_input = isset($_POST['transportation']) ? sanitize_text_field($_POST['transportation']) : 'other';
     $transportation = isset($transportation_mapping[$transportation_input]) ? $transportation_mapping[$transportation_input] : 'other';
     
+    error_log('Debug - transportation_input: ' . $transportation_input);
+    error_log('Debug - initial transportation: ' . $transportation);
+    
     // 交通手段がその他の場合、詳細をtype_dataに含める
     $transportation_other_text = '';
     if ($transportation_input === 'other' && isset($_POST['transportation_other_text'])) {
         $transportation_other_text = sanitize_text_field($_POST['transportation_other_text'] ?? '');
+        error_log('Debug - transportation_other_text: ' . $transportation_other_text);
         // 「その他」の場合は内容も含めてtransportation_methodに保存
         if (!empty($transportation_other_text)) {
-            $transportation = 'other (' . $transportation_other_text . ')';
+            // 文字数制限を考慮して最大50文字程度に制限
+            $limited_text = mb_substr($transportation_other_text, 0, 40);
+            $transportation = 'other (' . $limited_text . ')';
             error_log('Debug - Setting transportation_method to: ' . $transportation);
         }
     }
@@ -226,6 +232,8 @@ function fpco_handle_reservation_form_submission() {
         'participants_child_count' => intval($_POST['elementary_visitors'] ?? 0),
         'status' => $status
     ];
+    
+    error_log('Debug - Final data transportation_method: ' . $data['transportation_method']);
     
     $format = [
         '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', 
