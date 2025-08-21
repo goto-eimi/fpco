@@ -77,7 +77,7 @@ try {
                     <span class="btn-text">予約内容を印刷する</span>
                     <span class="btn-arrow">→</span>
                 </button>
-                <a href="<?php echo get_return_calendar_url(); ?>" class="btn-home">
+                <a href="<?php echo get_return_calendar_url($form_data); ?>" class="btn-home">
                     <span class="btn-text">TOPへ戻る</span>
                     <span class="btn-arrow">→</span>
                 </a>
@@ -875,7 +875,13 @@ function calculate_child_count($form_data) {
     return $child_count;
 }
 
-function get_return_calendar_url() {
+function get_return_calendar_url($form_data = null) {
+    // フォームデータから工場IDを取得
+    $factory_id = null;
+    if ($form_data && isset($form_data['factory_id'])) {
+        $factory_id = $form_data['factory_id'];
+    }
+    
     // セッションからカレンダーページのURLを取得
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
@@ -886,12 +892,31 @@ function get_return_calendar_url() {
         return $_SESSION['calendar_page_url'];
     }
     
+    // 工場IDに基づいてカレンダーページURLを構築
+    if ($factory_id) {
+        $factory_calendar_pages = [
+            '1' => '/kanto-recycle/',
+            '2' => '/chubu-recycle/',  
+            '3' => '/fukuyama-recycle/',
+            '4' => '/yamagata-sorting/',
+            '5' => '/matsumoto-sorting/',
+            '6' => '/nishinomiya-sorting/',
+            '7' => '/tokai-sorting/',
+            '8' => '/kanazawa-sorting/',
+            '9' => '/kyushu-sorting/'
+        ];
+        
+        if (isset($factory_calendar_pages[$factory_id])) {
+            return home_url($factory_calendar_pages[$factory_id]);
+        }
+    }
+    
     // セッションにない場合、リファラーから工場IDを取得してカレンダーページを構築
     $referer = wp_get_referer();
     if ($referer) {
         // リファラーURLから工場IDを抽出
         if (preg_match('/[?&]factory=(\d+)/', $referer, $matches)) {
-            $factory_id = $matches[1];
+            $extracted_factory_id = $matches[1];
             
             // 工場IDに基づいてカレンダーページURLを構築
             $factory_calendar_pages = [
@@ -906,8 +931,8 @@ function get_return_calendar_url() {
                 '9' => '/kyushu-sorting/'
             ];
             
-            if (isset($factory_calendar_pages[$factory_id])) {
-                return home_url($factory_calendar_pages[$factory_id]);
+            if (isset($factory_calendar_pages[$extracted_factory_id])) {
+                return home_url($factory_calendar_pages[$extracted_factory_id]);
             }
         }
         
