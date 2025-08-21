@@ -330,74 +330,155 @@ function fpco_ajax_get_calendar_data() {
 function fpco_generate_calendar_data($year, $month, $factory_id) {
     global $wpdb;
     
-    // 月の開始日と終了日
-    $start_date = sprintf('%04d-%02d-01', $year, $month);
-    $end_date = date('Y-m-t', strtotime($start_date));
+    // 月の開始日と終了日を計算
+    $first_day = date('Y-m-01', mktime(0, 0, 0, $month, 1, $year));
+    $last_day = date('Y-m-t', mktime(0, 0, 0, $month, 1, $year));
+    
+    // カレンダー表示用に前後の日付も含める
+    $calendar_start = date('Y-m-d', strtotime('last Sunday', strtotime($first_day)));
+    if ($calendar_start == $first_day) {
+        $calendar_start = date('Y-m-d', strtotime('-1 week', strtotime($first_day)));
+    }
+    $calendar_end = date('Y-m-d', strtotime('next Saturday', strtotime($last_day)));
+    if ($calendar_end == $last_day) {
+        $calendar_end = date('Y-m-d', strtotime('+1 week', strtotime($last_day)));
+    }
     
     // 見学不可日を取得
-    $unavailable_days = $wpdb->get_results($wpdb->prepare(
+    $unavailable_days_results = $wpdb->get_results($wpdb->prepare(
         "SELECT date, am_unavailable, pm_unavailable 
          FROM {$wpdb->prefix}unavailable_days 
          WHERE factory_id = %d 
          AND date >= %s 
          AND date <= %s",
         $factory_id,
-        $start_date,
-        $end_date
+        $calendar_start,
+        $calendar_end
     ), ARRAY_A);
     
-    // 予約データを取得
-    $reservations = $wpdb->get_results($wpdb->prepare(
-        "SELECT date, time_slot, 
-         COUNT(*) as reservation_count,
-         SUM(participant_count) as total_participants
-         FROM {$wpdb->prefix}reservations 
-         WHERE factory_id = %d 
-         AND date >= %s 
-         AND date <= %s
-         AND status IN ('approved', 'pending')
-         GROUP BY date, time_slot",
-        $factory_id,
-        $start_date,
-        $end_date
-    ), ARRAY_A);
-    
-    // 工場の定員を取得
-    $factory_capacity = $wpdb->get_var($wpdb->prepare(
-        "SELECT capacity FROM {$wpdb->prefix}factorys WHERE id = %d",
-        $factory_id
-    )) ?: 50;
-    
-    // データを整形
-    $calendar_data = array(
-        'year' => $year,
-        'month' => $month,
-        'factory_id' => $factory_id,
-        'factory_capacity' => $factory_capacity,
-        'unavailable_days' => array(),
-        'reservations' => array()
-    );
-    
-    // 見学不可日を整形
-    foreach ($unavailable_days as $day) {
-        $calendar_data['unavailable_days'][$day['date']] = array(
+    // 見学不可日を配列に整形
+    $unavailable_days = array();
+    foreach ($unavailable_days_results as $day) {
+        $unavailable_days[$day['date']] = array(
             'am' => (bool)$day['am_unavailable'],
             'pm' => (bool)$day['pm_unavailable']
         );
     }
     
-    // 予約データを整形
-    foreach ($reservations as $reservation) {
-        if (!isset($calendar_data['reservations'][$reservation['date']])) {
-            $calendar_data['reservations'][$reservation['date']] = array();
+    // 予約データを取得
+    $reservations_results = $wpdb->get_results($wpdb->prepare(
+        "SELECT date, time_slot, status
+         FROM {$wpdb->prefix}reservations 
+         WHERE factory_id = %d 
+         AND date >= %s 
+         AND date <= %s
+         AND status IN ('new', 'pending', 'approved')",
+        $factory_id,
+        $calendar_start,
+        $calendar_end
+    ), ARRAY_A);
+    
+    // 予約データを配列に整形
+    $reservations = array();
+    foreach ($reservations_results as $reservation) {
+        if (!isset($reservations[$reservation['date']])) {
+            $reservations[$reservation['date']] = array();
         }
-        
-        $calendar_data['reservations'][$reservation['date']][$reservation['time_slot']] = array(
-            'count' => intval($reservation['reservation_count']),
-            'participants' => intval($reservation['total_participants'])
-        );
+        $reservations[$reservation['date']][] = $reservation;
     }
     
-    return $calendar_data;
+    // 工場情報
+    $factory_info = array(
+        'id' => $factory_id,
+        'name' => fpco_get_factory_name($factory_id),
+        'capacity' => 50
+    );
+    
+    // 各日付の状況を計算
+    $calendar_days = array();
+    $current_date = $calendar_start;
+    
+    while ($current_date <= $calendar_end) {
+        $date_obj = new DateTime($current_date);
+        $weekday = intval($date_obj->format('w'));
+        
+        // 土日は見学不可
+        $is_weekend = ($weekday === 0 || $weekday === 6);
+        
+        // 各時間帯の状況を判定
+        $am_status = fpco_calculate_slot_status($current_date, 'am', $unavailable_days, $reservations, $is_weekend);
+        $pm_status = fpco_calculate_slot_status($current_date, 'pm', $unavailable_days, $reservations, $is_weekend);
+        
+        $calendar_days[$current_date] = array(
+            'date' => $current_date,
+            'weekday' => $weekday,
+            'is_other_month' => ($date_obj->format('Y-m') !== sprintf('%04d-%02d', $year, $month)),
+            'am' => $am_status,
+            'pm' => $pm_status
+        );
+        
+        $current_date = date('Y-m-d', strtotime('+1 day', strtotime($current_date)));
+    }
+    
+    return array(
+        'year' => $year,
+        'month' => $month,
+        'calendar_start' => $calendar_start,
+        'calendar_end' => $calendar_end,
+        'factory' => $factory_info,
+        'days' => $calendar_days
+    );
+}
+
+/**
+ * 時間帯の状況を計算
+ */
+function fpco_calculate_slot_status($date, $time_period, $unavailable_days, $reservations, $is_weekend) {
+    // 土日は見学不可
+    if ($is_weekend) {
+        return array('status' => 'unavailable', 'symbol' => '－');
+    }
+    
+    // 見学不可日設定をチェック
+    if (isset($unavailable_days[$date])) {
+        $unavailable = $unavailable_days[$date];
+        if (($time_period === 'am' && $unavailable['am']) || 
+            ($time_period === 'pm' && $unavailable['pm'])) {
+            return array('status' => 'unavailable', 'symbol' => '－');
+        }
+    }
+    
+    // 予約があるかチェック
+    if (isset($reservations[$date])) {
+        foreach ($reservations[$date] as $reservation) {
+            $time_slot = $reservation['time_slot'];
+            
+            // AM/PMの判定
+            $is_am_slot = (strpos($time_slot, 'AM') !== false) || 
+                         (strpos($time_slot, '午前') !== false) ||
+                         (preg_match('/^(0[0-9]|1[0-1])/', $time_slot));
+            $is_pm_slot = (strpos($time_slot, 'PM') !== false) || 
+                         (strpos($time_slot, '午後') !== false) ||
+                         (preg_match('/^(1[2-9]|2[0-3])/', $time_slot));
+            
+            $slot_matches = false;
+            if ($time_period === 'am' && $is_am_slot) {
+                $slot_matches = true;
+            } elseif ($time_period === 'pm' && $is_pm_slot) {
+                $slot_matches = true;
+            }
+            
+            if ($slot_matches) {
+                if ($reservation['status'] === 'approved') {
+                    return array('status' => 'unavailable', 'symbol' => '－');
+                } else {
+                    return array('status' => 'adjusting', 'symbol' => '△');
+                }
+            }
+        }
+    }
+    
+    // 空きあり
+    return array('status' => 'available', 'symbol' => '〇');
 }
 

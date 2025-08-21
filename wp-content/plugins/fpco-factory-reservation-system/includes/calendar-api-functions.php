@@ -14,12 +14,6 @@ if (!defined('ABSPATH')) {
  */
 add_action('rest_api_init', 'fpco_register_calendar_api_routes');
 
-/**
- * AJAXハンドラーを登録
- */
-add_action('wp_ajax_get_calendar_data', 'fpco_ajax_get_calendar_data');
-add_action('wp_ajax_nopriv_get_calendar_data', 'fpco_ajax_get_calendar_data');
-
 function fpco_register_calendar_api_routes() {
     register_rest_route('reservation/v1', '/calendar', array(
         'methods' => 'GET',
@@ -361,88 +355,4 @@ function fpco_is_japanese_holiday($date) {
     // 現在は常にfalseを返す
     return false;
 }
-
-/**
- * AJAXハンドラー：カレンダーデータを取得
- */
-function fpco_ajax_get_calendar_data() {
-    global $wpdb;
-    
-    // パラメータの取得と検証
-    $month = isset($_GET['month']) ? sanitize_text_field($_GET['month']) : '';
-    $factory_id = isset($_GET['factory']) ? intval($_GET['factory']) : 1;
-    
-    if (empty($month)) {
-        wp_send_json_error('月の指定が必要です。');
-        return;
-    }
-    
-    try {
-        // 指定月の日付範囲を計算
-        $date_parts = explode('-', $month);
-        $year = intval($date_parts[0]);
-        $month_num = intval($date_parts[1]);
-        
-        $first_day = date('Y-m-01', mktime(0, 0, 0, $month_num, 1, $year));
-        $last_day = date('Y-m-t', mktime(0, 0, 0, $month_num, 1, $year));
-        
-        // カレンダー表示用に前後の日付も含める
-        $calendar_start = date('Y-m-d', strtotime('last Sunday', strtotime($first_day)));
-        if ($calendar_start == $first_day) {
-            $calendar_start = date('Y-m-d', strtotime('-1 week', strtotime($first_day)));
-        }
-        $calendar_end = date('Y-m-d', strtotime('next Saturday', strtotime($last_day)));
-        if ($calendar_end == $last_day) {
-            $calendar_end = date('Y-m-d', strtotime('+1 week', strtotime($last_day)));
-        }
-        
-        // 予約データを取得
-        $reservations = fpco_get_reservations_for_period($factory_id, $calendar_start, $calendar_end);
-        
-        // 見学不可日を取得
-        $unavailable_days = fpco_get_unavailable_days($factory_id, $calendar_start, $calendar_end);
-        
-        // 工場情報を取得
-        $factory_info = fpco_get_factory_info($factory_id);
-        
-        // 各日付の状況を計算
-        $calendar_data = array();
-        $current_date = $calendar_start;
-        
-        while ($current_date <= $calendar_end) {
-            $date_obj = new DateTime($current_date);
-            $weekday = intval($date_obj->format('w'));
-            
-            // 基本的に土日祝日は見学不可
-            $is_weekend = ($weekday === 0 || $weekday === 6);
-            $is_holiday = fpco_is_japanese_holiday($current_date);
-            
-            $day_data = array(
-                'date' => $current_date,
-                'weekday' => $weekday,
-                'is_other_month' => (
-                    $date_obj->format('Y-m') !== sprintf('%04d-%02d', $year, $month_num)
-                ),
-                'am' => fpco_calculate_time_slot_status($current_date, 'am', $factory_id, $reservations, $unavailable_days, $is_weekend, $is_holiday),
-                'pm' => fpco_calculate_time_slot_status($current_date, 'pm', $factory_id, $reservations, $unavailable_days, $is_weekend, $is_holiday),
-            );
-            
-            $calendar_data[$current_date] = $day_data;
-            $current_date = date('Y-m-d', strtotime('+1 day', strtotime($current_date)));
-        }
-        
-        wp_send_json_success(array(
-            'year' => $year,
-            'month' => $month_num,
-            'calendar_start' => $calendar_start,
-            'calendar_end' => $calendar_end,
-            'factory' => $factory_info,
-            'days' => $calendar_data,
-        ));
-        
-    } catch (Exception $e) {
-        wp_send_json_error('データの取得に失敗しました: ' . $e->getMessage());
-    }
-}
-
 ?>
