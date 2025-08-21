@@ -471,6 +471,19 @@ class ReservationCalendar {
     renderDurationOptions(dateStr, period) {
         const optionsContainer = document.getElementById('timeslot-options');
         
+        // モーダルタイトルに日付を追加
+        const date = new Date(dateStr);
+        const displayDate = this.formatDisplayDate(date);
+        const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
+        
+        const modalTitle = document.getElementById('modal-date-title');
+        if (modalTitle) {
+            modalTitle.innerHTML = `
+                時間帯を選択<br>
+                <span style="font-size: 0.9em; font-weight: normal;">《${displayDate}${periodLabel}》</span>
+            `;
+        }
+        
         // 工場の時間設定をチェック
         if (!this.factoryTimeslots) {
             optionsContainer.innerHTML = `
@@ -499,14 +512,8 @@ class ReservationCalendar {
                 return;
             }
             
-            // 日付情報を取得
-            const date = new Date(dateStr);
-            const displayDate = this.formatDisplayDate(date);
-            const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
-            
             let html = `
                 <div class="duration-selection">
-                    <div class="modal-date-display">《${displayDate}${periodLabel}》</div>
                     <h4>ご希望の見学時間をクリックしてください</h4>
                     <div class="duration-options">
             `;
@@ -551,23 +558,24 @@ class ReservationCalendar {
     renderTimeslotOptions(dateStr, period, duration) {
         const optionsContainer = document.getElementById('timeslot-options');
         
-        // モーダルタイトルを更新
-        const modalTitle = document.getElementById('modal-date-title');
-        if (modalTitle) {
-            modalTitle.textContent = '時間帯を選択';
-        }
-        
-        // 日付情報を取得
+        // モーダルタイトルに日付を追加
         const date = new Date(dateStr);
         const displayDate = this.formatDisplayDate(date);
         const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
+        
+        const modalTitle = document.getElementById('modal-date-title');
+        if (modalTitle) {
+            modalTitle.innerHTML = `
+                時間帯を選択<br>
+                <span style="font-size: 0.9em; font-weight: normal;">《${displayDate}${periodLabel}》</span>
+            `;
+        }
         
         // 期間と時間に基づく具体的な時間帯選択肢
         const timeslots = this.getTimeslotsForPeriodAndDuration(period, duration);
         
         let html = `
             <div class="timeslot-selection">
-                <div class="modal-date-display">《${displayDate}${periodLabel}》</div>
                 <h4>ご希望の時間帯をクリックしてください</h4>
                 <div class="timeslot-options-grid">
         `;
@@ -615,16 +623,18 @@ class ReservationCalendar {
     renderAmPmTimeslots(dateStr, period) {
         const optionsContainer = document.getElementById('timeslot-options');
         
-        // モーダルタイトルを更新
-        const modalTitle = document.getElementById('modal-date-title');
-        if (modalTitle) {
-            modalTitle.textContent = '時間帯を選択';
-        }
-        
-        // 日付情報を取得
+        // モーダルタイトルに日付を追加
         const date = new Date(dateStr);
         const displayDate = this.formatDisplayDate(date);
         const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
+        
+        const modalTitle = document.getElementById('modal-date-title');
+        if (modalTitle) {
+            modalTitle.innerHTML = `
+                時間帯を選択<br>
+                <span style="font-size: 0.9em; font-weight: normal;">《${displayDate}${periodLabel}》</span>
+            `;
+        }
         
         // AM/PMパターンの時間帯を取得
         if (!this.factoryTimeslots[period] || this.factoryTimeslots[period].length === 0) {
@@ -641,7 +651,6 @@ class ReservationCalendar {
         
         let html = `
             <div class="timeslot-selection">
-                <div class="modal-date-display">《${displayDate}${periodLabel}》</div>
                 <h4>ご希望の時間帯をクリックしてください</h4>
                 <div class="timeslot-options-grid">
         `;
