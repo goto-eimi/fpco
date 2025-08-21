@@ -10,11 +10,6 @@ get_header();
 // POSTデータを取得・検証
 $form_data = validate_form_data($_POST);
 
-// デバッグ: 交通機関の値を確認
-if (isset($form_data['transportation'])) {
-    echo "<!-- Debug: transportation value = '" . $form_data['transportation'] . "' -->";
-}
-
 // フォームデータが無い場合はフォームに戻る
 if (!$form_data) {
     wp_redirect(home_url('/reservation-form/'));
@@ -25,7 +20,7 @@ if (!$form_data) {
 $factory_name = get_factory_name($form_data['factory_id']);
 
 // 時間帯情報を解析
-$timeslot_info = parse_timeslot($form_data['timeslot']);
+$timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
 ?>
 
 <style>
@@ -967,6 +962,72 @@ function calculate_total_visitors($form_data) {
     }
     
     return $total;
+}
+
+function parse_timeslot($timeslot, $factory_id = null) {
+    // プラグインファイルを読み込み
+    $plugin_file = WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/factory-user-management-functions.php';
+    if (file_exists($plugin_file)) {
+        require_once $plugin_file;
+    }
+    
+    // 工場の時間設定を取得
+    if (function_exists('fpco_get_factory_timeslots') && $factory_id) {
+        $factory_timeslots = fpco_get_factory_timeslots($factory_id);
+        
+        $parts = explode('-', $timeslot);
+        $period = $parts[0] ?? '';
+        $duration_or_index = $parts[1] ?? '';
+        $index = isset($parts[2]) ? intval($parts[2]) - 1 : intval($duration_or_index) - 1;
+        
+        // 60分・90分パターンの場合
+        if (in_array($duration_or_index, ['60', '90'])) {
+            $duration_key = $duration_or_index . 'min';
+            if (isset($factory_timeslots[$duration_key][$period][$index])) {
+                $time_range = $factory_timeslots[$duration_key][$period][$index];
+                return [
+                    'period' => strtoupper($period),
+                    'duration' => $duration_or_index,
+                    'time_range' => $time_range,
+                    'display' => strtoupper($period) . '(' . $time_range . ')'
+                ];
+            }
+        } else {
+            // AM/PMパターンの場合
+            if (isset($factory_timeslots[$period]) && isset($factory_timeslots[$period][$index])) {
+                $time_range = $factory_timeslots[$period][$index];
+                return [
+                    'period' => strtoupper($period),
+                    'duration' => '', // AM/PMパターンでは時間は固定
+                    'time_range' => $time_range,
+                    'display' => strtoupper($period) . '(' . $time_range . ')'
+                ];
+            }
+        }
+    }
+    
+    // フォールバック: デフォルトの時間テーブル
+    $parts = explode('-', $timeslot);
+    $period = $parts[0] ?? '';
+    $duration = $parts[1] ?? '';
+    
+    $time_ranges = [
+        'am-60-1' => '9:00〜10:00',
+        'am-60-2' => '10:30〜11:30',
+        'am-90-1' => '9:00〜10:30',
+        'am-90-2' => '10:00〜11:30',
+        'pm-60-1' => '14:00〜15:00',
+        'pm-60-2' => '15:30〜16:30',
+        'pm-90-1' => '14:00〜15:30',
+        'pm-90-2' => '15:00〜16:30'
+    ];
+    
+    return [
+        'period' => strtoupper($period),
+        'duration' => $duration,
+        'time_range' => $time_ranges[$timeslot] ?? '',
+        'display' => strtoupper($period) . '(' . ($time_ranges[$timeslot] ?? '') . ')'
+    ];
 }
 
 get_footer();

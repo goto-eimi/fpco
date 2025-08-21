@@ -641,7 +641,7 @@ input[type="number"] {
                                 <span>その他</span>
                             </label>
                             <span class="conditional inline-input" id="transportation-other-inline" style="display: none;">
-                                <input type="text" id="transportation_other" name="transportation_other" placeholder="" style="width: 200px; margin-left: 10px;">
+                                <input type="text" id="transportation_other_text" name="transportation_other_text" placeholder="" style="width: 200px; margin-left: 10px;">
                             </span>
                         </div>
                         <div class="radio-row conditional" id="vehicle-count-inline" style="display: none;">
