@@ -29,7 +29,7 @@ if ($factory_id) {
 }
 
 // 時間帯情報を解析
-$timeslot_info = parse_timeslot($timeslot);
+$timeslot_info = parse_timeslot($timeslot, $factory_id);
 
 ?>
 
@@ -1714,9 +1714,11 @@ function get_factory_name($factory_id) {
     return isset($factories[$factory_id]) ? $factories[$factory_id] : '';
 }
 
-function parse_timeslot($timeslot) {
+function parse_timeslot($timeslot, $factory_id = null) {
     // プラグインの工場時間設定を取得
-    global $factory_id;
+    if (!$factory_id) {
+        global $factory_id;
+    }
     
     if (function_exists('fpco_get_factory_timeslots') && $factory_id) {
         $factory_timeslots = fpco_get_factory_timeslots($factory_id);
