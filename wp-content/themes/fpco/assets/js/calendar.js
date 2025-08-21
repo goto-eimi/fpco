@@ -545,6 +545,17 @@ class ReservationCalendar {
     renderTimeslotOptions(dateStr, period, duration) {
         const optionsContainer = document.getElementById('timeslot-options');
         
+        // モーダルタイトルを更新
+        const date = new Date(dateStr);
+        const displayDate = this.formatDisplayDate(date);
+        const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
+        const durationLabel = duration + '分';
+        
+        const modalTitle = document.getElementById('modal-date-title');
+        if (modalTitle) {
+            modalTitle.textContent = displayDate + periodLabel + ' ' + durationLabel + ' - 時間帯を選択';
+        }
+        
         // 期間と時間に基づく具体的な時間帯選択肢
         const timeslots = this.getTimeslotsForPeriodAndDuration(period, duration);
         
@@ -596,6 +607,16 @@ class ReservationCalendar {
     
     renderAmPmTimeslots(dateStr, period) {
         const optionsContainer = document.getElementById('timeslot-options');
+        
+        // モーダルタイトルを更新
+        const date = new Date(dateStr);
+        const displayDate = this.formatDisplayDate(date);
+        const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
+        
+        const modalTitle = document.getElementById('modal-date-title');
+        if (modalTitle) {
+            modalTitle.textContent = displayDate + periodLabel + ' - 時間帯を選択';
+        }
         
         // AM/PMパターンの時間帯を取得
         if (!this.factoryTimeslots[period] || this.factoryTimeslots[period].length === 0) {
