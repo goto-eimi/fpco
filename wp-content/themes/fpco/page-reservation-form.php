@@ -30,6 +30,10 @@ if ($factory_id) {
 
 // 時間帯情報を解析
 $timeslot_info = parse_timeslot($timeslot);
+
+// デバッグ表示（一時的）
+echo "<!-- Debug Info: factory_id=$factory_id, timeslot=$timeslot -->";
+echo "<!-- Timeslot Info: " . print_r($timeslot_info, true) . " -->";
 ?>
 
 <style>
@@ -1716,14 +1720,21 @@ function get_factory_name($factory_id) {
 function parse_timeslot($timeslot) {
     // プラグインの工場時間設定を取得
     global $factory_id;
+    
+    // デバッグ情報
+    error_log("Debug: factory_id=$factory_id, timeslot=$timeslot");
+    
     if (function_exists('fpco_get_factory_timeslots') && $factory_id) {
         $factory_timeslots = fpco_get_factory_timeslots($factory_id);
+        error_log("Debug: factory_timeslots=" . print_r($factory_timeslots, true));
         
         // timeslot形式を解析
         $parts = explode('-', $timeslot);
         $period = $parts[0] ?? '';
         $duration_or_index = $parts[1] ?? '';
         $index = isset($parts[2]) ? intval($parts[2]) - 1 : intval($duration_or_index) - 1;
+        
+        error_log("Debug: period=$period, duration_or_index=$duration_or_index, index=$index");
         
         // 時間文字列を取得
         $time_range = '';
@@ -1737,18 +1748,18 @@ function parse_timeslot($timeslot) {
                 $calculated_duration = $duration_or_index;
             }
         } else {
-            // AM/PMパターンの場合（duration_or_indexがindexの場合）
-            if (isset($factory_timeslots[$period][$index])) {
-                $time_range = $factory_timeslots[$period][$index];
+            // AM/PMパターンの場合
+            // JavaScriptから送られてくるのは1ベースのインデックス（pm-1, am-2など）
+            $js_index = intval($duration_or_index) - 1; // 1ベースを0ベースに変換
+            
+            if (isset($factory_timeslots[$period][$js_index])) {
+                $time_range = $factory_timeslots[$period][$js_index];
                 // 時間から分数を計算
                 $calculated_duration = calculate_duration_from_time($time_range);
             }
-            // インデックスが0ベースの場合も試す
-            else if (isset($factory_timeslots[$period][intval($duration_or_index)])) {
-                $time_range = $factory_timeslots[$period][intval($duration_or_index)];
-                $calculated_duration = calculate_duration_from_time($time_range);
-            }
         }
+        
+        error_log("Debug: time_range=$time_range, calculated_duration=$calculated_duration");
         
         return [
             'period' => strtoupper($period),
