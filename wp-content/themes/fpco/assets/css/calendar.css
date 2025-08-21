@@ -65,7 +65,7 @@
     border: 1px solid black;
     border-radius: 8px;
     background: #E0E0E0;
-    padding: 10px;
+    padding: 20px;
     width: 100%;
 }
 
@@ -106,15 +106,7 @@
     cursor: default;
 }
 
-/* ショートコード用のカレンダー日付セル */
-.reservation-calendar-shortcode .calendar-day {
-    background: white;
-    min-height: 80px;
-    padding: 2px;
-    position: relative;
-    cursor: default;
-    font-size: 12px;
-}
+/* ショートコード用のカレンダー日付セル - 親と同じスタイルを継承 */
 
 .calendar-day.clickable {
     cursor: pointer;
@@ -160,14 +152,7 @@
     margin-bottom: 8px;
 }
 
-/* ショートコード用の時間スロット */
-.reservation-calendar-shortcode .time-slots {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 0 2px;
-    margin-bottom: 4px;
-}
+/* ショートコード用の時間スロット - 親と同じスタイルを継承 */
 
 .time-slot {
     display: flex;
@@ -180,11 +165,7 @@
     font-size: 14px;
 }
 
-/* ショートコード用の時間ラベル */
-.reservation-calendar-shortcode .time-label {
-    font-weight: bold;
-    font-size: 10px;
-}
+/* ショートコード用の時間ラベル - 親と同じスタイルを継承 */
 
 .status-button {
     display: inline-block;
@@ -200,20 +181,7 @@
     text-decoration: none;
 }
 
-/* ショートコード用のステータスボタン */
-.reservation-calendar-shortcode .status-button {
-    display: inline-block;
-    width: 50px;
-    height: 18px;
-    border-radius: 15px;
-    text-align: center;
-    line-height: 18px;
-    font-size: 10px;
-    font-weight: bold;
-    cursor: default;
-    border: none;
-    text-decoration: none;
-}
+/* ショートコード用のステータスボタン - 親と同じスタイルを継承 */
 
 .status-button.available {
     background-color: #1A76D2;
