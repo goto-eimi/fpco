@@ -1737,10 +1737,15 @@ function parse_timeslot($timeslot) {
                 $calculated_duration = $duration_or_index;
             }
         } else {
-            // AM/PMパターンの場合
+            // AM/PMパターンの場合（duration_or_indexがindexの場合）
             if (isset($factory_timeslots[$period][$index])) {
                 $time_range = $factory_timeslots[$period][$index];
                 // 時間から分数を計算
+                $calculated_duration = calculate_duration_from_time($time_range);
+            }
+            // インデックスが0ベースの場合も試す
+            else if (isset($factory_timeslots[$period][intval($duration_or_index)])) {
+                $time_range = $factory_timeslots[$period][intval($duration_or_index)];
                 $calculated_duration = calculate_duration_from_time($time_range);
             }
         }
