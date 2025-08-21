@@ -964,6 +964,47 @@ function calculate_total_visitors($form_data) {
     return $total;
 }
 
+function validate_form_data($post_data) {
+    // 基本的なバリデーション
+    if (empty($post_data)) {
+        return false;
+    }
+    
+    // 必須項目チェック
+    $required_fields = ['factory_id', 'date', 'applicant_name', 'email'];
+    foreach ($required_fields as $field) {
+        if (!isset($post_data[$field]) || empty($post_data[$field])) {
+            return false;
+        }
+    }
+    
+    return $post_data;
+}
+
+function get_factory_name($factory_id) {
+    $factories = [
+        1 => '関東リサイクル',
+        2 => '中部リサイクル',
+        3 => '福山リサイクル',
+        4 => '山形選別センター',
+        5 => '松本選別センター',
+        6 => '西宮選別センター',
+        7 => '東海選別センター',
+        8 => '金沢選別センター',
+        9 => '九州選別センター'
+    ];
+    
+    return isset($factories[$factory_id]) ? $factories[$factory_id] : '不明';
+}
+
+function format_display_date($date) {
+    $timestamp = strtotime($date);
+    if ($timestamp) {
+        return date('Y年m月d日', $timestamp);
+    }
+    return $date;
+}
+
 function parse_timeslot($timeslot, $factory_id = null) {
     // プラグインファイルを読み込み
     $plugin_file = WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/factory-user-management-functions.php';
