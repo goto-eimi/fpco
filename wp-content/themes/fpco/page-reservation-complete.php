@@ -473,6 +473,12 @@ function save_reservation_to_database($reservation_id, $form_data) {
         $transportation_count = intval($form_data['vehicle_count']);
     }
     
+    // 交通機関の保存形式を調整
+    $transportation_method = $form_data['transportation'] ?? '';
+    if ($transportation_method === 'other' && !empty($form_data['transportation_other_text'])) {
+        $transportation_method = 'other (' . $form_data['transportation_other_text'] . ')';
+    }
+    
     // データベースの実際のフィールド名に合わせて保存
     $reservation_data = [
         'factory_id' => $form_data['factory_id'],
@@ -491,7 +497,7 @@ function save_reservation_to_database($reservation_id, $form_data) {
         'phone' => $form_data['phone'] ?? '',
         'day_of_contact' => $form_data['mobile'] ?? '',
         'email' => $form_data['email'],
-        'transportation_method' => $form_data['transportation'] ?? '',
+        'transportation_method' => $transportation_method,
         'transportation_count' => $transportation_count,
         'purpose' => $form_data['purpose'] ?? '',
         'participant_count' => calculate_total_visitors($form_data),
