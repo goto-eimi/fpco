@@ -887,7 +887,8 @@ function fpco_convert_reservation_to_form_data($reservation) {
     } else {
         $transportation_reverse_mapping = [
             'car' => 'car',
-            'bus' => 'chartered_bus',
+            'chartered_bus' => 'chartered_bus',
+            'local_bus' => 'local_bus',
             'taxi' => 'taxi',
             'other' => 'other'
         ];
