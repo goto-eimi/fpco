@@ -813,8 +813,8 @@ function prepare_type_data($form_data) {
             
         case 'government':
             $type_data = [
-                'organization_name' => $form_data['government_name'] ?? '',
-                'organization_name_kana' => $form_data['government_kana'] ?? '',
+                'company_name' => $form_data['government_name'] ?? '',
+                'company_name_kana' => $form_data['government_kana'] ?? '',
                 'adult_count' => $form_data['government_adult_count'] ?? 0,
                 'child_count' => $form_data['government_child_count'] ?? 0,
                 'child_grade' => $form_data['government_child_grade'] ?? ''
