@@ -307,6 +307,12 @@ function fpco_get_factory_name($factory_id) {
 add_action('wp_ajax_get_calendar_data', 'fpco_ajax_get_calendar_data');
 add_action('wp_ajax_nopriv_get_calendar_data', 'fpco_ajax_get_calendar_data');
 
+/**
+ * 工場別タイムスロットデータを取得するAJAXハンドラー
+ */
+add_action('wp_ajax_get_factory_timeslots', 'fpco_ajax_get_factory_timeslots');
+add_action('wp_ajax_nopriv_get_factory_timeslots', 'fpco_ajax_get_factory_timeslots');
+
 function fpco_ajax_get_calendar_data() {
     // パラメータの取得
     $month = isset($_GET['month']) ? sanitize_text_field($_GET['month']) : date('Y-m');
@@ -480,5 +486,17 @@ function fpco_calculate_slot_status($date, $time_period, $unavailable_days, $res
     
     // 空きあり
     return array('status' => 'available', 'symbol' => '〇');
+}
+
+function fpco_ajax_get_factory_timeslots() {
+    $factory_id = isset($_GET['factory']) ? intval($_GET['factory']) : 1;
+    
+    // プラグインの工場別時間設定関数を呼び出し
+    if (function_exists('fpco_get_factory_timeslots')) {
+        $timeslots = fpco_get_factory_timeslots($factory_id);
+        wp_send_json_success($timeslots);
+    } else {
+        wp_send_json_error(array('message' => '工場時間設定が取得できませんでした。'));
+    }
 }
 

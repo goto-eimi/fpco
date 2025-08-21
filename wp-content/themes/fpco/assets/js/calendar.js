@@ -7,14 +7,16 @@ class ReservationCalendar {
         this.currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0');
         this.factoryId = this.getFactoryId();
         this.calendarData = {};
+        this.factoryTimeslots = null;
         this.selectedDate = null;
         this.selectedTimeslot = null;
         
         this.init();
     }
     
-    init() {
+    async init() {
         this.bindEvents();
+        await this.loadFactoryTimeslots();
         this.loadCalendarData(this.currentMonth);
     }
     
@@ -64,6 +66,34 @@ class ReservationCalendar {
         // 最後にURLパラメータから取得（ページテンプレート用）
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('factory') || '1';
+    }
+    
+    async loadFactoryTimeslots() {
+        try {
+            const ajaxUrl = typeof calendarData !== 'undefined' && calendarData.ajaxUrl ? 
+                           calendarData.ajaxUrl : '/wp-admin/admin-ajax.php';
+            
+            const requestUrl = `${ajaxUrl}?action=get_factory_timeslots&factory=${this.factoryId}`;
+            
+            const response = await fetch(requestUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: 工場時間設定の取得に失敗しました`);
+            }
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.message || '工場時間設定の取得に失敗しました');
+            }
+            
+            this.factoryTimeslots = result.data;
+            
+        } catch (error) {
+            console.error('Factory timeslots loading error:', error);
+            // エラーの場合はデフォルト設定を使用
+            this.factoryTimeslots = null;
+        }
     }
     
     async loadCalendarData(yearMonth) {
@@ -441,31 +471,77 @@ class ReservationCalendar {
     renderDurationOptions(dateStr, period) {
         const optionsContainer = document.getElementById('timeslot-options');
         
-        // 60分・90分選択画面
-        let html = `
-            <div class="duration-selection">
-                <h4>ご希望の見学時間をクリックしてください</h4>
-                <div class="duration-options">
+        // 工場の時間設定をチェック
+        if (!this.factoryTimeslots) {
+            optionsContainer.innerHTML = `
+                <div class="no-timeslots">
+                    <p>申し訳ございません。時間設定を読み込めませんでした。</p>
+                    <button type="button" class="btn-back" onclick="window.reservationCalendar.closeModal()">閉じる</button>
+                </div>
+            `;
+            return;
+        }
+        
+        // AM/PMパターンの場合は直接時間選択へ
+        if (this.factoryTimeslots.pattern === 'am_pm') {
+            this.renderAmPmTimeslots(dateStr, period);
+            return;
+        }
+        
+        // 60分・90分パターンの場合
+        if (this.factoryTimeslots.pattern === 'duration') {
+            const has60min = this.factoryTimeslots[period] && this.factoryTimeslots[period]['60'] && this.factoryTimeslots[period]['60'].length > 0;
+            const has90min = this.factoryTimeslots[period] && this.factoryTimeslots[period]['90'] && this.factoryTimeslots[period]['90'].length > 0;
+            
+            // どちらの時間帯もない場合はエラー表示
+            if (!has60min && !has90min) {
+                optionsContainer.innerHTML = `
+                    <div class="no-timeslots">
+                        <p>申し訳ございません。この時間帯はご利用いただけません。</p>
+                        <button type="button" class="btn-back" onclick="window.reservationCalendar.closeModal()">閉じる</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="duration-selection">
+                    <h4>ご希望の見学時間をクリックしてください</h4>
+                    <div class="duration-options">
+            `;
+            
+            if (has60min) {
+                html += `
                     <div class="duration-option" data-duration="60">
                         <div class="duration-label">60分</div>
                     </div>
+                `;
+            }
+            
+            if (has90min) {
+                html += `
                     <div class="duration-option" data-duration="90">
                         <div class="duration-label">90分</div>
                     </div>
+                `;
+            }
+            
+            html += `
+                    </div>
                 </div>
-            </div>
-        `;
-        
-        optionsContainer.innerHTML = html;
-        
-        // 60分・90分選択のクリックイベント
-        document.querySelectorAll('.duration-option').forEach(option => {
-            option.addEventListener('click', (e) => {
-                const duration = option.getAttribute('data-duration');
-                this.selectedDuration = duration;
-                this.renderTimeslotOptions(dateStr, period, duration);
+            `;
+            
+            optionsContainer.innerHTML = html;
+            
+            // 60分・90分選択のクリックイベント
+            document.querySelectorAll('.duration-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    const duration = option.getAttribute('data-duration');
+                    this.selectedDuration = duration;
+                    this.renderTimeslotOptions(dateStr, period, duration);
+                });
             });
-        });
+        }
     }
     
     renderTimeslotOptions(dateStr, period, duration) {
@@ -520,8 +596,74 @@ class ReservationCalendar {
         });
     }
     
+    renderAmPmTimeslots(dateStr, period) {
+        const optionsContainer = document.getElementById('timeslot-options');
+        
+        // AM/PMパターンの時間帯を取得
+        if (!this.factoryTimeslots[period] || this.factoryTimeslots[period].length === 0) {
+            optionsContainer.innerHTML = `
+                <div class="no-timeslots">
+                    <p>申し訳ございません。この時間帯はご利用いただけません。</p>
+                    <button type="button" class="btn-back" onclick="window.reservationCalendar.closeModal()">閉じる</button>
+                </div>
+            `;
+            return;
+        }
+        
+        const timeslots = this.factoryTimeslots[period];
+        
+        let html = `
+            <div class="timeslot-selection">
+                <h4>ご希望の時間帯をクリックしてください</h4>
+                <div class="timeslot-options-grid">
+        `;
+        
+        timeslots.forEach((timeSlot, index) => {
+            html += `
+                <div class="timeslot-option" data-timeslot="${period}-${index + 1}">
+                    <div class="timeslot-time">${timeSlot}</div>
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+        
+        optionsContainer.innerHTML = html;
+        
+        // 時間帯選択のクリックイベント
+        document.querySelectorAll('.timeslot-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.timeslot-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                
+                this.selectedTimeslot = option.getAttribute('data-timeslot');
+                // 時間帯選択後、自動的に予約フォームへ遷移
+                setTimeout(() => {
+                    this.proceedToReservation();
+                }, 500);
+            });
+        });
+    }
+    
     getTimeslotsForPeriodAndDuration(period, duration) {
-        const timeslots = {
+        // プラグインから取得した工場設定を使用
+        if (this.factoryTimeslots && this.factoryTimeslots.pattern === 'duration') {
+            const periodData = this.factoryTimeslots[period];
+            if (periodData && periodData[duration]) {
+                return periodData[duration].map((time, index) => ({
+                    id: `${period}-${duration}-${index + 1}`,
+                    time: time
+                }));
+            }
+        }
+        
+        // フォールバック: デフォルト設定
+        const defaultTimeslots = {
             am: {
                 60: [
                     { id: 'am-60-1', time: '9:00〜10:00' },
@@ -544,7 +686,7 @@ class ReservationCalendar {
             }
         };
         
-        return timeslots[period]?.[duration] || [];
+        return defaultTimeslots[period]?.[duration] || [];
     }
     
     closeModal() {
