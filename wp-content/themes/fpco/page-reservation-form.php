@@ -12,6 +12,9 @@ $factory_id = isset($_GET['factory']) ? sanitize_text_field($_GET['factory']) : 
 $date = isset($_GET['date']) ? sanitize_text_field($_GET['date']) : '';
 $timeslot = isset($_GET['timeslot']) ? sanitize_text_field($_GET['timeslot']) : '';
 
+// デバッグ表示（一時的）
+echo "<!-- Debug: factory_id='$factory_id', date='$date', timeslot='$timeslot' -->";
+
 // 工場名を取得
 $factory_name = get_factory_name($factory_id);
 
@@ -1720,14 +1723,19 @@ function parse_timeslot($timeslot, $factory_id = null) {
         global $factory_id;
     }
     
+    echo "<!-- Debug parse_timeslot: factory_id='$factory_id', timeslot='$timeslot' -->";
+    
     if (function_exists('fpco_get_factory_timeslots') && $factory_id) {
         $factory_timeslots = fpco_get_factory_timeslots($factory_id);
+        echo "<!-- Debug factory_timeslots: " . print_r($factory_timeslots, true) . " -->";
         
         // timeslot形式を解析
         $parts = explode('-', $timeslot);
         $period = $parts[0] ?? '';
         $duration_or_index = $parts[1] ?? '';
         $index = isset($parts[2]) ? intval($parts[2]) - 1 : intval($duration_or_index) - 1;
+        
+        echo "<!-- Debug parsed: period='$period', duration_or_index='$duration_or_index', index=$index -->";
         
         // 時間文字列を取得
         $time_range = '';
@@ -1740,17 +1748,26 @@ function parse_timeslot($timeslot, $factory_id = null) {
                 $time_range = $factory_timeslots[$duration_key][$period][$index];
                 $calculated_duration = $duration_or_index;
             }
+            echo "<!-- Debug 60/90min pattern: duration_key='$duration_key', time_range='$time_range' -->";
         } else {
             // AM/PMパターンの場合
             // JavaScriptから送られてくるのは1ベースのインデックス（pm-1, am-2など）
             $js_index = intval($duration_or_index) - 1; // 1ベースを0ベースに変換
             
+            echo "<!-- Debug AM/PM pattern: js_index=$js_index -->";
+            echo "<!-- Debug Available for period '$period': " . print_r($factory_timeslots[$period] ?? 'NOT_FOUND', true) . " -->";
+            
             if (isset($factory_timeslots[$period]) && isset($factory_timeslots[$period][$js_index])) {
                 $time_range = $factory_timeslots[$period][$js_index];
                 // 時間から分数を計算
                 $calculated_duration = calculate_duration_from_time($time_range);
+                echo "<!-- Debug AM/PM found: time_range='$time_range', calculated_duration='$calculated_duration' -->";
+            } else {
+                echo "<!-- Debug AM/PM not found at index $js_index -->";
             }
         }
+        
+        echo "<!-- Debug final result: time_range='$time_range', calculated_duration='$calculated_duration' -->";
         
         return [
             'period' => strtoupper($period),
