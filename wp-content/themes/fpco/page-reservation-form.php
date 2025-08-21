@@ -1724,6 +1724,16 @@ function parse_timeslot($timeslot, $factory_id = null) {
     }
     
     echo "<!-- Debug parse_timeslot: factory_id='$factory_id', timeslot='$timeslot' -->";
+    echo "<!-- Debug function_exists: " . (function_exists('fpco_get_factory_timeslots') ? 'YES' : 'NO') . " -->";
+    
+    // プラグインファイルを明示的に読み込む
+    $plugin_file = WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/factory-user-management-functions.php';
+    if (file_exists($plugin_file)) {
+        require_once $plugin_file;
+        echo "<!-- Debug: Plugin file loaded -->";
+    } else {
+        echo "<!-- Debug: Plugin file NOT found at $plugin_file -->";
+    }
     
     if (function_exists('fpco_get_factory_timeslots') && $factory_id) {
         $factory_timeslots = fpco_get_factory_timeslots($factory_id);
