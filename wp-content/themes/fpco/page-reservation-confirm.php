@@ -10,6 +10,11 @@ get_header();
 // POSTデータを取得・検証
 $form_data = validate_form_data($_POST);
 
+// デバッグ: 交通機関の値を確認
+if (isset($form_data['transportation'])) {
+    echo "<!-- Debug: transportation value = '" . $form_data['transportation'] . "' -->";
+}
+
 // フォームデータが無い場合はフォームに戻る
 if (!$form_data) {
     wp_redirect(home_url('/reservation-form/'));

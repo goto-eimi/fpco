@@ -732,9 +732,10 @@ class ReservationForm {
         this.isSubmitting = true;
         
         // 送信前に非表示セクション内のフィールドを無効化（送信対象から除外）
+        // ただし、ラジオボタンは除外（選択状態を保持）
         const hiddenSections = this.form.querySelectorAll('.conditional[style*="display: none"]');
         hiddenSections.forEach(section => {
-            const fields = section.querySelectorAll('input, select, textarea');
+            const fields = section.querySelectorAll('input:not([type="radio"]), select, textarea');
             fields.forEach(field => {
                 if (field.name) {
                     field.disabled = true;
