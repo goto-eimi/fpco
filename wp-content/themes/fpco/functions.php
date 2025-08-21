@@ -239,19 +239,18 @@ function fpco_reservation_calendar_shortcode($atts) {
             
             <!-- 凡例 -->
             <div class="calendar-legend">
-                <h3>凡例</h3>
                 <div class="legend-items">
                     <div class="legend-item">
-                        <div class="legend-symbol available">◯</div>
-                        <div class="legend-text">空いています（クリックして予約）</div>
+                        <div class="legend-symbol available">〇</div>
+                        <div class="legend-text">・・・空きがあります。ご希望の日付をクリックしてください。(※ 50名まで可)</div>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-symbol adjusting">調整</div>
-                        <div class="legend-text">調整中</div>
+                        <div class="legend-symbol adjusting">△</div>
+                        <div class="legend-text">・・・調整中です。</div>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-symbol unavailable">×</div>
-                        <div class="legend-text">ご利用いただけません</div>
+                        <div class="legend-symbol unavailable">－</div>
+                        <div class="legend-text">・・・受付を行っておりません。</div>
                     </div>
                 </div>
             </div>
