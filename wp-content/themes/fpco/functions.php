@@ -186,7 +186,7 @@ function fpco_reservation_calendar_shortcode($atts) {
     
     // カレンダーの HTML を出力
     ?>
-    <div class="reservation-calendar-shortcode">
+    <div class="reservation-calendar-shortcode alignfull">
         <div class="calendar-container">
             <!-- 年月選択エリア -->
             <div class="calendar-controls">
