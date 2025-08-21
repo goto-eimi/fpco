@@ -457,7 +457,10 @@ class ReservationCalendar {
         // モーダルタイトルを更新
         const modalTitle = document.getElementById('modal-date-title');
         if (modalTitle) {
-            modalTitle.textContent = displayDate + periodLabel + ' - 時間帯を選択';
+            modalTitle.innerHTML = `
+                <div>時間帯を選択</div>
+                <div class="modal-date-info">${displayDate}${periodLabel}</div>
+            `;
         }
         
         // 時間帯選択肢を生成
@@ -553,7 +556,10 @@ class ReservationCalendar {
         
         const modalTitle = document.getElementById('modal-date-title');
         if (modalTitle) {
-            modalTitle.textContent = displayDate + periodLabel + ' ' + durationLabel + ' - 時間帯を選択';
+            modalTitle.innerHTML = `
+                <div>時間帯を選択</div>
+                <div class="modal-date-info">${displayDate}${periodLabel} ${durationLabel}</div>
+            `;
         }
         
         // 期間と時間に基づく具体的な時間帯選択肢
@@ -615,7 +621,10 @@ class ReservationCalendar {
         
         const modalTitle = document.getElementById('modal-date-title');
         if (modalTitle) {
-            modalTitle.textContent = displayDate + periodLabel + ' - 時間帯を選択';
+            modalTitle.innerHTML = `
+                <div>時間帯を選択</div>
+                <div class="modal-date-info">${displayDate}${periodLabel}</div>
+            `;
         }
         
         // AM/PMパターンの時間帯を取得
