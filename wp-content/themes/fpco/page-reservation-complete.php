@@ -477,7 +477,7 @@ function save_reservation_to_database($reservation_id, $form_data) {
     $reservation_data = [
         'factory_id' => $form_data['factory_id'],
         'date' => $form_data['date'],
-        'time_slot' => convert_timeslot_to_time_format($form_data['timeslot'] ?? ''),
+        'time_slot' => convert_timeslot_to_time_format($form_data['timeslot'] ?? '', $form_data['factory_id']),
         'applicant_name' => $form_data['applicant_name'],
         'applicant_kana' => $form_data['applicant_name_kana'] ?? '',
         'is_travel_agency' => ($form_data['is_travel_agency'] ?? 'no') === 'yes' ? 1 : 0,
@@ -682,27 +682,57 @@ function format_display_date($date) {
 
 // 追加のヘルパー関数
 
-function convert_timeslot_to_time_format($timeslot) {
-    // timeslot形式: am-60-1, pm-90-2 などを 09:00-10:00 形式に変換
+function convert_timeslot_to_time_format($timeslot, $factory_id = null) {
+    // timeslot形式: am-60-1, pm-90-2, am-1, pm-2 などを実際の時間形式に変換
     if (empty($timeslot)) {
         return '';
     }
     
     // 既に時間形式の場合はそのまま返す
-    if (preg_match('/^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/', $timeslot)) {
+    if (preg_match('/^\d{1,2}:\d{2}[~〜-]\d{1,2}:\d{2}$/', $timeslot)) {
         return $timeslot;
     }
     
-    $parts = explode('-', $timeslot);
-    if (count($parts) !== 3) {
-        return $timeslot; // 不正な形式の場合はそのまま返す
+    // プラグインファイルを読み込み
+    $plugin_file = WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/factory-user-management-functions.php';
+    if (file_exists($plugin_file)) {
+        require_once $plugin_file;
     }
     
-    $period = $parts[0]; // am または pm
-    $duration = intval($parts[1]); // 60 または 90
-    $session = intval($parts[2]); // 1 または 2
+    // 工場IDが渡されていない場合はPOSTデータから取得
+    if (!$factory_id && isset($_POST['factory_id'])) {
+        $factory_id = $_POST['factory_id'];
+    }
     
-    // 時間テーブル
+    // 工場の時間設定を取得して実際の時間に変換
+    if (function_exists('fpco_get_factory_timeslots') && $factory_id) {
+        $factory_timeslots = fpco_get_factory_timeslots($factory_id);
+        
+        $parts = explode('-', $timeslot);
+        $period = $parts[0] ?? '';
+        $duration_or_index = $parts[1] ?? '';
+        $index = isset($parts[2]) ? intval($parts[2]) - 1 : intval($duration_or_index) - 1;
+        
+        // 60分・90分パターンの場合
+        if (in_array($duration_or_index, ['60', '90'])) {
+            $duration_key = $duration_or_index . 'min';
+            if (isset($factory_timeslots[$duration_key][$period][$index])) {
+                $time_range = $factory_timeslots[$duration_key][$period][$index];
+                // 時間形式を統一（例: "9:00 ~ 10:00" -> "09:00-10:00"）
+                return preg_replace('/\s*[~〜]\s*/', '-', $time_range);
+            }
+        } else {
+            // AM/PMパターンの場合
+            $js_index = intval($duration_or_index) - 1;
+            if (isset($factory_timeslots[$period]) && isset($factory_timeslots[$period][$js_index])) {
+                $time_range = $factory_timeslots[$period][$js_index];
+                // 時間形式を統一
+                return preg_replace('/\s*[~〜]\s*/', '-', $time_range);
+            }
+        }
+    }
+    
+    // フォールバック: デフォルトの時間テーブル
     $time_mappings = [
         'am-60-1' => '09:00-10:00',
         'am-60-2' => '10:30-11:30',
