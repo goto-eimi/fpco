@@ -12,6 +12,17 @@ $factory_id = isset($_GET['factory']) ? sanitize_text_field($_GET['factory']) : 
 $date = isset($_GET['date']) ? sanitize_text_field($_GET['date']) : '';
 $timeslot = isset($_GET['timeslot']) ? sanitize_text_field($_GET['timeslot']) : '';
 
+// セッションを開始してカレンダーページURLを保存
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// リファラーがカレンダーページの場合、セッションに保存
+$referer = wp_get_referer();
+if ($referer && strpos($referer, '/reservation-') === false) {
+    $_SESSION['calendar_page_url'] = $referer;
+}
+
 // 工場名を取得
 $factory_name = get_factory_name($factory_id);
 
