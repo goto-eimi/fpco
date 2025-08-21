@@ -10,6 +10,8 @@
 .reservation-calendar-shortcode {
     width: 100%;
     max-width: none;
+    display: flex;
+    justify-content: center;
 }
 
 .reservation-calendar-shortcode .calendar-container {
