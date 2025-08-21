@@ -457,10 +457,7 @@ class ReservationCalendar {
         // モーダルタイトルを更新
         const modalTitle = document.getElementById('modal-date-title');
         if (modalTitle) {
-            modalTitle.innerHTML = `
-                <div>時間帯を選択</div>
-                <div class="modal-date-info">${displayDate}${periodLabel}</div>
-            `;
+            modalTitle.textContent = '時間帯を選択';
         }
         
         // 時間帯選択肢を生成
@@ -502,8 +499,14 @@ class ReservationCalendar {
                 return;
             }
             
+            // 日付情報を取得
+            const date = new Date(dateStr);
+            const displayDate = this.formatDisplayDate(date);
+            const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
+            
             let html = `
                 <div class="duration-selection">
+                    <div class="modal-date-display">《${displayDate}${periodLabel}》</div>
                     <h4>ご希望の見学時間をクリックしてください</h4>
                     <div class="duration-options">
             `;
@@ -549,24 +552,22 @@ class ReservationCalendar {
         const optionsContainer = document.getElementById('timeslot-options');
         
         // モーダルタイトルを更新
+        const modalTitle = document.getElementById('modal-date-title');
+        if (modalTitle) {
+            modalTitle.textContent = '時間帯を選択';
+        }
+        
+        // 日付情報を取得
         const date = new Date(dateStr);
         const displayDate = this.formatDisplayDate(date);
         const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
-        const durationLabel = duration + '分';
-        
-        const modalTitle = document.getElementById('modal-date-title');
-        if (modalTitle) {
-            modalTitle.innerHTML = `
-                <div>時間帯を選択</div>
-                <div class="modal-date-info">${displayDate}${periodLabel} ${durationLabel}</div>
-            `;
-        }
         
         // 期間と時間に基づく具体的な時間帯選択肢
         const timeslots = this.getTimeslotsForPeriodAndDuration(period, duration);
         
         let html = `
             <div class="timeslot-selection">
+                <div class="modal-date-display">《${displayDate}${periodLabel}》</div>
                 <h4>ご希望の時間帯をクリックしてください</h4>
                 <div class="timeslot-options-grid">
         `;
@@ -615,17 +616,15 @@ class ReservationCalendar {
         const optionsContainer = document.getElementById('timeslot-options');
         
         // モーダルタイトルを更新
+        const modalTitle = document.getElementById('modal-date-title');
+        if (modalTitle) {
+            modalTitle.textContent = '時間帯を選択';
+        }
+        
+        // 日付情報を取得
         const date = new Date(dateStr);
         const displayDate = this.formatDisplayDate(date);
         const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
-        
-        const modalTitle = document.getElementById('modal-date-title');
-        if (modalTitle) {
-            modalTitle.innerHTML = `
-                <div>時間帯を選択</div>
-                <div class="modal-date-info">${displayDate}${periodLabel}</div>
-            `;
-        }
         
         // AM/PMパターンの時間帯を取得
         if (!this.factoryTimeslots[period] || this.factoryTimeslots[period].length === 0) {
@@ -642,6 +641,7 @@ class ReservationCalendar {
         
         let html = `
             <div class="timeslot-selection">
+                <div class="modal-date-display">《${displayDate}${periodLabel}》</div>
                 <h4>ご希望の時間帯をクリックしてください</h4>
                 <div class="timeslot-options-grid">
         `;
