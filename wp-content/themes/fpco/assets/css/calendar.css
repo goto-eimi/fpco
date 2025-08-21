@@ -7,11 +7,17 @@
 }
 
 /* ショートコード用のカレンダーコンテナ */
+.reservation-calendar-shortcode {
+    width: 100%;
+    max-width: none;
+}
+
 .reservation-calendar-shortcode .calendar-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .calendar-controls {
