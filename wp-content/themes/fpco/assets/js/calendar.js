@@ -484,7 +484,7 @@ class ReservationCalendar {
         
         const modalDateElement = document.getElementById('modal-selected-date');
         if (modalDateElement) {
-            modalDateElement.textContent = `《${displayDate}${periodLabel}》`;
+            modalDateElement.textContent = ` 《${displayDate}${periodLabel}》 `;
             modalDateElement.style.textAlign = 'center';
         }
         
@@ -575,7 +575,7 @@ class ReservationCalendar {
         
         const modalDateElement = document.getElementById('modal-selected-date');
         if (modalDateElement) {
-            modalDateElement.textContent = `《${displayDate}${periodLabel}》`;
+            modalDateElement.textContent = ` 《${displayDate}${periodLabel}》 `;
             modalDateElement.style.textAlign = 'center';
         }
         
@@ -644,7 +644,7 @@ class ReservationCalendar {
         
         const modalDateElement = document.getElementById('modal-selected-date');
         if (modalDateElement) {
-            modalDateElement.textContent = `《${displayDate}${periodLabel}》`;
+            modalDateElement.textContent = ` 《${displayDate}${periodLabel}》 `;
             modalDateElement.style.textAlign = 'center';
         }
         
