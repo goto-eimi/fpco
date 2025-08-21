@@ -446,7 +446,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="company_adult_count" name="company_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
+                        <input type="number" class="count-box" id="company_adult_count" name="company_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -454,7 +454,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" class="count-box" id="company_child_count" name="company_child_count" min="0" placeholder="" class="required">
+                        <input type="number" class="count-box" id="company_child_count" name="company_child_count" min="0" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -486,7 +486,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
+                        <input type="number" class="count-box" id="government_adult_count" name="government_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -494,7 +494,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="government_child_count" name="government_child_count" min="0" placeholder="1" class="required">
+                        <input type="number" class="count-box" id="government_child_count" name="government_child_count" min="0" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -526,7 +526,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required count-box">
+                        <input type="number" class="count-box" id="other_adult_count" name="other_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -534,7 +534,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="other_child_count" name="other_child_count" min="0" placeholder="" class="required count-box">
+                        <input type="number" class="count-box" id="other_child_count" name="other_child_count" min="0" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -780,7 +780,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="family_adult_count" name="family_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
+                        <input type="number" class="count-box" id="family_adult_count" name="family_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -788,7 +788,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="family_child_count" name="family_child_count" min="0" placeholder="" class="required">
+                        <input type="number" class="count-box" id="family_child_count" name="family_child_count" min="0" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -819,7 +819,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="company_adult_count" name="company_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
+                        <input type="number" class="count-box" id="company_adult_count" name="company_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -827,7 +827,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="company_child_count" name="company_child_count" min="0" placeholder="" class="required">
+                        <input type="number" class="count-box" id="company_child_count" name="company_child_count" min="0" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -858,7 +858,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="government_adult_count" name="government_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required">
+                        <input type="number" class="count-box" id="government_adult_count" name="government_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -866,7 +866,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="government_child_count" name="government_child_count" min="0" placeholder="" class="required">
+                        <input type="number" class="count-box" id="government_child_count" name="government_child_count" min="0" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -897,7 +897,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（大人）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="other_adult_count" name="other_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="" class="required count-box">
+                        <input type="number" class="count-box" id="other_adult_count" name="other_adult_count" min="1" max="<?php echo esc_attr($factory_capacity); ?>" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
@@ -905,7 +905,7 @@ input[type="number"] {
                     <span class="info-label">見学者様人数（子ども）</span>
                     <span class="info-input">
                         <span class="required-label">必須</span>
-                        <input type="number" id="other_child_count" name="other_child_count" min="0" placeholder="" class="required count-box">
+                        <input type="number" class="count-box" id="other_child_count" name="other_child_count" min="0" placeholder="1" class="required">
                         <span class="unit">名</span>
                     </span>
                 </div>
