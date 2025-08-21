@@ -482,16 +482,11 @@ class ReservationCalendar {
             return;
         }
         
-        // AM/PMパターンの場合は直接時間選択へ
-        if (this.factoryTimeslots.pattern === 'am_pm') {
-            this.renderAmPmTimeslots(dateStr, period);
-            return;
-        }
-        
-        // 60分・90分パターンの場合
-        if (this.factoryTimeslots.pattern === 'duration') {
-            const has60min = this.factoryTimeslots[period] && this.factoryTimeslots[period]['60'] && this.factoryTimeslots[period]['60'].length > 0;
-            const has90min = this.factoryTimeslots[period] && this.factoryTimeslots[period]['90'] && this.factoryTimeslots[period]['90'].length > 0;
+        // プラグインのデータ構造を判定
+        // duration pattern (60min/90min構造がある場合)
+        if (this.factoryTimeslots['60min'] || this.factoryTimeslots['90min']) {
+            const has60min = this.factoryTimeslots['60min'] && this.factoryTimeslots['60min'][period] && this.factoryTimeslots['60min'][period].length > 0;
+            const has90min = this.factoryTimeslots['90min'] && this.factoryTimeslots['90min'][period] && this.factoryTimeslots['90min'][period].length > 0;
             
             // どちらの時間帯もない場合はエラー表示
             if (!has60min && !has90min) {
@@ -541,6 +536,9 @@ class ReservationCalendar {
                     this.renderTimeslotOptions(dateStr, period, duration);
                 });
             });
+        } else {
+            // AM/PMパターン（直接時間帯配列がある場合）
+            this.renderAmPmTimeslots(dateStr, period);
         }
     }
     
@@ -652,10 +650,10 @@ class ReservationCalendar {
     
     getTimeslotsForPeriodAndDuration(period, duration) {
         // プラグインから取得した工場設定を使用
-        if (this.factoryTimeslots && this.factoryTimeslots.pattern === 'duration') {
-            const periodData = this.factoryTimeslots[period];
-            if (periodData && periodData[duration]) {
-                return periodData[duration].map((time, index) => ({
+        if (this.factoryTimeslots) {
+            const durationKey = duration + 'min'; // 60 -> 60min, 90 -> 90min
+            if (this.factoryTimeslots[durationKey] && this.factoryTimeslots[durationKey][period]) {
+                return this.factoryTimeslots[durationKey][period].map((time, index) => ({
                     id: `${period}-${duration}-${index + 1}`,
                     time: time
                 }));
