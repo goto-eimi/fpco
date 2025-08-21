@@ -264,6 +264,7 @@ function fpco_reservation_calendar_shortcode($atts) {
                     <span class="modal-close">&times;</span>
                 </div>
                 <div class="modal-body">
+                    <p id="modal-selected-date"></p>
                     <div id="timeslot-options">
                         <!-- 動的に生成される -->
                     </div>
