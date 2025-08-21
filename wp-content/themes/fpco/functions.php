@@ -210,8 +210,8 @@ function fpco_reservation_calendar_shortcode($atts) {
                     </select>
                 </div>
                 
-                <!-- 工場選択 -->
-                <div class="factory-selector">
+                <!-- 工場選択（非表示） -->
+                <div class="factory-selector" style="display: none;">
                     <?php
                     $factory_id = $atts['factory'];
                     $factory_name = fpco_get_factory_name($factory_id);
