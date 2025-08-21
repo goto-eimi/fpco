@@ -482,9 +482,17 @@ class ReservationCalendar {
         const displayDate = this.formatDisplayDate(date);
         const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
         
+        console.log('Debug: dateStr=', dateStr, 'displayDate=', displayDate, 'periodLabel=', periodLabel);
+        
         const modalDateElement = document.getElementById('modal-selected-date');
+        console.log('Debug: modalDateElement=', modalDateElement);
+        
         if (modalDateElement) {
-            modalDateElement.textContent = `《${displayDate}${periodLabel}》`;
+            const dateText = `《${displayDate}${periodLabel}》`;
+            modalDateElement.textContent = dateText;
+            console.log('Debug: Set date text to=', dateText);
+        } else {
+            console.error('modal-selected-date element not found!');
         }
         
         // 工場の時間設定をチェック
@@ -572,9 +580,17 @@ class ReservationCalendar {
         const displayDate = this.formatDisplayDate(date);
         const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
         
+        console.log('Debug: dateStr=', dateStr, 'displayDate=', displayDate, 'periodLabel=', periodLabel);
+        
         const modalDateElement = document.getElementById('modal-selected-date');
+        console.log('Debug: modalDateElement=', modalDateElement);
+        
         if (modalDateElement) {
-            modalDateElement.textContent = `《${displayDate}${periodLabel}》`;
+            const dateText = `《${displayDate}${periodLabel}》`;
+            modalDateElement.textContent = dateText;
+            console.log('Debug: Set date text to=', dateText);
+        } else {
+            console.error('modal-selected-date element not found!');
         }
         
         // 期間と時間に基づく具体的な時間帯選択肢
@@ -640,9 +656,17 @@ class ReservationCalendar {
         const displayDate = this.formatDisplayDate(date);
         const periodLabel = period === 'am' ? '（午前）' : period === 'pm' ? '（午後）' : '';
         
+        console.log('Debug: dateStr=', dateStr, 'displayDate=', displayDate, 'periodLabel=', periodLabel);
+        
         const modalDateElement = document.getElementById('modal-selected-date');
+        console.log('Debug: modalDateElement=', modalDateElement);
+        
         if (modalDateElement) {
-            modalDateElement.textContent = `《${displayDate}${periodLabel}》`;
+            const dateText = `《${displayDate}${periodLabel}》`;
+            modalDateElement.textContent = dateText;
+            console.log('Debug: Set date text to=', dateText);
+        } else {
+            console.error('modal-selected-date element not found!');
         }
         
         // AM/PMパターンの時間帯を取得
