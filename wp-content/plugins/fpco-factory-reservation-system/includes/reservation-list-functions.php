@@ -10,6 +10,70 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * 予約日時を統合表示用にフォーマットする
+ */
+function format_reservation_datetime($date, $time_slot, $factory_id) {
+    if (!$date || !$time_slot) {
+        return '';
+    }
+    
+    // 日付をフォーマット
+    $date_formatted = date('Y年n月j日', strtotime($date));
+    
+    // 時間スロット情報を取得
+    $time_info = get_time_slot_info($time_slot, $factory_id);
+    
+    return $date_formatted . ' ' . $time_info;
+}
+
+/**
+ * タイムスロットから時間情報を取得
+ */
+function get_time_slot_info($time_slot, $factory_id) {
+    // プラグインの関数を読み込み
+    require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/factory-user-management-functions.php';
+    
+    $parts = explode('-', $time_slot);
+    $period = $parts[0] ?? '';
+    
+    // 60分・90分パターンの判定
+    if (isset($parts[1]) && in_array($parts[1], ['60', '90'])) {
+        // 固定時間パターン（例: am-60-1）
+        $time_ranges = [
+            'am-60-1' => '9:00 ~ 10:00',
+            'am-60-2' => '10:30 ~ 11:30',
+            'am-90-1' => '9:00 ~ 10:30',
+            'am-90-2' => '10:00 ~ 11:30',
+            'pm-60-1' => '14:00 ~ 15:00',
+            'pm-60-2' => '15:30 ~ 16:30',
+            'pm-90-1' => '14:00 ~ 15:30',
+            'pm-90-2' => '15:00 ~ 16:30'
+        ];
+        
+        return $time_ranges[$time_slot] ?? $time_slot;
+    } else {
+        // AM/PMパターン - プラグインから動的取得
+        $index = $parts[1] ?? '1';
+        
+        if ($factory_id && function_exists('fpco_get_factory_timeslots')) {
+            $timeslots = fpco_get_factory_timeslots($factory_id);
+            
+            if (isset($timeslots[$period])) {
+                $period_slots = $timeslots[$period];
+                $slot_index = intval($index) - 1;
+                
+                if (isset($period_slots[$slot_index])) {
+                    return $period_slots[$slot_index];
+                }
+            }
+        }
+        
+        // フォールバック
+        return $time_slot;
+    }
+}
+
+/**
  * CSSファイルの読み込み
  */
 add_action('admin_enqueue_scripts', 'fpco_reservation_list_enqueue_scripts');
@@ -148,17 +212,13 @@ function fpco_get_reservations($conditions) {
     // 時間帯検索（部分一致対応）
     if (!empty($conditions['time_slot'])) {
         if ($conditions['time_slot'] === 'AM') {
-            // AM検索：AM文字列を含むか、8:00-11:59の時間帯
-            $where_clauses[] = '(r.time_slot LIKE %s OR 
-                                (r.time_slot REGEXP %s))';
-            $params[] = '%AM%';
-            $params[] = '^([8-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
+            // AM検索：「am-」で始まるtime_slot
+            $where_clauses[] = 'r.time_slot LIKE %s';
+            $params[] = 'am-%';
         } elseif ($conditions['time_slot'] === 'PM') {
-            // PM検索：PM文字列を含むか、12:00-18:00の時間帯
-            $where_clauses[] = '(r.time_slot LIKE %s OR 
-                                (r.time_slot REGEXP %s))';
-            $params[] = '%PM%';
-            $params[] = '^(1[2-8]:[0-9]{2})-';
+            // PM検索：「pm-」で始まるtime_slot
+            $where_clauses[] = 'r.time_slot LIKE %s';
+            $params[] = 'pm-%';
         } else {
             // その他の場合は部分一致検索（例：「10:00」で「10:00-11:00」がヒット）
             $where_clauses[] = 'r.time_slot LIKE %s';
@@ -357,17 +417,13 @@ function fpco_export_reservations_csv($conditions) {
     
     if (!empty($conditions['time_slot'])) {
         if ($conditions['time_slot'] === 'AM') {
-            // AM検索：AM文字列を含むか、8:00-11:59の時間帯
-            $where_clauses[] = '(r.time_slot LIKE %s OR 
-                                (r.time_slot REGEXP %s))';
-            $params[] = '%AM%';
-            $params[] = '^([8-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
+            // AM検索：「am-」で始まるtime_slot
+            $where_clauses[] = 'r.time_slot LIKE %s';
+            $params[] = 'am-%';
         } elseif ($conditions['time_slot'] === 'PM') {
-            // PM検索：PM文字列を含むか、12:00-18:00の時間帯
-            $where_clauses[] = '(r.time_slot LIKE %s OR 
-                                (r.time_slot REGEXP %s))';
-            $params[] = '%PM%';
-            $params[] = '^(1[2-8]:[0-9]{2})-';
+            // PM検索：「pm-」で始まるtime_slot
+            $where_clauses[] = 'r.time_slot LIKE %s';
+            $params[] = 'pm-%';
         } else {
             // その他の場合は部分一致検索（例：「10:00」で「10:00-11:00」がヒット）
             $where_clauses[] = 'r.time_slot LIKE %s';
@@ -587,13 +643,15 @@ function fpco_reservation_list_admin_page() {
                     <div class="search-field">
                         <label for="date_from">予約日（開始）</label>
                         <input type="date" name="date_from" id="date_from" 
-                               value="<?php echo esc_attr($conditions['date_from'] ?? ''); ?>">
+                               value="<?php echo esc_attr($conditions['date_from'] ?? ''); ?>" 
+                               max="9999-12-31">
                     </div>
                     
                     <div class="search-field">
                         <label for="date_to">予約日（終了）</label>
                         <input type="date" name="date_to" id="date_to" 
-                               value="<?php echo esc_attr($conditions['date_to'] ?? ''); ?>">
+                               value="<?php echo esc_attr($conditions['date_to'] ?? ''); ?>" 
+                               max="9999-12-31">
                     </div>
                     
                     <div class="search-field">
@@ -702,21 +760,9 @@ function fpco_reservation_list_admin_page() {
                             <th>予約者</th>
                             <th class="sortable <?php echo $conditions['orderby'] === 'date' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
                                 <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'date', 'order' => ($conditions['orderby'] === 'date' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
-                                    予約日
+                                    予約日時
                                     <span class="sorting-indicator">
                                         <?php if ($conditions['orderby'] === 'date'): ?>
-                                            <span class="dashicons dashicons-arrow-<?php echo strtolower($conditions['order']) === 'asc' ? 'up' : 'down'; ?>-alt2"></span>
-                                        <?php else: ?>
-                                            <span class="dashicons dashicons-sort"></span>
-                                        <?php endif; ?>
-                                    </span>
-                                </a>
-                            </th>
-                            <th class="sortable <?php echo $conditions['orderby'] === 'time_slot' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
-                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'time_slot', 'order' => ($conditions['orderby'] === 'time_slot' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
-                                    予約時間
-                                    <span class="sorting-indicator">
-                                        <?php if ($conditions['orderby'] === 'time_slot'): ?>
                                             <span class="dashicons dashicons-arrow-<?php echo strtolower($conditions['order']) === 'asc' ? 'up' : 'down'; ?>-alt2"></span>
                                         <?php else: ?>
                                             <span class="dashicons dashicons-sort"></span>
@@ -737,18 +783,7 @@ function fpco_reservation_list_admin_page() {
                                     </span>
                                 </a>
                             </th>
-                            <th class="sortable <?php echo $conditions['orderby'] === 'status' ? 'sorted ' . strtolower($conditions['order']) : ''; ?>">
-                                <a href="?<?php echo http_build_query(array_filter(array_merge($conditions, ['page' => 'reservation-list', 'orderby' => 'status', 'order' => ($conditions['orderby'] === 'status' && $conditions['order'] === 'ASC') ? 'DESC' : 'ASC']), function($value) { return $value !== '' && $value !== null; })); ?>">
-                                    ステータス
-                                    <span class="sorting-indicator">
-                                        <?php if ($conditions['orderby'] === 'status'): ?>
-                                            <span class="dashicons dashicons-arrow-<?php echo strtolower($conditions['order']) === 'asc' ? 'up' : 'down'; ?>-alt2"></span>
-                                        <?php else: ?>
-                                            <span class="dashicons dashicons-sort"></span>
-                                        <?php endif; ?>
-                                    </span>
-                                </a>
-                            </th>
+                            <th>ステータス</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -776,16 +811,9 @@ function fpco_reservation_list_admin_page() {
                                         ?>
                                     </div>
                                 </td>
-                                <td class="reservation-date">
+                                <td class="reservation-datetime">
                                     <?php 
-                                    $date_str = $reservation['date'] ? date('Y年n月j日', strtotime($reservation['date'])) : '';
-                                    echo esc_html($date_str);
-                                    ?>
-                                </td>
-                                <td class="reservation-time">
-                                    <?php 
-                                    $time_str = $reservation['time_slot'] ?? '';
-                                    echo esc_html($time_str);
+                                    echo esc_html(format_reservation_datetime($reservation['date'], $reservation['time_slot'], $reservation['factory_id']));
                                     ?>
                                 </td>
                                 <td class="reservation-phone">

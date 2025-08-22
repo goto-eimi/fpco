@@ -1,12 +1,13 @@
 /* 予約一覧画面のスタイル */
 
 .wrap {
-    max-width: 1400px;
-    margin: 20px auto;
+    width: calc(100% - 20px);
+    margin: 20px 20px 20px auto;
     background: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-sizing: border-box;
 }
 
 /* 検索・絞り込みエリア */
@@ -171,7 +172,7 @@
 
 .wp-list-table th:nth-child(3),
 .wp-list-table td:nth-child(3) {
-    width: 120px;
+    width: 200px;
 }
 
 .wp-list-table th:nth-child(4),
@@ -219,8 +220,7 @@
     display: none;
 }
 
-.reservation-date,
-.reservation-time {
+.reservation-datetime {
     font-size: 14px;
     white-space: nowrap;
 }

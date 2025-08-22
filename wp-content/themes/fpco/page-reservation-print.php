@@ -13,7 +13,7 @@ if (empty($form_data)) {
 }
 
 $factory_name = get_factory_name($form_data['factory_id']);
-$timeslot_info = parse_timeslot($form_data['timeslot']);
+$timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
 $reservation_id = $form_data['reservation_id'] ?? '';
 ?>
 <!DOCTYPE html>
@@ -186,7 +186,7 @@ $reservation_id = $form_data['reservation_id'] ?? '';
         <div class="header">
             <h1>工場見学予約申込書</h1>
             <div class="company-info">
-                印刷日時：<?php echo date('Y年m月d日 H:i'); ?>
+                印刷日時：<?php echo date('Y年m月d日 H:i', current_time('timestamp')); ?>
             </div>
         </div>
 
@@ -200,7 +200,7 @@ $reservation_id = $form_data['reservation_id'] ?? '';
             
             <div class="info-row">
                 <span class="info-label">見学時間</span>
-                <span class="info-value"><?php echo esc_html($timeslot_info['duration']); ?>分</span>
+                <span class="info-value"><?php echo esc_html($timeslot_info['duration']); ?></span>
             </div>
             
             <div class="info-row">
@@ -356,8 +356,8 @@ function get_transportation_display($transportation, $form_data) {
     
     $label = $transportation_labels[$transportation] ?? '';
     
-    if ($transportation === 'other' && !empty($form_data['transportation_other'])) {
-        $label .= '（' . $form_data['transportation_other'] . '）';
+    if ($transportation === 'other' && !empty($form_data['transportation_other_text'])) {
+        $label .= '（' . $form_data['transportation_other_text'] . '）';
     }
     
     return $label;
@@ -648,27 +648,73 @@ function get_factory_name($factory_id) {
     return isset($factories[$factory_id]) ? $factories[$factory_id] : '';
 }
 
-function parse_timeslot($timeslot) {
+function parse_timeslot($timeslot, $factory_id = null) {
+    // プラグインの関数を読み込み
+    require_once WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/reservation-management-functions.php';
+    require_once WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/factory-user-management-functions.php';
+    
+    // timeslot形式: am-60-1, pm-90-2, am-1, pm-2 など
     $parts = explode('-', $timeslot);
     $period = $parts[0] ?? '';
-    $duration = $parts[1] ?? '';
+    $duration = '';
+    $index = '';
     
-    $time_ranges = [
-        'am-60-1' => '9:00〜10:00',
-        'am-60-2' => '10:30〜11:30',
-        'am-90-1' => '9:00〜10:30',
-        'am-90-2' => '10:00〜11:30',
-        'pm-60-1' => '14:00〜15:00',
-        'pm-60-2' => '15:30〜16:30',
-        'pm-90-1' => '14:00〜15:30',
-        'pm-90-2' => '15:00〜16:30'
-    ];
+    // 60分・90分パターンの判定
+    if (isset($parts[1]) && in_array($parts[1], ['60', '90'])) {
+        $duration = $parts[1];
+        $index = $parts[2] ?? '1';
+    } else {
+        // AM/PMパターンの場合、工場IDからプラグインで時間を取得
+        $index = $parts[1] ?? '1';
+        
+        if ($factory_id && function_exists('fpco_get_factory_timeslots')) {
+            $timeslots = fpco_get_factory_timeslots($factory_id);
+            
+            // 対応する時間スロットを検索
+            if (isset($timeslots[$period])) {
+                $period_slots = $timeslots[$period];
+                $slot_index = intval($index) - 1; // 0ベースのインデックスに変換
+                
+                if (isset($period_slots[$slot_index])) {
+                    $time_range = $period_slots[$slot_index];
+                    
+                    // "10:30 ~ 11:30" 形式から分数を計算
+                    if (preg_match('/(\d{1,2}):(\d{2})\s*~\s*(\d{1,2}):(\d{2})/', $time_range, $matches)) {
+                        $start_hour = intval($matches[1]);
+                        $start_min = intval($matches[2]);
+                        $end_hour = intval($matches[3]);
+                        $end_min = intval($matches[4]);
+                        
+                        $duration_minutes = ($end_hour * 60 + $end_min) - ($start_hour * 60 + $start_min);
+                        $duration = (string)$duration_minutes;
+                        
+                        // 時間範囲を保存
+                        $formatted_time_range = $time_range;
+                    }
+                }
+            }
+        }
+        
+        // プラグインから取得できない場合のデフォルト
+        if (empty($duration)) {
+            $duration = '90';
+        }
+    }
+    
+    $period_text = ($period === 'am') ? 'AM' : 'PM';
+    
+    // 時間範囲があれば表示形式を作成
+    if (isset($formatted_time_range)) {
+        $period_display = $period_text . '(' . $formatted_time_range . ')';
+    } else {
+        $period_display = $period_text;
+    }
     
     return [
-        'period' => strtoupper($period),
-        'duration' => $duration,
-        'time_range' => $time_ranges[$timeslot] ?? '',
-        'display' => strtoupper($period) . '(' . ($time_ranges[$timeslot] ?? '') . ')'
+        'display' => $period_display,
+        'duration' => $duration . '分',
+        'period' => $period,
+        'index' => $index
     ];
 }
 
@@ -686,19 +732,27 @@ function calculate_total_visitors($form_data) {
     
     switch ($category) {
         case 'school':
-            $total = (int)$form_data['student_count'] + (int)$form_data['teacher_count'];
+            $total = (int)($form_data['school_student_count'] ?? 0) + (int)($form_data['school_supervisor_count'] ?? 0);
             break;
             
         case 'recruit':
-            $total = (int)$form_data['recruit_visitor_count'];
+            $total = (int)($form_data['recruit_visitor_count'] ?? 0);
             break;
             
         case 'family':
-            $total = (int)$form_data['adult_count'] + (int)$form_data['child_count'];
+            $total = (int)($form_data['family_adult_count'] ?? 0) + (int)($form_data['family_child_count'] ?? 0);
             break;
             
-        default:
-            $total = (int)$form_data['org_adult_count'] + (int)$form_data['org_child_count'];
+        case 'company':
+            $total = (int)($form_data['company_adult_count'] ?? 0) + (int)($form_data['company_child_count'] ?? 0);
+            break;
+            
+        case 'government':
+            $total = (int)($form_data['government_adult_count'] ?? 0) + (int)($form_data['government_child_count'] ?? 0);
+            break;
+            
+        case 'other':
+            $total = (int)($form_data['other_adult_count'] ?? 0) + (int)($form_data['other_child_count'] ?? 0);
             break;
     }
     
