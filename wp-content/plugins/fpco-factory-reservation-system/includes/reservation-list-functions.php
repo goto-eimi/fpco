@@ -212,13 +212,13 @@ function fpco_get_reservations($conditions) {
     // 時間帯検索（部分一致対応）
     if (!empty($conditions['time_slot'])) {
         if ($conditions['time_slot'] === 'AM') {
-            // AM検索：8:00-11:59で始まる時間帯
+            // AM検索：12:00未満の時間帯にマッチ（09:00、9:00、10:00、11:00など）
             $where_clauses[] = 'r.time_slot REGEXP %s';
-            $params[] = '^([8-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
+            $params[] = '^(0?[0-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
         } elseif ($conditions['time_slot'] === 'PM') {
-            // PM検索：12:00-18:59で始まる時間帯
+            // PM検索：12:00以降の時間帯にマッチ
             $where_clauses[] = 'r.time_slot REGEXP %s';
-            $params[] = '^(1[2-8]:[0-9]{2})-';
+            $params[] = '^(1[2-9]:[0-9]{2}|2[0-3]:[0-9]{2})-';
         } else {
             // その他の場合は部分一致検索（例：「10:00」で「10:00-11:00」がヒット）
             $where_clauses[] = 'r.time_slot LIKE %s';
@@ -417,13 +417,13 @@ function fpco_export_reservations_csv($conditions) {
     
     if (!empty($conditions['time_slot'])) {
         if ($conditions['time_slot'] === 'AM') {
-            // AM検索：8:00-11:59の時間帯にマッチ
+            // AM検索：12:00未満の時間帯にマッチ（09:00、9:00、10:00、11:00など）
             $where_clauses[] = 'r.time_slot REGEXP %s';
-            $params[] = '^([8-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
+            $params[] = '^(0?[0-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
         } elseif ($conditions['time_slot'] === 'PM') {
-            // PM検索：12:00-18:59の時間帯にマッチ
+            // PM検索：12:00以降の時間帯にマッチ
             $where_clauses[] = 'r.time_slot REGEXP %s';
-            $params[] = '^(1[2-8]:[0-9]{2})-';
+            $params[] = '^(1[2-9]:[0-9]{2}|2[0-3]:[0-9]{2})-';
         } else {
             // その他の場合は部分一致検索（例：「10:00」で「10:00-11:00」がヒット）
             $where_clauses[] = 'r.time_slot LIKE %s';
@@ -438,6 +438,7 @@ function fpco_export_reservations_csv($conditions) {
     
     $where_sql = implode(' AND ', $where_clauses);
     
+
     // 全データを取得
     $sql = "SELECT r.*, f.name as factory_name 
             FROM {$wpdb->prefix}reservations r 
@@ -582,6 +583,33 @@ function fpco_export_reservations_csv($conditions) {
  * 管理画面表示
  */
 function fpco_reservation_list_admin_page() {
+    global $wpdb;
+    
+    // デバッグ: time_slotの実際の値を確認
+    $debug_sql = "SELECT DISTINCT time_slot, COUNT(*) as count FROM {$wpdb->prefix}reservations GROUP BY time_slot ORDER BY time_slot ASC";
+    $debug_results = $wpdb->get_results($debug_sql);
+    
+    echo '<div style="background: #ffffcc; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">';
+    echo '<strong>DEBUG: All time_slot values in database (sorted):</strong><br>';
+    $am_count = 0;
+    $pm_count = 0;
+    foreach ($debug_results as $row) {
+        // 時間を取得（最初の時間）
+        $time_parts = explode('-', $row->time_slot);
+        $first_time = $time_parts[0] ?? '';
+        $hour = intval(explode(':', $first_time)[0]);
+        
+        if ($hour < 12) {
+            $am_count += $row->count;
+            echo "AM: ";
+        } else {
+            $pm_count += $row->count;
+            echo "PM: ";
+        }
+        echo "{$row->time_slot}: {$row->count} records<br>";
+    }
+    echo "<br><strong>AM Total: {$am_count}, PM Total: {$pm_count}, Grand Total: " . ($am_count + $pm_count) . "</strong>";
+    echo '</div>';
     
     // 通常の画面表示の権限チェック
     $current_user = wp_get_current_user();
