@@ -249,18 +249,49 @@ function fpco_get_reservations($conditions) {
     $offset = ($page - 1) * $per_page;
     $total_pages = ceil($total_items / $per_page);
     
-    // データ取得
-    $sql = "SELECT r.*, f.name as factory_name 
-            FROM {$wpdb->prefix}reservations r 
-            LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
-            WHERE {$where_sql} 
-            ORDER BY r.{$orderby} {$order} 
-            LIMIT %d OFFSET %d";
-    
-    $reservations = $wpdb->get_results(
-        $wpdb->prepare($sql, ...array_merge($params, [$per_page, $offset])),
-        ARRAY_A
-    );
+    // reservation_typeでソートする場合は全データ取得が必要
+    if ($orderby === 'reservation_type') {
+        // 全データを取得（ソート用）
+        $sql = "SELECT r.*, f.name as factory_name 
+                FROM {$wpdb->prefix}reservations r 
+                LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
+                WHERE {$where_sql}";
+        
+        $all_reservations = $wpdb->get_results(
+            empty($params) ? $sql : $wpdb->prepare($sql, ...$params),
+            ARRAY_A
+        );
+        
+        // 各予約の表示名を計算してソート
+        foreach ($all_reservations as &$reservation) {
+            $visitor_category = $reservation['visitor_category'] ?? $reservation['reservation_type'] ?? '';
+            $type_data = !empty($reservation['type_data']) ? json_decode($reservation['type_data'], true) : null;
+            $reservation['_display_type'] = fpco_get_reservation_type_display_name($visitor_category, $type_data);
+        }
+        unset($reservation);
+        
+        // 表示名でソート
+        usort($all_reservations, function($a, $b) use ($order) {
+            $compare = strcmp($a['_display_type'], $b['_display_type']);
+            return $order === 'ASC' ? $compare : -$compare;
+        });
+        
+        // ページネーションを適用
+        $reservations = array_slice($all_reservations, $offset, $per_page);
+    } else {
+        // 通常のデータ取得
+        $sql = "SELECT r.*, f.name as factory_name 
+                FROM {$wpdb->prefix}reservations r 
+                LEFT JOIN {$wpdb->prefix}factorys f ON r.factory_id = f.id 
+                WHERE {$where_sql} 
+                ORDER BY r.{$orderby} {$order} 
+                LIMIT %d OFFSET %d";
+        
+        $reservations = $wpdb->get_results(
+            $wpdb->prepare($sql, ...array_merge($params, [$per_page, $offset])),
+            ARRAY_A
+        );
+    }
     
     // time_slotでソートする場合は、PHP側で追加ソートを実行
     if ($orderby === 'time_slot' && !empty($reservations)) {
