@@ -212,13 +212,13 @@ function fpco_get_reservations($conditions) {
     // 時間帯検索（部分一致対応）
     if (!empty($conditions['time_slot'])) {
         if ($conditions['time_slot'] === 'AM') {
-            // AM検索：「am-」で始まるtime_slot
-            $where_clauses[] = 'r.time_slot LIKE %s';
-            $params[] = 'am-%';
+            // AM検索：8:00-11:59で始まる時間帯
+            $where_clauses[] = 'r.time_slot REGEXP %s';
+            $params[] = '^([8-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
         } elseif ($conditions['time_slot'] === 'PM') {
-            // PM検索：「pm-」で始まるtime_slot
-            $where_clauses[] = 'r.time_slot LIKE %s';
-            $params[] = 'pm-%';
+            // PM検索：12:00-18:59で始まる時間帯
+            $where_clauses[] = 'r.time_slot REGEXP %s';
+            $params[] = '^(1[2-8]:[0-9]{2})-';
         } else {
             // その他の場合は部分一致検索（例：「10:00」で「10:00-11:00」がヒット）
             $where_clauses[] = 'r.time_slot LIKE %s';
@@ -417,13 +417,13 @@ function fpco_export_reservations_csv($conditions) {
     
     if (!empty($conditions['time_slot'])) {
         if ($conditions['time_slot'] === 'AM') {
-            // AM検索：「am-」で始まるtime_slot
-            $where_clauses[] = 'r.time_slot LIKE %s';
-            $params[] = 'am-%';
+            // AM検索：8:00-11:59の時間帯にマッチ
+            $where_clauses[] = 'r.time_slot REGEXP %s';
+            $params[] = '^([8-9]:[0-9]{2}|1[0-1]:[0-9]{2})-';
         } elseif ($conditions['time_slot'] === 'PM') {
-            // PM検索：「pm-」で始まるtime_slot
-            $where_clauses[] = 'r.time_slot LIKE %s';
-            $params[] = 'pm-%';
+            // PM検索：12:00-18:59の時間帯にマッチ
+            $where_clauses[] = 'r.time_slot REGEXP %s';
+            $params[] = '^(1[2-8]:[0-9]{2})-';
         } else {
             // その他の場合は部分一致検索（例：「10:00」で「10:00-11:00」がヒット）
             $where_clauses[] = 'r.time_slot LIKE %s';
