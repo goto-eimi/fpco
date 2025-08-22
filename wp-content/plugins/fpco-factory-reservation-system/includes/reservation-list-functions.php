@@ -737,15 +737,17 @@ function fpco_reservation_list_admin_page() {
                     <?php echo esc_html($pagination['total_items'] ?? 0); ?>個の項目
                 </div>
                 
+                <!-- 表示件数選択は常に表示 -->
+                <div class="per-page-selector">
+                    <label for="per_page_top">表示件数:</label>
+                    <select name="per_page_top" id="per_page_top" onchange="changePage(1, this.value)">
+                        <option value="20" <?php selected($conditions['per_page'], 20); ?>>20件</option>
+                        <option value="50" <?php selected($conditions['per_page'], 50); ?>>50件</option>
+                        <option value="100" <?php selected($conditions['per_page'], 100); ?>>100件</option>
+                    </select>
+                </div>
+                
                 <?php if ($pagination['total_pages'] > 1): ?>
-                    <div class="per-page-selector">
-                        <label for="per_page_top">表示件数:</label>
-                        <select name="per_page_top" id="per_page_top" onchange="changePage(1, this.value)">
-                            <option value="20" <?php selected($conditions['per_page'], 20); ?>>20件</option>
-                            <option value="50" <?php selected($conditions['per_page'], 50); ?>>50件</option>
-                            <option value="100" <?php selected($conditions['per_page'], 100); ?>>100件</option>
-                        </select>
-                    </div>
                     
                     <div class="page-navigation">
                         <button onclick="changePage(1)" 
