@@ -153,14 +153,21 @@ function fpco_reservation_list_admin_menu() {
  * 検索条件を取得
  */
 function fpco_get_search_conditions() {
+    // 空の文字列の場合はemptyとして扱う
+    $reservation_number = isset($_GET['reservation_number']) ? trim(sanitize_text_field($_GET['reservation_number'])) : '';
+    $date_from = isset($_GET['date_from']) ? trim(sanitize_text_field($_GET['date_from'])) : '';
+    $date_to = isset($_GET['date_to']) ? trim(sanitize_text_field($_GET['date_to'])) : '';
+    $time_slot = isset($_GET['time_slot']) ? trim(sanitize_text_field($_GET['time_slot'])) : '';
+    $status = isset($_GET['status']) ? trim(sanitize_text_field($_GET['status'])) : '';
+    
     return [
-        'reservation_number' => isset($_GET['reservation_number']) ? sanitize_text_field($_GET['reservation_number']) : '',
-        'date_from' => isset($_GET['date_from']) ? sanitize_text_field($_GET['date_from']) : '',
-        'date_to' => isset($_GET['date_to']) ? sanitize_text_field($_GET['date_to']) : '',
-        'time_slot' => isset($_GET['time_slot']) ? sanitize_text_field($_GET['time_slot']) : '',
-        'status' => isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '',
-        'per_page' => isset($_GET['per_page']) ? intval($_GET['per_page']) : 20,
-        'page' => isset($_GET['paged']) ? intval($_GET['paged']) : 1,
+        'reservation_number' => empty($reservation_number) ? '' : $reservation_number,
+        'date_from' => empty($date_from) ? '' : $date_from,
+        'date_to' => empty($date_to) ? '' : $date_to,
+        'time_slot' => empty($time_slot) ? '' : $time_slot,
+        'status' => empty($status) ? '' : $status,
+        'per_page' => isset($_GET['per_page']) ? max(1, intval($_GET['per_page'])) : 20,
+        'page' => isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1,
         'orderby' => isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : 'id',
         'order' => isset($_GET['order']) ? sanitize_text_field($_GET['order']) : 'DESC'
     ];
@@ -242,13 +249,6 @@ function fpco_get_reservations($conditions) {
     // 総件数を取得
     $count_sql = "SELECT COUNT(*) FROM {$wpdb->prefix}reservations r WHERE {$where_sql}";
     $total_items = $wpdb->get_var($wpdb->prepare($count_sql, ...$params));
-    
-    // デバッグ用ログ（検索条件がAMの場合のみ）
-    if (!empty($conditions['time_slot']) && $conditions['time_slot'] === 'AM') {
-        error_log("AM Search Debug - WHERE: {$where_sql}");
-        error_log("AM Search Debug - Params: " . print_r($params, true));
-        error_log("AM Search Debug - Total Items: {$total_items}");
-    }
     
     // ページネーション計算
     $per_page = max(1, min(100, $conditions['per_page']));
@@ -734,15 +734,7 @@ function fpco_reservation_list_admin_page() {
             </button>
             <div class="items-count-and-pagination">
                 <div class="items-count">
-                    <?php 
-                    $total_items_display = $pagination['total_items'] ?? 0;
-                    // デバッグ用：AM検索時にpagination配列をログ出力
-                    if (!empty($conditions['time_slot']) && $conditions['time_slot'] === 'AM') {
-                        error_log("AM Search Display Debug - Pagination: " . print_r($pagination, true));
-                        error_log("AM Search Display Debug - Total Items for Display: {$total_items_display}");
-                    }
-                    echo esc_html($total_items_display);
-                    ?>個の項目
+                    <?php echo esc_html($pagination['total_items'] ?? 0); ?>個の項目
                 </div>
                 
                 <?php if ($pagination['total_pages'] > 1): ?>
