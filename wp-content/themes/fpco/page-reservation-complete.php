@@ -8,6 +8,7 @@
 get_header(); 
 
 // POSTデータを取得・処理
+error_log('Debug - POST data: ' . print_r($_POST, true));
 $form_data = validate_and_process_reservation($_POST);
 
 if (!$form_data) {
@@ -475,8 +476,11 @@ function save_reservation_to_database($reservation_id, $form_data) {
     
     // 交通機関の保存形式を調整
     $transportation_method = $form_data['transportation'] ?? '';
+    error_log('Debug - transportation: ' . $transportation_method);
+    error_log('Debug - transportation_other_text: ' . ($form_data['transportation_other_text'] ?? 'not set'));
     if ($transportation_method === 'other' && !empty($form_data['transportation_other_text'])) {
         $transportation_method = 'other (' . $form_data['transportation_other_text'] . ')';
+        error_log('Debug - final transportation_method: ' . $transportation_method);
     }
     
     // データベースの実際のフィールド名に合わせて保存

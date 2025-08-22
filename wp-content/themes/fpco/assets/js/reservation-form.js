@@ -735,6 +735,11 @@ class ReservationForm {
         // ただし、ラジオボタンは除外（選択状態を保持）
         const hiddenSections = this.form.querySelectorAll('.conditional[style*="display: none"]');
         hiddenSections.forEach(section => {
+            // 交通機関の「その他」インライン入力は除外
+            if (section.id === 'transportation-other-inline') {
+                return;
+            }
+            
             const fields = section.querySelectorAll('input:not([type="radio"]), select, textarea');
             fields.forEach(field => {
                 if (field.name) {
