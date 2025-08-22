@@ -30,7 +30,7 @@
     border-radius: 8px;
     border: 1px solid #dee2e6;
     gap: 30px;
-    max-width: 100%;
+    width: 100%;
     box-sizing: border-box;
 }
 
