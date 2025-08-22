@@ -299,15 +299,78 @@ function fpco_factory_get_calendar_events() {
         )
     );
     
+    // 予約がある日を取得
+    $reservations = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT date, time_slot FROM {$wpdb->prefix}reservations 
+             WHERE factory_id = %d AND date BETWEEN %s AND %s 
+             AND status NOT IN ('cancelled', 'rejected')",
+            $factory_id,
+            $start,
+            $end
+        )
+    );
+    
+    // 予約がある日を配列に整理
+    $reservation_days = array();
+    foreach ($reservations as $reservation) {
+        $date = $reservation->date;
+        if (!isset($reservation_days[$date])) {
+            $reservation_days[$date] = array('am' => false, 'pm' => false);
+        }
+        
+        // 時間帯を判定（time_slotから開始時間を抽出）
+        $time_slot = $reservation->time_slot;
+        if (preg_match('/^(\d{1,2}):/', $time_slot, $matches)) {
+            $hour = intval($matches[1]);
+            if ($hour < 12) {
+                $reservation_days[$date]['am'] = true;
+            } else {
+                $reservation_days[$date]['pm'] = true;
+            }
+        }
+    }
+    
+    // 見学不可日の配列を作成（予約がある日も含める）
+    $unavailable_array = array();
     foreach ($unavailable_days as $day) {
-        $events[] = array(
-            'id' => 'unavailable_' . $day->id,
-            'title' => '',
-            'start' => $day->date,
-            'color' => 'transparent',
-            'type' => 'unavailable',
+        $unavailable_array[$day->date] = array(
+            'id' => $day->id,
             'am_unavailable' => (bool)$day->am_unavailable,
             'pm_unavailable' => (bool)$day->pm_unavailable
+        );
+    }
+    
+    // 予約がある日も見学不可として追加
+    foreach ($reservation_days as $date => $times) {
+        if (!isset($unavailable_array[$date])) {
+            $unavailable_array[$date] = array(
+                'id' => null,
+                'am_unavailable' => false,
+                'pm_unavailable' => false
+            );
+        }
+        
+        // 予約がある時間帯は自動的に見学不可にする
+        if ($times['am']) {
+            $unavailable_array[$date]['am_unavailable'] = true;
+        }
+        if ($times['pm']) {
+            $unavailable_array[$date]['pm_unavailable'] = true;
+        }
+    }
+    
+    // イベント配列を作成
+    foreach ($unavailable_array as $date => $data) {
+        $events[] = array(
+            'id' => $data['id'] ? 'unavailable_' . $data['id'] : 'reservation_' . $date,
+            'title' => '',
+            'start' => $date,
+            'color' => 'transparent',
+            'type' => 'unavailable',
+            'am_unavailable' => $data['am_unavailable'],
+            'pm_unavailable' => $data['pm_unavailable'],
+            'has_reservation' => isset($reservation_days[$date])
         );
     }
     
@@ -486,6 +549,7 @@ function fpco_factory_get_unavailable_info() {
     $factory_id = intval($_POST['factory_id']);
     $date = sanitize_text_field($_POST['date']);
     
+    // 見学不可日の情報を取得
     $info = $wpdb->get_row(
         $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}unavailable_days 
@@ -495,20 +559,46 @@ function fpco_factory_get_unavailable_info() {
         )
     );
     
-    if ($info) {
-        $result = array(
-            'has_data' => true,
-            'am_unavailable' => (bool)$info->am_unavailable,
-            'pm_unavailable' => (bool)$info->pm_unavailable
-        );
-        wp_send_json_success($result);
-    } else {
-        $result = array(
-            'has_data' => false,
-            'am_unavailable' => false,
-            'pm_unavailable' => false
-        );
-        wp_send_json_success($result);
+    // 予約情報を取得して時間帯を判定
+    $reservations = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT time_slot FROM {$wpdb->prefix}reservations 
+             WHERE factory_id = %d AND date = %s 
+             AND status NOT IN ('cancelled', 'rejected')",
+            $factory_id,
+            $date
+        )
+    );
+    
+    // 予約による見学不可を判定
+    $has_am_reservation = false;
+    $has_pm_reservation = false;
+    
+    foreach ($reservations as $reservation) {
+        $time_slot = $reservation->time_slot;
+        if (preg_match('/^(\d{1,2}):/', $time_slot, $matches)) {
+            $hour = intval($matches[1]);
+            if ($hour < 12) {
+                $has_am_reservation = true;
+            } else {
+                $has_pm_reservation = true;
+            }
+        }
     }
+    
+    // 結果を組み合わせ
+    $am_unavailable = ($info && $info->am_unavailable) || $has_am_reservation;
+    $pm_unavailable = ($info && $info->pm_unavailable) || $has_pm_reservation;
+    
+    $result = array(
+        'has_data' => $info !== null || !empty($reservations),
+        'am_unavailable' => $am_unavailable,
+        'pm_unavailable' => $pm_unavailable,
+        'has_reservation' => !empty($reservations),
+        'has_am_reservation' => $has_am_reservation,
+        'has_pm_reservation' => $has_pm_reservation
+    );
+    
+    wp_send_json_success($result);
 }
 ?>
