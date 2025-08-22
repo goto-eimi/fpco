@@ -191,9 +191,9 @@ function factory_calendar_admin_scripts($hook) {
         return;
     }
     
-    // FullCalendar
-    wp_enqueue_script('fullcalendar', 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js', array(), '6.1.8');
-    wp_enqueue_script('fullcalendar-ja', 'https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/locales/ja.global.min.js', array('fullcalendar'), '6.1.8');
+    // FullCalendar（ローカルファイル）
+    wp_enqueue_script('fullcalendar', plugin_dir_url(__FILE__) . 'assets/js/fullcalendar/fullcalendar.min.js', array(), '6.1.8');
+    wp_enqueue_script('fullcalendar-ja', plugin_dir_url(__FILE__) . 'assets/js/fullcalendar/fullcalendar-ja.min.js', array('fullcalendar'), '6.1.8');
     
     // カスタムスクリプト
     wp_enqueue_script('factory-calendar-admin', plugin_dir_url(__FILE__) . 'admin.js', array('jquery', 'fullcalendar'), '1.0', true);
