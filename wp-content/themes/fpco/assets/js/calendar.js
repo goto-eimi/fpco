@@ -287,14 +287,14 @@ class ReservationCalendar {
         
         let timeSlotsHtml = '';
         if (!isOtherMonth) {
-            // 過去の日付の場合はAM/PM両方とも「－」にする
-            const amButton = isPast 
+            // 過去の日付または当日の場合はAM/PM両方とも「－」にする
+            const amButton = (isPast || isToday) 
                 ? `<span class="status-button unavailable">－</span>`
                 : dayData.am.status === 'available' 
                     ? `<button class="status-button available" data-date="${dateStr}" data-period="am" onclick="openTimeslotSelection('${dateStr}', 'am')">${dayData.am.symbol}</button>`
                     : `<span class="status-button ${dayData.am.status}">${dayData.am.symbol}</span>`;
                 
-            const pmButton = isPast 
+            const pmButton = (isPast || isToday) 
                 ? `<span class="status-button unavailable">－</span>`
                 : dayData.pm.status === 'available'
                     ? `<button class="status-button available" data-date="${dateStr}" data-period="pm" onclick="openTimeslotSelection('${dateStr}', 'pm')">${dayData.pm.symbol}</button>`
@@ -343,14 +343,14 @@ class ReservationCalendar {
         if (weekday === 6) dayNumberClass += ' saturday';
         
         // スマホ版カレンダーの新デザイン
-        // 過去の日付の場合はAM/PM両方とも「－」にする
-        const amButton = isPast 
+        // 過去の日付または当日の場合はAM/PM両方とも「－」にする
+        const amButton = (isPast || isToday) 
             ? `<span class="mobile-status-button unavailable">－</span>`
             : dayData.am.status === 'available'
                 ? `<button class="mobile-status-button available" data-date="${dateStr}" data-period="am" onclick="openTimeslotSelection('${dateStr}', 'am')">${dayData.am.symbol}</button>`
                 : `<span class="mobile-status-button ${dayData.am.status}">${dayData.am.symbol}</span>`;
             
-        const pmButton = isPast 
+        const pmButton = (isPast || isToday) 
             ? `<span class="mobile-status-button unavailable">－</span>`
             : dayData.pm.status === 'available'
                 ? `<button class="mobile-status-button available" data-date="${dateStr}" data-period="pm" onclick="openTimeslotSelection('${dateStr}', 'pm')">${dayData.pm.symbol}</button>`
@@ -375,9 +375,25 @@ class ReservationCalendar {
     }
     
     getDayData(dateStr) {
+        // 当日予約禁止チェック
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const checkDate = new Date(dateStr);
+        const isToday = checkDate.getTime() === today.getTime();
+        
         // APIから取得したデータを使用
         if (this.calendarData && this.calendarData.days && this.calendarData.days[dateStr]) {
             const dayData = this.calendarData.days[dateStr];
+            
+            // 当日の場合は予約不可にする
+            if (isToday) {
+                return {
+                    clickable: false,
+                    am: { status: 'unavailable', symbol: '－' },
+                    pm: { status: 'unavailable', symbol: '－' }
+                };
+            }
+            
             return {
                 clickable: dayData.am.status === 'available' || dayData.pm.status === 'available',
                 am: dayData.am,
@@ -389,6 +405,15 @@ class ReservationCalendar {
         const date = new Date(dateStr);
         const day = date.getDate();
         const weekday = date.getDay();
+        
+        // 当日予約禁止
+        if (isToday) {
+            return {
+                clickable: false,
+                am: { status: 'unavailable', symbol: '－' },
+                pm: { status: 'unavailable', symbol: '－' }
+            };
+        }
         
         // 土日は受付不可
         if (weekday === 0 || weekday === 6) {

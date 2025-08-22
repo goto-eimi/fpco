@@ -92,6 +92,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         eventsEl.style.margin = '0';
                         eventsEl.innerHTML = '<div style="text-align: center; color: #999; font-size: 12px;">終了</div>';
                     }
+                } else if (cellDate.getTime() === today.getTime()) {
+                    // 当日の処理 - 見学不可にする
+                    var eventsEl = arg.el.querySelector('.fc-daygrid-day-events');
+                    if (eventsEl) {
+                        eventsEl.style.margin = '0';
+                        eventsEl.innerHTML = '<div style="text-align: center; color: #d32f2f; font-size: 12px;">○<br>当日予約不可</div>';
+                    }
                 } else {
                     // AM/PMチェックボックスを追加
                     var eventsEl = arg.el.querySelector('.fc-daygrid-day-events');
