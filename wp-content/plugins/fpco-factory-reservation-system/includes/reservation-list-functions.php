@@ -585,31 +585,6 @@ function fpco_export_reservations_csv($conditions) {
 function fpco_reservation_list_admin_page() {
     global $wpdb;
     
-    // デバッグ: time_slotの実際の値を確認
-    $debug_sql = "SELECT DISTINCT time_slot, COUNT(*) as count FROM {$wpdb->prefix}reservations GROUP BY time_slot ORDER BY time_slot ASC";
-    $debug_results = $wpdb->get_results($debug_sql);
-    
-    echo '<div style="background: #ffffcc; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">';
-    echo '<strong>DEBUG: All time_slot values in database (sorted):</strong><br>';
-    $am_count = 0;
-    $pm_count = 0;
-    foreach ($debug_results as $row) {
-        // 時間を取得（最初の時間）
-        $time_parts = explode('-', $row->time_slot);
-        $first_time = $time_parts[0] ?? '';
-        $hour = intval(explode(':', $first_time)[0]);
-        
-        if ($hour < 12) {
-            $am_count += $row->count;
-            echo "AM: ";
-        } else {
-            $pm_count += $row->count;
-            echo "PM: ";
-        }
-        echo "{$row->time_slot}: {$row->count} records<br>";
-    }
-    echo "<br><strong>AM Total: {$am_count}, PM Total: {$pm_count}, Grand Total: " . ($am_count + $pm_count) . "</strong>";
-    echo '</div>';
     
     // 通常の画面表示の権限チェック
     $current_user = wp_get_current_user();
