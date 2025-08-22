@@ -649,8 +649,8 @@ function get_transportation_display($transportation, $form_data) {
     
     $label = $transportation_labels[$transportation] ?? '';
     
-    if ($transportation === 'other' && !empty($form_data['transportation_other'])) {
-        $label .= '（' . $form_data['transportation_other'] . '）';
+    if ($transportation === 'other' && !empty($form_data['transportation_other_text'])) {
+        $label .= '（' . $form_data['transportation_other_text'] . '）';
     }
     
     return $label;
