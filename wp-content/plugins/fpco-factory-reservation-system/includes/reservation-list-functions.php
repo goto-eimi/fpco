@@ -243,6 +243,13 @@ function fpco_get_reservations($conditions) {
     $count_sql = "SELECT COUNT(*) FROM {$wpdb->prefix}reservations r WHERE {$where_sql}";
     $total_items = $wpdb->get_var($wpdb->prepare($count_sql, ...$params));
     
+    // デバッグ用ログ（検索条件がAMの場合のみ）
+    if (!empty($conditions['time_slot']) && $conditions['time_slot'] === 'AM') {
+        error_log("AM Search Debug - WHERE: {$where_sql}");
+        error_log("AM Search Debug - Params: " . print_r($params, true));
+        error_log("AM Search Debug - Total Items: {$total_items}");
+    }
+    
     // ページネーション計算
     $per_page = max(1, min(100, $conditions['per_page']));
     $page = max(1, $conditions['page']);
@@ -727,7 +734,15 @@ function fpco_reservation_list_admin_page() {
             </button>
             <div class="items-count-and-pagination">
                 <div class="items-count">
-                    <?php echo esc_html($pagination['total_items'] ?? 0); ?>個の項目
+                    <?php 
+                    $total_items_display = $pagination['total_items'] ?? 0;
+                    // デバッグ用：AM検索時にpagination配列をログ出力
+                    if (!empty($conditions['time_slot']) && $conditions['time_slot'] === 'AM') {
+                        error_log("AM Search Display Debug - Pagination: " . print_r($pagination, true));
+                        error_log("AM Search Display Debug - Total Items for Display: {$total_items_display}");
+                    }
+                    echo esc_html($total_items_display);
+                    ?>個の項目
                 </div>
                 
                 <?php if ($pagination['total_pages'] > 1): ?>
