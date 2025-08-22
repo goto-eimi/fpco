@@ -20,7 +20,8 @@ if (!$form_data) {
 $factory_name = get_factory_name($form_data['factory_id']);
 
 // 時間帯情報を解析
-$timeslot_info = parse_timeslot($form_data['timeslot']);
+$timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
+
 ?>
 
 <style>
@@ -442,7 +443,7 @@ textarea:-ms-input-placeholder {
             </div>
             <div class="info-row">
                 <span class="info-label">見学時間</span>
-                <span class="info-value"><?php echo esc_html($timeslot_info['duration']); ?>分</span>
+                <span class="info-value"><?php echo esc_html($timeslot_info['duration']); ?></span>
             </div>
             <div class="info-row">
                 <span class="info-label">見学時間帯</span>
@@ -598,18 +599,74 @@ function get_factory_name($factory_id) {
     return isset($factories[$factory_id]) ? $factories[$factory_id] : '';
 }
 
-function parse_timeslot($timeslot) {
-    // timeslot形式: am-60-1, pm-90-2 など
+function parse_timeslot($timeslot, $factory_id = null) {
+    // プラグインの関数を読み込み
+    require_once WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/reservation-management-functions.php';
+    require_once WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/factory-user-management-functions.php';
+    
+    // timeslot形式: am-60-1, pm-90-2, am-1, pm-2 など
     $parts = explode('-', $timeslot);
     $period = $parts[0] ?? '';
-    $duration = $parts[1] ?? '';
-    $session = $parts[2] ?? '';
+    $duration = '';
+    $index = '';
     
-    $period_display = $period === 'am' ? '午前' : '午後';
+    // 60分・90分パターンの判定
+    if (isset($parts[1]) && in_array($parts[1], ['60', '90'])) {
+        $duration = $parts[1];
+        $index = $parts[2] ?? '1';
+    } else {
+        // AM/PMパターンの場合、工場IDからプラグインで時間を取得
+        $index = $parts[1] ?? '1';
+        
+        if ($factory_id && function_exists('fpco_get_factory_timeslots')) {
+            $timeslots = fpco_get_factory_timeslots($factory_id);
+            
+            
+            // 対応する時間スロットを検索
+            if (isset($timeslots[$period])) {
+                $period_slots = $timeslots[$period];
+                $slot_index = intval($index) - 1; // 0ベースのインデックスに変換
+                
+                if (isset($period_slots[$slot_index])) {
+                    $time_range = $period_slots[$slot_index];
+                    
+                    // "10:30 ~ 11:30" 形式から分数を計算
+                    if (preg_match('/(\d{1,2}):(\d{2})\s*~\s*(\d{1,2}):(\d{2})/', $time_range, $matches)) {
+                        $start_hour = intval($matches[1]);
+                        $start_min = intval($matches[2]);
+                        $end_hour = intval($matches[3]);
+                        $end_min = intval($matches[4]);
+                        
+                        $duration_minutes = ($end_hour * 60 + $end_min) - ($start_hour * 60 + $start_min);
+                        $duration = (string)$duration_minutes;
+                        
+                        // 時間範囲を保存
+                        $formatted_time_range = $time_range;
+                    }
+                }
+            }
+        }
+        
+        // プラグインから取得できない場合のデフォルト
+        if (empty($duration)) {
+            $duration = '90';
+        }
+    }
+    
+    $period_text = ($period === 'am') ? 'AM' : 'PM';
+    
+    // 時間範囲があれば表示形式を作成
+    if (isset($formatted_time_range)) {
+        $period_display = $period_text . '(' . $formatted_time_range . ')';
+    } else {
+        $period_display = $period_text;
+    }
     
     return [
         'display' => $period_display,
-        'duration' => $duration
+        'duration' => $duration . '分',
+        'period' => $period,
+        'index' => $index
     ];
 }
 
@@ -964,104 +1021,6 @@ function calculate_total_visitors($form_data) {
     return $total;
 }
 
-// ヘルパー関数を追加
-function get_factory_name($factory_id) {
-    $factories = [
-        1 => '関東リサイクル',
-        2 => '中部リサイクル',
-        3 => '福山リサイクル',
-        4 => '山形選別センター',
-        5 => '松本選別センター',
-        6 => '西宮選別センター',
-        7 => '東海選別センター',
-        8 => '金沢選別センター',
-        9 => '九州選別センター'
-    ];
-    
-    return isset($factories[$factory_id]) ? $factories[$factory_id] : '不明';
-}
-
-function format_display_date($date) {
-    $timestamp = strtotime($date);
-    if ($timestamp) {
-        return date('Y年m月d日', $timestamp);
-    }
-    return $date;
-}
-
-function parse_timeslot($timeslot) {
-    // timeslot形式: am-60-1, pm-90-2, am-1, pm-2 など
-    $parts = explode('-', $timeslot);
-    $period = $parts[0] ?? '';
-    $duration = '';
-    $index = '';
-    
-    // 60分・90分パターンの判定
-    if (isset($parts[1]) && in_array($parts[1], ['60', '90'])) {
-        $duration = $parts[1];
-        $index = $parts[2] ?? '1';
-    } else {
-        // AM/PMパターン
-        $index = $parts[1] ?? '1';
-    }
-    
-    // 時間帯マッピング
-    $time_ranges = [
-        'am-60-1' => '9:00〜10:00',
-        'am-60-2' => '10:30〜11:30',
-        'am-90-1' => '9:00〜10:30',
-        'am-90-2' => '10:00〜11:30',
-        'pm-60-1' => '14:00〜15:00',
-        'pm-60-2' => '15:30〜16:30',
-        'pm-90-1' => '14:00〜15:30',
-        'pm-90-2' => '15:00〜16:30',
-        // AM/PMパターン用のデフォルト
-        'am-1' => '9:00〜10:30',
-        'am-2' => '10:30〜12:00',
-        'pm-1' => '13:00〜14:30',
-        'pm-2' => '14:30〜16:00'
-    ];
-    
-    $time_range = $time_ranges[$timeslot] ?? '';
-    
-    // 時間が設定されていない場合は、時間幅を計算
-    if (empty($duration) && !empty($time_range)) {
-        // 時間範囲から分数を計算
-        if (preg_match('/(\d+):(\d+)[〜～](\d+):(\d+)/', $time_range, $matches)) {
-            $start_hour = intval($matches[1]);
-            $start_min = intval($matches[2]);
-            $end_hour = intval($matches[3]);
-            $end_min = intval($matches[4]);
-            
-            $duration_minutes = ($end_hour * 60 + $end_min) - ($start_hour * 60 + $start_min);
-            $duration = (string)$duration_minutes;
-        }
-    }
-    
-    return [
-        'period' => strtoupper($period),
-        'duration' => $duration,
-        'time_range' => $time_range,
-        'display' => strtoupper($period) . '（' . $time_range . '）'
-    ];
-}
-
-function validate_form_data($post_data) {
-    // 基本的なバリデーション
-    if (empty($post_data)) {
-        return false;
-    }
-    
-    // 必須項目チェック
-    $required_fields = ['factory_id', 'date', 'applicant_name', 'email'];
-    foreach ($required_fields as $field) {
-        if (!isset($post_data[$field]) || empty($post_data[$field])) {
-            return false;
-        }
-    }
-    
-    return $post_data;
-}
 
 get_footer();
 ?>

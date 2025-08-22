@@ -42,6 +42,7 @@ if ($factory_id) {
 // 時間帯情報を解析
 $timeslot_info = parse_timeslot($timeslot, $factory_id);
 
+
 ?>
 
 <style>
