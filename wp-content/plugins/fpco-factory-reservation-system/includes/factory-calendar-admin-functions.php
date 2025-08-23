@@ -120,8 +120,8 @@ function fpco_factory_calendar_admin_scripts($hook) {
     wp_enqueue_script('fullcalendar', FPCO_RESERVATION_PLUGIN_URL . 'assets/js/fullcalendar/fullcalendar.min.js', array(), '6.1.8');
     wp_enqueue_script('fullcalendar-ja', FPCO_RESERVATION_PLUGIN_URL . 'assets/js/fullcalendar/fullcalendar-ja.min.js', array('fullcalendar'), '6.1.8');
     
-    // カスタムスクリプト
-    wp_enqueue_script('factory-calendar-admin', FPCO_RESERVATION_PLUGIN_URL . 'assets/js/admin.js', array('jquery', 'fullcalendar'), '1.0', true);
+    // カスタムスクリプト（キャッシュ回避のため現在時刻を追加）
+    wp_enqueue_script('factory-calendar-admin', FPCO_RESERVATION_PLUGIN_URL . 'assets/js/admin.js', array('jquery', 'fullcalendar'), '1.0.1.' . time(), true);
     
     // Ajax用のデータを渡す
     wp_localize_script('factory-calendar-admin', 'factory_calendar', array(
@@ -606,7 +606,17 @@ function fpco_factory_get_unavailable_info() {
         'has_pm_reservation' => $has_pm_reservation,
         // デバッグ情報
         'debug_info' => $info ? $info : null,
-        'debug_has_manual_setting' => $info !== null
+        'debug_has_manual_setting' => $info !== null,
+        'debug_calculation_details' => array(
+            'manual_data_found' => $info !== null,
+            'manual_am_value' => $info ? (int)$info->am_unavailable : null,
+            'manual_pm_value' => $info ? (int)$info->pm_unavailable : null,
+            'reservation_am_detected' => $has_am_reservation,
+            'reservation_pm_detected' => $has_pm_reservation,
+            'final_am_result' => $am_unavailable,
+            'final_pm_result' => $pm_unavailable,
+            'priority_logic' => $info ? '手動設定優先' : '予約自動判定'
+        )
     );
     
     wp_send_json_success($result);

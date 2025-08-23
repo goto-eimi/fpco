@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== admin.js読み込み開始 ==='); // 初期デバッグ
     var calendar;
     var currentFactoryId = window.currentFactoryId;
     var checkboxEventHandlerAdded = false;
+    console.log('現在のFactory ID:', currentFactoryId); // デバッグ用
     
     // FullCalendarの初期化
     function initCalendar(factoryId) {
@@ -139,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         eventsEl.innerHTML = checkboxHtml;
                         
                         // 既存の設定を取得して反映
+                        console.log('データ読み込み開始 - 日付:', dateStr); // デバッグ用
                         fetch(factory_calendar.ajax_url, {
                             method: 'POST',
                             headers: {
@@ -147,19 +150,39 @@ document.addEventListener('DOMContentLoaded', function() {
                             body: 'action=get_unavailable_info&factory_id=' + factoryId + 
                                   '&date=' + dateStr + '&nonce=' + factory_calendar.nonce
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            console.log('レスポンス受信:', response); // デバッグ用
+                            return response.json();
+                        })
                         .then(data => {
+                            console.log('=== データ読み込み成功 - 日付:', dateStr, 'データ:', data); // デバッグ用
                             var amCheckbox = arg.el.querySelector('.am-checkbox');
                             var pmCheckbox = arg.el.querySelector('.pm-checkbox');
                             var amLabel = amCheckbox ? amCheckbox.closest('label') : null;
                             var pmLabel = pmCheckbox ? pmCheckbox.closest('label') : null;
                             
                             if (data.success) {
-                                console.log('読み込みデータ:', data.data); // デバッグ用
+                                console.log('=== 詳細な読み込みデータ ===', {
+                                    date: dateStr,
+                                    has_data: data.data.has_data,
+                                    am_unavailable: data.data.am_unavailable,
+                                    pm_unavailable: data.data.pm_unavailable,
+                                    has_am_reservation: data.data.has_am_reservation,
+                                    has_pm_reservation: data.data.has_pm_reservation,
+                                    debug_has_manual_setting: data.data.debug_has_manual_setting
+                                }); // デバッグ用
                                 if (data.data.has_data) {
                                     // データベースの設定を使用（土日・平日問わず）
                                     if (amCheckbox) {
+                                        console.log('=== AMチェックボックス設定前 ===', {
+                                            現在のチェック状態: amCheckbox.checked,
+                                            設定値: data.data.am_unavailable,
+                                            予約あり: data.data.has_am_reservation
+                                        }); // デバッグ用
                                         amCheckbox.checked = data.data.am_unavailable || false;
+                                        console.log('=== AMチェックボックス設定後 ===', {
+                                            新しいチェック状態: amCheckbox.checked
+                                        }); // デバッグ用
                                         
                                         // 予約がある場合は視覚的に区別するが、無効化はしない
                                         if (data.data.has_am_reservation) {
@@ -180,7 +203,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                     }
                                     
                                     if (pmCheckbox) {
+                                        console.log('=== PMチェックボックス設定前 ===', {
+                                            現在のチェック状態: pmCheckbox.checked,
+                                            設定値: data.data.pm_unavailable,
+                                            予約あり: data.data.has_pm_reservation
+                                        }); // デバッグ用
                                         pmCheckbox.checked = data.data.pm_unavailable || false;
+                                        console.log('=== PMチェックボックス設定後 ===', {
+                                            新しいチェック状態: pmCheckbox.checked
+                                        }); // デバッグ用
                                         
                                         // 予約がある場合は視覚的に区別するが、無効化はしない
                                         if (data.data.has_pm_reservation) {
@@ -335,14 +366,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // チェックボックスのイベントハンドラを一回だけ設定
         if (!checkboxEventHandlerAdded) {
+            console.log('=== チェックボックスイベントハンドラを設定します ==='); // デバッグ用
             document.addEventListener('change', function(e) {
+                console.log('=== 何らかのchangeイベント発生 ===', e.target); // デバッグ用
                 if (e.target.classList.contains('am-checkbox') || e.target.classList.contains('pm-checkbox')) {
+                    console.log('=== チェックボックス変更イベント発生 ==='); // デバッグ用
                     e.stopPropagation();
                     
                     // 無効化チェックを削除（予約があっても変更可能）
                     
                     var date = e.target.getAttribute('data-date');
                     var isAM = e.target.classList.contains('am-checkbox');
+                    console.log('変更対象:', {date: date, isAM: isAM, checked: e.target.checked}); // デバッグ用
                     
                     // 同じ日付のセル内でのみチェックボックスを検索
                     var cellElement = e.target.closest('.fc-daygrid-day');
@@ -405,7 +440,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 初期化
     if (currentFactoryId) {
+        console.log('=== カレンダー初期化開始 ==='); // デバッグ用
         initCalendar(currentFactoryId);
+    } else {
+        console.log('=== エラー: currentFactoryIdが設定されていません ==='); // デバッグ用
     }
     
+    console.log('=== admin.js読み込み完了 ==='); // デバッグ用
 });
