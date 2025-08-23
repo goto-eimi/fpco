@@ -809,20 +809,36 @@ class ReservationCalendar {
     }
     
     isHoliday(dateStr) {
+        const date = new Date(dateStr);
+        const weekday = date.getDay();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        
+        // まず大晦日と元旦のチェック（特別日として扱う）
+        if ((month === 12 && day === 31) || (month === 1 && day === 1)) {
+            return true;
+        }
+        
+        // 土日は祝日ではない（土日として扱う）
+        if (weekday === 0 || weekday === 6) {
+            return false;
+        }
+        
         // APIデータから祝日情報を取得
         if (this.calendarData && this.calendarData.days && this.calendarData.days[dateStr]) {
             const dayData = this.calendarData.days[dateStr];
-            const date = new Date(dateStr);
-            const weekday = date.getDay();
             
-            // 土日祝日は見学不可という条件から、祝日を推測
-            // AM/PM両方が unavailable かつ土日でない場合は祝日の可能性
-            if (weekday !== 0 && weekday !== 6 && 
-                dayData.am.status === 'unavailable' && dayData.pm.status === 'unavailable' &&
+            // 優先度ロジックを考慮：
+            // 平日（月-金）でAM/PM両方がunavailable（－）の場合は祝日の可能性
+            // ただし、手動で設定されている場合もあるため、より広く検出
+            if (dayData.am.status === 'unavailable' && dayData.pm.status === 'unavailable' &&
                 dayData.am.symbol === '－' && dayData.pm.symbol === '－') {
+                // 平日で両方とも見学不可の場合は祝日とみなす
+                // （手動設定も含むが、見た目上は祝日と同じ扱い）
                 return true;
             }
         }
+        
         return false;
     }
     
