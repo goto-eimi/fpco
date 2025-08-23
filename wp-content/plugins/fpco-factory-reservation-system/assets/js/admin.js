@@ -179,7 +179,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                             設定値: data.data.am_unavailable,
                                             予約あり: data.data.has_am_reservation
                                         }); // デバッグ用
-                                        amCheckbox.checked = data.data.am_unavailable || false;
+                                        // 文字列 '0' を正しく false に変換
+                                        var amUnavailable = data.data.am_unavailable;
+                                        if (typeof amUnavailable === 'string') {
+                                            amUnavailable = amUnavailable === '1';
+                                        }
+                                        amCheckbox.checked = Boolean(amUnavailable);
                                         console.log('=== AMチェックボックス設定後 ===', {
                                             新しいチェック状態: amCheckbox.checked
                                         }); // デバッグ用
@@ -208,7 +213,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                             設定値: data.data.pm_unavailable,
                                             予約あり: data.data.has_pm_reservation
                                         }); // デバッグ用
-                                        pmCheckbox.checked = data.data.pm_unavailable || false;
+                                        // 文字列 '0' を正しく false に変換
+                                        var pmUnavailable = data.data.pm_unavailable;
+                                        if (typeof pmUnavailable === 'string') {
+                                            pmUnavailable = pmUnavailable === '1';
+                                        }
+                                        pmCheckbox.checked = Boolean(pmUnavailable);
                                         console.log('=== PMチェックボックス設定後 ===', {
                                             新しいチェック状態: pmCheckbox.checked
                                         }); // デバッグ用

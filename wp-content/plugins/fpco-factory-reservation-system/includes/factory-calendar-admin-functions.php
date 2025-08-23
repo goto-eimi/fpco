@@ -588,9 +588,9 @@ function fpco_factory_get_unavailable_info() {
     // 結果を組み合わせ
     // 手動設定がある場合はそれを優先、ない場合は予約があれば自動チェック
     if ($info) {
-        // 手動設定がある場合はそれを使用
-        $am_unavailable = $info->am_unavailable;
-        $pm_unavailable = $info->pm_unavailable;
+        // 手動設定がある場合はそれを使用（ブール値に変換）
+        $am_unavailable = (bool)$info->am_unavailable;
+        $pm_unavailable = (bool)$info->pm_unavailable;
     } else {
         // 手動設定がない場合は予約があれば自動チェック
         $am_unavailable = $has_am_reservation;
@@ -609,8 +609,8 @@ function fpco_factory_get_unavailable_info() {
         'debug_has_manual_setting' => $info !== null,
         'debug_calculation_details' => array(
             'manual_data_found' => $info !== null,
-            'manual_am_value' => $info ? (int)$info->am_unavailable : null,
-            'manual_pm_value' => $info ? (int)$info->pm_unavailable : null,
+            'manual_am_value' => $info ? (bool)$info->am_unavailable : null,
+            'manual_pm_value' => $info ? (bool)$info->pm_unavailable : null,
             'reservation_am_detected' => $has_am_reservation,
             'reservation_pm_detected' => $has_pm_reservation,
             'final_am_result' => $am_unavailable,
