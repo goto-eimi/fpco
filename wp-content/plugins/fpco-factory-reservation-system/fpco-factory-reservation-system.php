@@ -81,7 +81,7 @@ class FPCO_Factory_Reservation_System {
         // データベース管理
         require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-database.php';
         
-        // 祝日管理機能
+        // 祝日管理機能（共通で読み込み）
         require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/holiday-functions.php';
     }
     
@@ -141,6 +141,11 @@ class FPCO_Factory_Reservation_System {
     public function deactivate() {
         // ユーザーロールの削除
         $this->remove_user_roles();
+        
+        // 祝日cronのクリア
+        if (function_exists('fpco_clear_holiday_cron')) {
+            fpco_clear_holiday_cron();
+        }
         
         // リライトルールをフラッシュ
         flush_rewrite_rules();

@@ -41,7 +41,12 @@ function fpco_update_holidays_data() {
     global $wpdb;
     
     // 祝日テーブルが存在しない場合は作成
-    fpco_create_holidays_table();
+    try {
+        fpco_create_holidays_table();
+    } catch (Exception $e) {
+        error_log('祝日テーブルの作成に失敗: ' . $e->getMessage());
+        return false;
+    }
     
     // 内閣府の祝日CSVのURL
     $csv_url = 'https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv';
@@ -191,19 +196,15 @@ function fpco_schedule_holiday_update() {
 add_action('fpco_update_holidays_cron', 'fpco_update_holidays_data');
 
 /**
- * プラグイン有効化時に祝日データを初期化
+ * 祝日データを初期化（プラグイン有効化時に呼び出される）
  */
-register_activation_hook(__FILE__, 'fpco_init_holidays_on_activation');
-
 function fpco_init_holidays_on_activation() {
     fpco_update_holidays_data();
 }
 
 /**
- * プラグイン無効化時にcronをクリア
+ * cronをクリア（プラグイン無効化時に呼び出される）
  */
-register_deactivation_hook(__FILE__, 'fpco_clear_holiday_cron');
-
 function fpco_clear_holiday_cron() {
     wp_clear_scheduled_hook('fpco_update_holidays_cron');
 }

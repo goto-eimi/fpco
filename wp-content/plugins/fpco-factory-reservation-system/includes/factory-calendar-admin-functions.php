@@ -302,8 +302,11 @@ function fpco_factory_get_calendar_events() {
     
     $events = array();
     
-    // 祝日データを取得
-    $holidays = fpco_get_holidays($start, $end);
+    // 祝日データを取得（関数が存在する場合のみ）
+    $holidays = array();
+    if (function_exists('fpco_get_holidays')) {
+        $holidays = fpco_get_holidays($start, $end);
+    }
     
     // 見学不可日を取得
     $unavailable_days = $wpdb->get_results(
@@ -630,8 +633,11 @@ function fpco_factory_get_unavailable_info() {
     $factory_id = intval($_POST['factory_id']);
     $date = sanitize_text_field($_POST['date']);
     
-    // 祝日チェック
-    $is_holiday = fpco_is_holiday($date);
+    // 祝日チェック（関数が存在する場合のみ）
+    $is_holiday = false;
+    if (function_exists('fpco_is_holiday')) {
+        $is_holiday = fpco_is_holiday($date);
+    }
     
     // 見学不可日の情報を取得
     $info = $wpdb->get_row(
