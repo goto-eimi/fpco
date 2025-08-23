@@ -572,13 +572,7 @@ function fpco_factory_save_unavailable() {
         wp_send_json_error('Database error: ' . $wpdb->last_error);
     } else {
         wp_send_json_success(array(
-            'message' => 'Saved successfully',
-            'debug_saved_values' => array(
-                'factory_id' => $factory_id,
-                'date' => $date,
-                'am_unavailable' => $am_unavailable,
-                'pm_unavailable' => $pm_unavailable
-            )
+            'message' => 'Saved successfully'
         ));
     }
 }
@@ -684,20 +678,6 @@ function fpco_factory_get_unavailable_info() {
         'has_reservation' => !empty($reservations),
         'has_am_reservation' => $has_am_reservation,
         'has_pm_reservation' => $has_pm_reservation,
-        // デバッグ情報
-        'debug_info' => $info ? $info : null,
-        'debug_has_manual_setting' => $info !== null,
-        'debug_calculation_details' => array(
-            'manual_data_found' => $info !== null,
-            'is_manual_setting' => isset($is_manual_setting) ? $is_manual_setting : null,
-            'manual_am_value' => $info ? (bool)$info->am_unavailable : null,
-            'manual_pm_value' => $info ? (bool)$info->pm_unavailable : null,
-            'reservation_am_detected' => $has_am_reservation,
-            'reservation_pm_detected' => $has_pm_reservation,
-            'final_am_result' => $am_unavailable,
-            'final_pm_result' => $pm_unavailable,
-            'priority_logic' => isset($is_manual_setting) && $is_manual_setting ? '手動設定 + 予約自動追加' : '予約自動判定'
-        )
     );
     
     wp_send_json_success($result);
