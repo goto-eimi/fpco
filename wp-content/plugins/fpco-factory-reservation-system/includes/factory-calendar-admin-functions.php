@@ -586,9 +586,9 @@ function fpco_factory_get_unavailable_info() {
         }
     }
     
-    // 結果を組み合わせ
-    $am_unavailable = ($info && $info->am_unavailable) || $has_am_reservation;
-    $pm_unavailable = ($info && $info->pm_unavailable) || $has_pm_reservation;
+    // 結果を組み合わせ（予約があっても手動設定を優先）
+    $am_unavailable = ($info && $info->am_unavailable);
+    $pm_unavailable = ($info && $info->pm_unavailable);
     
     $result = array(
         'has_data' => $info !== null || !empty($reservations),
