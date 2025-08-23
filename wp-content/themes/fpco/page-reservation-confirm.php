@@ -609,18 +609,34 @@ function parse_timeslot($timeslot, $factory_id = null) {
     $period = $parts[0] ?? '';
     $duration = '';
     $index = '';
+    $formatted_time_range = '';
     
     // 60分・90分パターンの判定
     if (isset($parts[1]) && in_array($parts[1], ['60', '90'])) {
         $duration = $parts[1];
         $index = $parts[2] ?? '1';
+        
+        // 60分・90分パターンでも時間帯を取得
+        if ($factory_id && function_exists('fpco_get_factory_timeslots')) {
+            $timeslots = fpco_get_factory_timeslots($factory_id);
+            
+            // duration形式の時間スロットを検索
+            $duration_key = $duration . 'min';
+            if (isset($timeslots[$duration_key]) && isset($timeslots[$duration_key][$period])) {
+                $period_slots = $timeslots[$duration_key][$period];
+                $slot_index = intval($index) - 1;
+                
+                if (isset($period_slots[$slot_index])) {
+                    $formatted_time_range = $period_slots[$slot_index];
+                }
+            }
+        }
     } else {
         // AM/PMパターンの場合、工場IDからプラグインで時間を取得
         $index = $parts[1] ?? '1';
         
         if ($factory_id && function_exists('fpco_get_factory_timeslots')) {
             $timeslots = fpco_get_factory_timeslots($factory_id);
-            
             
             // 対応する時間スロットを検索
             if (isset($timeslots[$period])) {
@@ -629,6 +645,7 @@ function parse_timeslot($timeslot, $factory_id = null) {
                 
                 if (isset($period_slots[$slot_index])) {
                     $time_range = $period_slots[$slot_index];
+                    $formatted_time_range = $time_range;
                     
                     // "10:30 ~ 11:30" 形式から分数を計算
                     if (preg_match('/(\d{1,2}):(\d{2})\s*~\s*(\d{1,2}):(\d{2})/', $time_range, $matches)) {
@@ -639,9 +656,6 @@ function parse_timeslot($timeslot, $factory_id = null) {
                         
                         $duration_minutes = ($end_hour * 60 + $end_min) - ($start_hour * 60 + $start_min);
                         $duration = (string)$duration_minutes;
-                        
-                        // 時間範囲を保存
-                        $formatted_time_range = $time_range;
                     }
                 }
             }
@@ -656,7 +670,7 @@ function parse_timeslot($timeslot, $factory_id = null) {
     $period_text = ($period === 'am') ? 'AM' : 'PM';
     
     // 時間範囲があれば表示形式を作成
-    if (isset($formatted_time_range)) {
+    if (!empty($formatted_time_range)) {
         $period_display = $period_text . '(' . $formatted_time_range . ')';
     } else {
         $period_display = $period_text;
