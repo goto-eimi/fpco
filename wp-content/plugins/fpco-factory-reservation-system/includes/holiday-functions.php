@@ -49,11 +49,15 @@ function fpco_update_holidays_data() {
     
     $holidays_data = array();
     
-    // 現在年と来年の祝日データを取得
-    $current_year = date('Y');
-    $next_year = $current_year + 1;
+    // 現在年から3年先までの祝日データを取得
+    $current_year = (int)date('Y');
+    $years_to_fetch = array();
     
-    foreach ([$current_year, $next_year] as $year) {
+    for ($i = 0; $i <= 3; $i++) {
+        $years_to_fetch[] = $current_year + $i;
+    }
+    
+    foreach ($years_to_fetch as $year) {
         // holidays-jp.github.io APIのURL
         $api_url = "https://holidays-jp.github.io/api/v1/{$year}/date.json";
         
