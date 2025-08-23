@@ -35,7 +35,7 @@ function fpco_create_holidays_table() {
 }
 
 /**
- * 内閣府の祝日CSVを取得して祝日データを更新
+ * holidays-jp.github.io APIを使用して祝日データを更新
  */
 function fpco_update_holidays_data() {
     global $wpdb;
@@ -48,62 +48,53 @@ function fpco_update_holidays_data() {
         return false;
     }
     
-    // 内閣府の祝日CSVのURL
-    $csv_url = 'https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv';
-    
-    // CSVデータを取得
-    $response = wp_remote_get($csv_url, array(
-        'timeout' => 30,
-        'headers' => array(
-            'User-Agent' => 'WordPress/' . get_bloginfo('version') . '; ' . get_bloginfo('url')
-        )
-    ));
-    
-    if (is_wp_error($response)) {
-        error_log('祝日データの取得に失敗: ' . $response->get_error_message());
-        return false;
-    }
-    
-    $body = wp_remote_retrieve_body($response);
-    if (empty($body)) {
-        error_log('祝日データが空です');
-        return false;
-    }
-    
-    // CSVをパース
-    $lines = explode("\n", $body);
     $holidays_data = array();
     
-    foreach ($lines as $line_num => $line) {
-        // ヘッダー行をスキップ
-        if ($line_num === 0) {
+    // 現在年と来年の祝日データを取得
+    $current_year = date('Y');
+    $next_year = $current_year + 1;
+    
+    foreach ([$current_year, $next_year] as $year) {
+        // holidays-jp.github.io APIのURL
+        $api_url = "https://holidays-jp.github.io/api/v1/{$year}/date.json";
+        
+        // APIからJSONデータを取得
+        $response = wp_remote_get($api_url, array(
+            'timeout' => 30,
+            'headers' => array(
+                'User-Agent' => 'WordPress/' . get_bloginfo('version') . '; ' . get_bloginfo('url')
+            )
+        ));
+        
+        if (is_wp_error($response)) {
+            error_log("{$year}年の祝日データ取得に失敗: " . $response->get_error_message());
+            continue; // エラーがあっても他の年は処理を続行
+        }
+        
+        $body = wp_remote_retrieve_body($response);
+        if (empty($body)) {
+            error_log("{$year}年の祝日データが空です");
             continue;
         }
         
-        $line = trim($line);
-        if (empty($line)) {
+        // JSONをデコード
+        $json_data = json_decode($body, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("{$year}年の祝日データのJSON解析に失敗: " . json_last_error_msg());
             continue;
         }
         
-        // CSVを分析（日付,祝日名の形式）
-        $data = str_getcsv($line);
-        if (count($data) >= 2) {
-            $date = trim($data[0]);
-            $name = trim($data[1]);
-            
-            // 日付の形式を確認（YYYY/M/D -> YYYY-MM-DD）
-            if (preg_match('/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/', $date, $matches)) {
-                $formatted_date = sprintf('%04d-%02d-%02d', $matches[1], $matches[2], $matches[3]);
-                $holidays_data[] = array(
-                    'date' => $formatted_date,
-                    'name' => $name
-                );
-            }
+        // 祝日データを配列に追加
+        foreach ($json_data as $date => $name) {
+            $holidays_data[] = array(
+                'date' => $date,
+                'name' => $name
+            );
         }
     }
     
     if (empty($holidays_data)) {
-        error_log('祝日データのパースに失敗');
+        error_log('祝日データが取得できませんでした');
         return false;
     }
     
