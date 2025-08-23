@@ -1867,10 +1867,13 @@ function fpco_reservation_management_admin_page() {
         const transportationOtherText = document.getElementById('transportation_other_text');
         const vehicleCountField = document.getElementById('vehicle-count-field');
         
-        function toggleTransportationOtherField() {
+        function toggleTransportationOtherField(skipFocus = false) {
             if (transportationOther.checked) {
                 transportationOtherText.disabled = false;
-                transportationOtherText.focus();
+                // エラーがある場合のみフォーカスを当てる
+                if (!skipFocus && fieldErrors && fieldErrors['transportation_other_text']) {
+                    transportationOtherText.focus();
+                }
             } else {
                 transportationOtherText.disabled = true;
                 // 値は削除せず、見た目上のみ無効化
@@ -1912,7 +1915,7 @@ function fpco_reservation_management_admin_page() {
         // 初期状態の設定（フォームエラー時でも選択状態を維持）
         toggleTravelAgencyFields();
         toggleAllFields();
-        toggleTransportationOtherField();
+        toggleTransportationOtherField(true); // 初期状態ではエラー時以外フォーカスをスキップ
         toggleVehicleCountField();
         
         // 同行者フィールドの初期化（個人リクルート選択時）
