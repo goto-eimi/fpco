@@ -492,37 +492,28 @@ function fpco_factory_save_unavailable() {
         )
     );
     
-    if ($am_unavailable || $pm_unavailable) {
-        if ($existing) {
-            // 更新
-            $wpdb->update(
-                $wpdb->prefix . 'unavailable_days',
-                array(
-                    'am_unavailable' => $am_unavailable,
-                    'pm_unavailable' => $pm_unavailable
-                ),
-                array('id' => $existing->id)
-            );
-        } else {
-            // 新規作成
-            $wpdb->insert(
-                $wpdb->prefix . 'unavailable_days',
-                array(
-                    'factory_id' => $factory_id,
-                    'date' => $date,
-                    'am_unavailable' => $am_unavailable,
-                    'pm_unavailable' => $pm_unavailable
-                )
-            );
-        }
+    // 手動設定を常に保存（チェックがない場合も記録として残す）
+    if ($existing) {
+        // 更新
+        $wpdb->update(
+            $wpdb->prefix . 'unavailable_days',
+            array(
+                'am_unavailable' => $am_unavailable,
+                'pm_unavailable' => $pm_unavailable
+            ),
+            array('id' => $existing->id)
+        );
     } else {
-        // 両方とも見学可能な場合はレコードを削除
-        if ($existing) {
-            $wpdb->delete(
-                $wpdb->prefix . 'unavailable_days',
-                array('id' => $existing->id)
-            );
-        }
+        // 新規作成
+        $wpdb->insert(
+            $wpdb->prefix . 'unavailable_days',
+            array(
+                'factory_id' => $factory_id,
+                'date' => $date,
+                'am_unavailable' => $am_unavailable,
+                'pm_unavailable' => $pm_unavailable
+            )
+        );
     }
     
     // データベースエラーがある場合はエラーレスポンスを返す
