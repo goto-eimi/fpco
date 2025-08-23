@@ -465,6 +465,9 @@ function fpco_factory_save_unavailable() {
             date date NOT NULL,
             am_unavailable tinyint(1) DEFAULT 0,
             pm_unavailable tinyint(1) DEFAULT 0,
+            is_manual tinyint(1) DEFAULT 1 COMMENT '手動設定かどうか（1:手動, 0:自動）',
+            created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+            updated_at timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY unique_factory_date (factory_id, date),
             KEY idx_factory (factory_id)
@@ -472,6 +475,22 @@ function fpco_factory_save_unavailable() {
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+    } else {
+        // 既存テーブルにカラムを追加（存在しない場合のみ）
+        $columns = $wpdb->get_results("SHOW COLUMNS FROM $table_name");
+        $column_names = wp_list_pluck($columns, 'Field');
+        
+        if (!in_array('is_manual', $column_names)) {
+            $wpdb->query("ALTER TABLE $table_name ADD COLUMN is_manual tinyint(1) DEFAULT 1 COMMENT '手動設定かどうか（1:手動, 0:自動）'");
+        }
+        
+        if (!in_array('created_at', $column_names)) {
+            $wpdb->query("ALTER TABLE $table_name ADD COLUMN created_at timestamp DEFAULT CURRENT_TIMESTAMP");
+        }
+        
+        if (!in_array('updated_at', $column_names)) {
+            $wpdb->query("ALTER TABLE $table_name ADD COLUMN updated_at timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+        }
     }
     
     // 過去の日付のデータを削除（今日より前の日付）
@@ -499,7 +518,8 @@ function fpco_factory_save_unavailable() {
             $wpdb->prefix . 'unavailable_days',
             array(
                 'am_unavailable' => $am_unavailable,
-                'pm_unavailable' => $pm_unavailable
+                'pm_unavailable' => $pm_unavailable,
+                'is_manual' => 1
             ),
             array('id' => $existing->id)
         );
@@ -511,7 +531,8 @@ function fpco_factory_save_unavailable() {
                 'factory_id' => $factory_id,
                 'date' => $date,
                 'am_unavailable' => $am_unavailable,
-                'pm_unavailable' => $pm_unavailable
+                'pm_unavailable' => $pm_unavailable,
+                'is_manual' => 1
             )
         );
     }
@@ -585,14 +606,24 @@ function fpco_factory_get_unavailable_info() {
         }
     }
     
-    // 結果を組み合わせ
-    // 手動設定がある場合はそれを優先、ない場合は予約があれば自動チェック
+    // 結果を組み合わせ：手動設定と予約による自動設定のロジック
     if ($info) {
-        // 手動設定がある場合はそれを使用（ブール値に変換）
-        $am_unavailable = (bool)$info->am_unavailable;
-        $pm_unavailable = (bool)$info->pm_unavailable;
+        // 既存の手動設定がある場合
+        $manual_am = (bool)$info->am_unavailable;
+        $manual_pm = (bool)$info->pm_unavailable;
+        $is_manual_setting = (bool)($info->is_manual ?? true); // 既存データのためデフォルトtrue
+        
+        if ($is_manual_setting) {
+            // 手動設定がある場合：手動設定 + 予約による自動追加
+            $am_unavailable = $manual_am || $has_am_reservation;
+            $pm_unavailable = $manual_pm || $has_pm_reservation;
+        } else {
+            // 自動設定の場合：現在の予約状況に基づいて更新
+            $am_unavailable = $has_am_reservation;
+            $pm_unavailable = $has_pm_reservation;
+        }
     } else {
-        // 手動設定がない場合は予約があれば自動チェック
+        // 設定がない場合は予約があれば自動チェック
         $am_unavailable = $has_am_reservation;
         $pm_unavailable = $has_pm_reservation;
     }
@@ -609,13 +640,14 @@ function fpco_factory_get_unavailable_info() {
         'debug_has_manual_setting' => $info !== null,
         'debug_calculation_details' => array(
             'manual_data_found' => $info !== null,
+            'is_manual_setting' => isset($is_manual_setting) ? $is_manual_setting : null,
             'manual_am_value' => $info ? (bool)$info->am_unavailable : null,
             'manual_pm_value' => $info ? (bool)$info->pm_unavailable : null,
             'reservation_am_detected' => $has_am_reservation,
             'reservation_pm_detected' => $has_pm_reservation,
             'final_am_result' => $am_unavailable,
             'final_pm_result' => $pm_unavailable,
-            'priority_logic' => $info ? '手動設定優先' : '予約自動判定'
+            'priority_logic' => isset($is_manual_setting) && $is_manual_setting ? '手動設定 + 予約自動追加' : '予約自動判定'
         )
     );
     
