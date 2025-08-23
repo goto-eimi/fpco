@@ -520,7 +520,15 @@ function fpco_factory_save_unavailable() {
     if ($wpdb->last_error) {
         wp_send_json_error('Database error: ' . $wpdb->last_error);
     } else {
-        wp_send_json_success();
+        wp_send_json_success(array(
+            'message' => 'Saved successfully',
+            'debug_saved_values' => array(
+                'factory_id' => $factory_id,
+                'date' => $date,
+                'am_unavailable' => $am_unavailable,
+                'pm_unavailable' => $pm_unavailable
+            )
+        ));
     }
 }
 
@@ -595,7 +603,10 @@ function fpco_factory_get_unavailable_info() {
         'pm_unavailable' => $pm_unavailable,
         'has_reservation' => !empty($reservations),
         'has_am_reservation' => $has_am_reservation,
-        'has_pm_reservation' => $has_pm_reservation
+        'has_pm_reservation' => $has_pm_reservation,
+        // デバッグ情報
+        'debug_info' => $info ? $info : null,
+        'debug_has_manual_setting' => $info !== null
     );
     
     wp_send_json_success($result);

@@ -155,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             var pmLabel = pmCheckbox ? pmCheckbox.closest('label') : null;
                             
                             if (data.success) {
+                                console.log('読み込みデータ:', data.data); // デバッグ用
                                 if (data.data.has_data) {
                                     // データベースの設定を使用（土日・平日問わず）
                                     if (amCheckbox) {
@@ -372,6 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .then(response => response.json())
                     .then(data => {
+                        console.log('保存レスポンス:', data); // デバッグ用
                         if (!data.success) {
                             console.error('保存エラー:', data);
                             alert('保存に失敗しました: ' + (data.data || 'Unknown error'));
@@ -381,6 +383,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             } else if (!isAM && pmCheckbox) {
                                 pmCheckbox.checked = !pmChecked;
                             }
+                        } else {
+                            console.log('保存成功:', data.data); // デバッグ用
                         }
                     })
                     .catch(error => {
