@@ -660,8 +660,13 @@ function fpco_factory_get_unavailable_info() {
     
     // 祝日チェック（関数が存在する場合のみ）
     $is_holiday = false;
-    if (function_exists('fpco_is_holiday')) {
+    $holiday_name = null;
+    if (function_exists('fpco_is_holiday') && function_exists('fpco_get_holidays')) {
         $is_holiday = fpco_is_holiday($date);
+        if ($is_holiday) {
+            $holidays = fpco_get_holidays($date, $date);
+            $holiday_name = isset($holidays[$date]) ? $holidays[$date] : '祝日';
+        }
     }
     
     // 見学不可日の情報を取得
@@ -755,7 +760,8 @@ function fpco_factory_get_unavailable_info() {
         'has_reservation' => !empty($reservations),
         'has_am_reservation' => $has_am_reservation,
         'has_pm_reservation' => $has_pm_reservation,
-        'is_holiday' => $is_holiday
+        'is_holiday' => $is_holiday,
+        'holiday_name' => $holiday_name
     );
     
     wp_send_json_success($result);

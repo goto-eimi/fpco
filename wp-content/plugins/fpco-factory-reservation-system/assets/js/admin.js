@@ -69,9 +69,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     nonce: factory_calendar.nonce
                 },
                 success: function(data) {
-                    console.log('📊 祝日データ取得完了:', data.debug);
-                    console.log('🎌 見つかった祝日:', data.debug.holiday_dates);
-                    return data.events || [];
+                    console.log('📊 カレンダーデータ取得完了:', data);
+                    if (data.debug) {
+                        console.log('🎌 見つかった祝日:', data.debug.holiday_dates);
+                        console.log('📊 祝日統計:', data.debug);
+                    } else {
+                        console.log('⚠️ デバッグ情報なし - 旧形式のレスポンス');
+                    }
+                    return data.events || data || [];
                 },
                 failure: function() {
                     console.error('❌ カレンダーイベントの取得に失敗');
@@ -185,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         PM見学不可: data.data.pm_unavailable
                                     });
                                     // 祝日の場合はセルに holiday クラスを付与
-                                    cellElement.classList.add('holiday');
+                                    arg.el.classList.add('holiday');
                                 } else {
                                     console.log('📅 通常日:', {
                                         日付: dateStr,
