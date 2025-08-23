@@ -354,9 +354,9 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
     // 祝日データを取得
     $holidays = fpco_get_holidays_for_period($calendar_start, $calendar_end);
     
-    // 見学不可日を取得
+    // 見学不可日を取得（タイムスタンプも含む）
     $unavailable_days_results = $wpdb->get_results($wpdb->prepare(
-        "SELECT date, am_unavailable, pm_unavailable 
+        "SELECT date, am_unavailable, pm_unavailable, is_manual, created_at, updated_at
          FROM {$wpdb->prefix}unavailable_days 
          WHERE factory_id = %d 
          AND date >= %s 
@@ -366,18 +366,21 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
         $calendar_end
     ), ARRAY_A);
     
-    // 見学不可日を配列に整形
+    // 見学不可日を配列に整形（タイムスタンプ情報も含む）
     $unavailable_days = array();
     foreach ($unavailable_days_results as $day) {
         $unavailable_days[$day['date']] = array(
             'am' => (bool)$day['am_unavailable'],
-            'pm' => (bool)$day['pm_unavailable']
+            'pm' => (bool)$day['pm_unavailable'],
+            'is_manual' => (bool)$day['is_manual'],
+            'created_at' => $day['created_at'],
+            'updated_at' => $day['updated_at']
         );
     }
     
-    // 予約データを取得
+    // 予約データを取得（タイムスタンプも含む）
     $reservations_results = $wpdb->get_results($wpdb->prepare(
-        "SELECT date, time_slot, status
+        "SELECT date, time_slot, status, created_at
          FROM {$wpdb->prefix}reservations 
          WHERE factory_id = %d 
          AND date >= %s 
@@ -418,9 +421,9 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
         // 祝日チェック
         $is_holiday = isset($holidays[$current_date]);
         
-        // 各時間帯の状況を判定
-        $am_status = fpco_calculate_slot_status($current_date, 'am', $unavailable_days, $reservations, $is_weekend, $is_holiday);
-        $pm_status = fpco_calculate_slot_status($current_date, 'pm', $unavailable_days, $reservations, $is_weekend, $is_holiday);
+        // 各時間帯の状況を判定（優先度ロジック付き）
+        $am_status = fpco_calculate_slot_status_with_priority($current_date, 'am', $unavailable_days, $reservations, $is_weekend, $is_holiday);
+        $pm_status = fpco_calculate_slot_status_with_priority($current_date, 'pm', $unavailable_days, $reservations, $is_weekend, $is_holiday);
         
         $calendar_days[$current_date] = array(
             'date' => $current_date,
@@ -541,6 +544,107 @@ function fpco_is_theme_holiday($date) {
     );
     
     return $result > 0;
+}
+
+/**
+ * 優先度ロジック付きの時間帯状況計算
+ */
+function fpco_calculate_slot_status_with_priority($date, $time_period, $unavailable_days, $reservations, $is_weekend, $is_holiday = false) {
+    // 特別な日付（大晦日・元旦）をチェック
+    $date_obj = new DateTime($date);
+    $month = intval($date_obj->format('n'));
+    $day = intval($date_obj->format('j'));
+    $is_special_date = ($month === 12 && $day === 31) || ($month === 1 && $day === 1);
+    $weekday = intval($date_obj->format('w'));
+    
+    // 祝日・特別日は見学不可
+    if ($is_holiday || $is_special_date) {
+        return array('status' => 'unavailable', 'symbol' => '－');
+    }
+    
+    // 予約データから該当する時間帯を取得
+    $reservation_timestamp = null;
+    if (isset($reservations[$date])) {
+        foreach ($reservations[$date] as $reservation) {
+            $time_slot = $reservation['time_slot'];
+            
+            // AM/PMの判定
+            $is_am_slot = (strpos($time_slot, 'AM') !== false) || 
+                         (strpos($time_slot, '午前') !== false) ||
+                         (preg_match('/^(0[0-9]|1[0-1])/', $time_slot));
+            $is_pm_slot = (strpos($time_slot, 'PM') !== false) || 
+                         (strpos($time_slot, '午後') !== false) ||
+                         (preg_match('/^(1[2-9]|2[0-3])/', $time_slot));
+            
+            $slot_matches = false;
+            if ($time_period === 'am' && $is_am_slot) {
+                $slot_matches = true;
+            } elseif ($time_period === 'pm' && $is_pm_slot) {
+                $slot_matches = true;
+            }
+            
+            if ($slot_matches) {
+                $reservation_timestamp = $reservation['created_at'];
+                break;
+            }
+        }
+    }
+    
+    // 手動設定データを取得
+    $manual_timestamp = null;
+    $manual_unavailable = false;
+    if (isset($unavailable_days[$date])) {
+        $unavailable = $unavailable_days[$date];
+        if (($time_period === 'am' && $unavailable['am']) || 
+            ($time_period === 'pm' && $unavailable['pm'])) {
+            $manual_unavailable = true;
+            $manual_timestamp = $unavailable['updated_at'] ? $unavailable['updated_at'] : $unavailable['created_at'];
+        }
+    }
+    
+    // 優先度判定
+    // 1. 手動設定がある場合、手動設定が予約より新しいかチェック
+    if ($manual_unavailable && $reservation_timestamp) {
+        if (strtotime($manual_timestamp) > strtotime($reservation_timestamp)) {
+            // 手動設定が新しい場合は手動設定を優先
+            return array('status' => 'unavailable', 'symbol' => '－');
+        } else {
+            // 予約が新しい場合は予約を優先
+            return array('status' => 'unavailable', 'symbol' => '－');
+        }
+    }
+    
+    // 2. 手動設定のみの場合
+    if ($manual_unavailable) {
+        return array('status' => 'unavailable', 'symbol' => '－');
+    }
+    
+    // 3. 予約のみの場合
+    if ($reservation_timestamp) {
+        return array('status' => 'unavailable', 'symbol' => '－');
+    }
+    
+    // 4. 土日（日曜日・土曜日）のデフォルト処理
+    if ($is_weekend) {
+        // 土曜日PMで手動設定がない場合のみチェック
+        if ($weekday === 6 && $time_period === 'pm') {
+            // 手動設定で利用可能になっていない限り見学不可
+            if (!isset($unavailable_days[$date]) || 
+                !isset($unavailable_days[$date]['is_manual']) || 
+                !$unavailable_days[$date]['is_manual']) {
+                return array('status' => 'unavailable', 'symbol' => '－');
+            }
+            // 手動で設定されていて、PMが利用可能な場合
+            if (!$unavailable_days[$date]['pm']) {
+                return array('status' => 'available', 'symbol' => '〇');
+            }
+        }
+        // その他の土日は見学不可
+        return array('status' => 'unavailable', 'symbol' => '－');
+    }
+    
+    // 5. 平日で何も設定がない場合は利用可能
+    return array('status' => 'available', 'symbol' => '〇');
 }
 
 /**
