@@ -102,6 +102,18 @@ function fpco_factory_calendar_admin_menu() {
                 $position++  // 位置を1ずつ増やす
             );
         }
+        
+        // 祝日管理メニューを追加（管理者のみ）
+        if ($is_admin) {
+            add_submenu_page(
+                'tools.php',
+                '祝日データ管理',
+                '祝日データ管理',
+                'manage_options',
+                'holiday-management',
+                'fpco_holiday_management_page'
+            );
+        }
     }
 }
 
@@ -306,6 +318,7 @@ function fpco_factory_get_calendar_events() {
     $holidays = array();
     if (function_exists('fpco_get_holidays')) {
         $holidays = fpco_get_holidays($start, $end);
+        error_log('祝日データ取得: ' . json_encode($holidays)); // 一時的なデバッグ
     }
     
     // 見学不可日を取得
@@ -734,5 +747,79 @@ function fpco_factory_get_unavailable_info() {
     );
     
     wp_send_json_success($result);
+}
+
+/**
+ * 祝日データ管理画面
+ */
+function fpco_holiday_management_page() {
+    global $wpdb;
+    
+    // 祝日データ更新の処理
+    if (isset($_POST['update_holidays']) && wp_verify_nonce($_POST['_wpnonce'], 'update_holidays_action')) {
+        if (function_exists('fpco_update_holidays_data')) {
+            $result = fpco_update_holidays_data();
+            if ($result) {
+                echo '<div class="notice notice-success"><p>祝日データを更新しました。</p></div>';
+            } else {
+                echo '<div class="notice notice-error"><p>祝日データの更新に失敗しました。</p></div>';
+            }
+        }
+    }
+    
+    // 現在の祝日データを取得
+    $holidays_count = 0;
+    $recent_holidays = array();
+    
+    if (function_exists('fpco_get_holidays')) {
+        $current_year = date('Y');
+        $start_date = $current_year . '-01-01';
+        $end_date = $current_year . '-12-31';
+        $holidays = fpco_get_holidays($start_date, $end_date);
+        $holidays_count = count($holidays);
+        $recent_holidays = array_slice($holidays, 0, 10, true); // 最初の10件
+    }
+    
+    ?>
+    <div class="wrap">
+        <h1>祝日データ管理</h1>
+        
+        <div class="card">
+            <h2>祝日データ統計</h2>
+            <p>現在登録されている<?php echo date('Y'); ?>年の祝日: <strong><?php echo $holidays_count; ?></strong>件</p>
+        </div>
+        
+        <div class="card">
+            <h2>祝日データ更新</h2>
+            <p>内閣府の公式データから最新の祝日情報を取得します。</p>
+            <form method="post">
+                <?php wp_nonce_field('update_holidays_action'); ?>
+                <input type="submit" name="update_holidays" class="button button-primary" value="祝日データを更新">
+            </form>
+        </div>
+        
+        <?php if (!empty($recent_holidays)): ?>
+        <div class="card">
+            <h2><?php echo date('Y'); ?>年の祝日一覧（一部）</h2>
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>祝日名</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($recent_holidays as $date => $name): ?>
+                    <tr>
+                        <td><?php echo esc_html($date); ?></td>
+                        <td><?php echo esc_html($name); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php
 }
 ?>
