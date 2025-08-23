@@ -472,23 +472,10 @@ class ReservationForm {
         const totalVisitorField = document.getElementById('total_visitor_count');
         const childCountField = document.getElementById('total_child_count');
         
-        console.log('=== 統一フォーム人数チェック ===', {
-            totalVisitorField: !!totalVisitorField,
-            childCountField: !!childCountField,
-            totalValue: totalVisitorField?.value,
-            childValue: childCountField?.value
-        }); // デバッグ用
-        
         if (totalVisitorField && childCountField && 
             totalVisitorField.value && childCountField.value) {
             const totalCount = parseInt(totalVisitorField.value) || 0;
             const elementaryCount = parseInt(childCountField.value) || 0;
-            
-            console.log('=== 人数比較 ===', {
-                totalCount,
-                elementaryCount,
-                isError: elementaryCount > totalCount
-            }); // デバッグ用
             
             if (elementaryCount > totalCount) {
                 errorMessage = `内小学生以下の人数が見学者様人数を超えています。見学者様人数：${totalCount}名、内小学生以下：${elementaryCount}名`;
