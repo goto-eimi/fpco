@@ -44,7 +44,6 @@ function fpco_update_holidays_data() {
     try {
         fpco_create_holidays_table();
     } catch (Exception $e) {
-        error_log('祝日テーブルの作成に失敗: ' . $e->getMessage());
         return false;
     }
     
@@ -67,20 +66,17 @@ function fpco_update_holidays_data() {
         ));
         
         if (is_wp_error($response)) {
-            error_log("{$year}年の祝日データ取得に失敗: " . $response->get_error_message());
-            continue; // エラーがあっても他の年は処理を続行
+                continue; // エラーがあっても他の年は処理を続行
         }
         
         $body = wp_remote_retrieve_body($response);
         if (empty($body)) {
-            error_log("{$year}年の祝日データが空です");
             continue;
         }
         
         // JSONをデコード
         $json_data = json_decode($body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("{$year}年の祝日データのJSON解析に失敗: " . json_last_error_msg());
             continue;
         }
         
@@ -94,7 +90,6 @@ function fpco_update_holidays_data() {
     }
     
     if (empty($holidays_data)) {
-        error_log('祝日データが取得できませんでした');
         return false;
     }
     
@@ -117,11 +112,9 @@ function fpco_update_holidays_data() {
         $result = $wpdb->query($wpdb->prepare($sql, $values));
         
         if ($result === false) {
-            error_log('祝日データの挿入に失敗: ' . $wpdb->last_error);
             return false;
         }
         
-        error_log('祝日データを更新しました。件数: ' . count($holidays_data));
         return true;
     }
     

@@ -318,7 +318,6 @@ function fpco_factory_get_calendar_events() {
     $holidays = array();
     if (function_exists('fpco_get_holidays')) {
         $holidays = fpco_get_holidays($start, $end);
-        error_log('祝日データ取得: ' . json_encode($holidays)); // 一時的なデバッグ
     }
     
     // 大晦日と元旦を特別日として追加

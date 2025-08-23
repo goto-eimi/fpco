@@ -126,9 +126,7 @@ class FPCO_Factory_Reservation_System {
         // 祝日データの初期化（includes読み込み後に確実に実行）
         require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/holiday-functions.php';
         if (function_exists('fpco_update_holidays_data')) {
-            error_log('プラグイン有効化時に祝日データを更新します'); // デバッグ
-            $result = fpco_update_holidays_data();
-            error_log('祝日データ更新結果: ' . ($result ? '成功' : '失敗')); // デバッグ
+            fpco_update_holidays_data();
         }
         
         // 初期データの設定

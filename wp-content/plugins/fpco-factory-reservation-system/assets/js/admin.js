@@ -69,19 +69,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     nonce: factory_calendar.nonce
                 },
                 success: function(data) {
-                    console.log('📊 カレンダーデータ取得完了:', data);
                     if (data.success && data.data) {
-                        if (data.data.debug) {
-                            console.log('🎌 見つかった祝日:', data.data.debug.holiday_dates);
-                            console.log('📊 祝日統計:', data.data.debug);
-                        }
                         return data.data.events || [];
                     } else if (data.debug) {
-                        console.log('🎌 見つかった祝日:', data.debug.holiday_dates);
-                        console.log('📊 祝日統計:', data.debug);
                         return data.events || [];
                     } else {
-                        console.log('⚠️ データ形式エラー:', data);
                         return [];
                     }
                 },
@@ -206,24 +198,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             var pmLabel = pmCheckbox ? pmCheckbox.closest('label') : null;
                             
                             if (data.success) {
-                                // 祝日デバッグ情報をコンソールに出力
                                 if (data.data.is_holiday) {
-                                    console.log('🎌 祝日検出:', {
-                                        日付: dateStr,
-                                        祝日名: data.data.holiday_name || '不明',
-                                        AM見学不可: data.data.am_unavailable,
-                                        PM見学不可: data.data.pm_unavailable
-                                    });
                                     // 祝日の場合はセルに holiday クラスを付与
                                     arg.el.classList.add('holiday');
-                                } else {
-                                    console.log('📅 通常日:', {
-                                        日付: dateStr,
-                                        AM見学不可: data.data.am_unavailable,
-                                        PM見学不可: data.data.pm_unavailable,
-                                        予約AM: data.data.has_am_reservation,
-                                        予約PM: data.data.has_pm_reservation
-                                    });
                                 }
                                 
                                 if (data.data.has_data) {
@@ -351,9 +328,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         calendar.render();
-        
-        // カレンダーイベントのデバッグ出力を追加
-        console.log('🗓️ カレンダー初期化完了 - Factory ID:', factoryId);
         
         // ツールバーのスタイル調整
         var toolbar = document.querySelector('.fc-toolbar');
