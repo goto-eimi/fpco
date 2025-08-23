@@ -243,11 +243,24 @@ class FPCO_Factory_Reservation_System {
             KEY idx_sent_at (sent_at)
         ) $charset_collate;";
         
+        // 祝日テーブル
+        $sql5 = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}holidays (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            date date NOT NULL,
+            name varchar(255) NOT NULL,
+            created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+            updated_at timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_date (date),
+            KEY idx_date (date)
+        ) $charset_collate;";
+        
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql1);
         dbDelta($sql2);
         dbDelta($sql3);
         dbDelta($sql4);
+        dbDelta($sql5);
     }
     
     /**

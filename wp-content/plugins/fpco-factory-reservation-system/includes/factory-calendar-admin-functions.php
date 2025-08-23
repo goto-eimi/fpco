@@ -778,6 +778,26 @@ function fpco_manual_update_holidays() {
         wp_die('Security check failed');
     }
     
+    global $wpdb;
+    
+    // まず直接テーブルを作成
+    $charset_collate = $wpdb->get_charset_collate();
+    $table_name = $wpdb->prefix . 'holidays';
+    
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        date date NOT NULL,
+        name varchar(255) NOT NULL,
+        created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+        updated_at timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY unique_date (date),
+        KEY idx_date (date)
+    ) $charset_collate;";
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    $table_result = dbDelta($sql);
+    
     // 祝日テーブル作成を強制実行
     if (function_exists('fpco_create_holidays_table')) {
         fpco_create_holidays_table();
@@ -786,9 +806,9 @@ function fpco_manual_update_holidays() {
     if (function_exists('fpco_update_holidays_data')) {
         $result = fpco_update_holidays_data();
         if ($result) {
-            wp_send_json_success('祝日データを正常に更新しました');
+            wp_send_json_success('祝日テーブルを作成し、データを正常に更新しました');
         } else {
-            wp_send_json_error('祝日データの更新に失敗しました');
+            wp_send_json_error('祝日テーブルは作成されましたが、データの更新に失敗しました');
         }
     } else {
         wp_send_json_error('祝日更新機能が見つかりません');
