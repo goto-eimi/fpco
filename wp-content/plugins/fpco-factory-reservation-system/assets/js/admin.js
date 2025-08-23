@@ -70,13 +70,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 success: function(data) {
                     console.log('📊 カレンダーデータ取得完了:', data);
-                    if (data.debug) {
+                    if (data.success && data.data) {
+                        if (data.data.debug) {
+                            console.log('🎌 見つかった祝日:', data.data.debug.holiday_dates);
+                            console.log('📊 祝日統計:', data.data.debug);
+                        }
+                        return data.data.events || [];
+                    } else if (data.debug) {
                         console.log('🎌 見つかった祝日:', data.debug.holiday_dates);
                         console.log('📊 祝日統計:', data.debug);
+                        return data.events || [];
                     } else {
-                        console.log('⚠️ デバッグ情報なし - 旧形式のレスポンス');
+                        console.log('⚠️ データ形式エラー:', data);
+                        return [];
                     }
-                    return data.events || data || [];
                 },
                 failure: function() {
                     console.error('❌ カレンダーイベントの取得に失敗');

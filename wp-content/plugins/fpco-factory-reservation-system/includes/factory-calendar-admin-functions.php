@@ -768,6 +768,29 @@ function fpco_factory_get_unavailable_info() {
 }
 
 /**
+ * Ajax: 祝日データを手動更新
+ */
+add_action('wp_ajax_manual_update_holidays', 'fpco_manual_update_holidays');
+
+function fpco_manual_update_holidays() {
+    // nonceチェック
+    if (!wp_verify_nonce($_POST['nonce'], 'factory_calendar_nonce')) {
+        wp_die('Security check failed');
+    }
+    
+    if (function_exists('fpco_update_holidays_data')) {
+        $result = fpco_update_holidays_data();
+        if ($result) {
+            wp_send_json_success('祝日データを正常に更新しました');
+        } else {
+            wp_send_json_error('祝日データの更新に失敗しました');
+        }
+    } else {
+        wp_send_json_error('祝日更新機能が見つかりません');
+    }
+}
+
+/**
  * 祝日データ管理画面
  */
 function fpco_holiday_management_page() {
@@ -814,6 +837,47 @@ function fpco_holiday_management_page() {
                 <?php wp_nonce_field('update_holidays_action'); ?>
                 <input type="submit" name="update_holidays" class="button button-primary" value="祝日データを更新">
             </form>
+            
+            <hr style="margin: 20px 0;">
+            
+            <h3>デバッグ用 Ajax更新</h3>
+            <button type="button" id="ajax-update-holidays" class="button button-secondary">Ajax で祝日データを更新</button>
+            <div id="ajax-result" style="margin-top: 10px;"></div>
+            
+            <script>
+            document.getElementById('ajax-update-holidays').addEventListener('click', function() {
+                var button = this;
+                var result = document.getElementById('ajax-result');
+                
+                button.disabled = true;
+                button.textContent = '更新中...';
+                result.innerHTML = '<p>祝日データを更新しています...</p>';
+                
+                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=manual_update_holidays&nonce=<?php echo wp_create_nonce('factory_calendar_nonce'); ?>'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        result.innerHTML = '<p style="color: green;">✓ ' + data.data + '</p>';
+                        location.reload(); // ページをリロードして最新データを表示
+                    } else {
+                        result.innerHTML = '<p style="color: red;">✗ エラー: ' + data.data + '</p>';
+                    }
+                })
+                .catch(error => {
+                    result.innerHTML = '<p style="color: red;">✗ 通信エラー: ' + error.message + '</p>';
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.textContent = 'Ajax で祝日データを更新';
+                });
+            });
+            </script>
         </div>
         
         <?php if (!empty($recent_holidays)): ?>
