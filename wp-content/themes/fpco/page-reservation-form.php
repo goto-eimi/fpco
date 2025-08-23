@@ -1367,12 +1367,6 @@ input[type="number"] {
     font-weight: normal;
 }
 
-/* セパレーター線 */
-.info-row-separator {
-    height: 1px;
-    background: #E0E0E0;
-    margin: 0 20px;
-}
 
 /* 単位表示 */
 .unit {
