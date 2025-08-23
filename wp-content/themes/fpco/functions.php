@@ -351,6 +351,9 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
         $calendar_end = date('Y-m-d', strtotime('+1 week', strtotime($last_day)));
     }
     
+    // 祝日データを取得
+    $holidays = fpco_get_holidays_for_period($calendar_start, $calendar_end);
+    
     // 見学不可日を取得
     $unavailable_days_results = $wpdb->get_results($wpdb->prepare(
         "SELECT date, am_unavailable, pm_unavailable 
@@ -412,14 +415,18 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
         // 土日は見学不可
         $is_weekend = ($weekday === 0 || $weekday === 6);
         
+        // 祝日チェック
+        $is_holiday = isset($holidays[$current_date]);
+        
         // 各時間帯の状況を判定
-        $am_status = fpco_calculate_slot_status($current_date, 'am', $unavailable_days, $reservations, $is_weekend);
-        $pm_status = fpco_calculate_slot_status($current_date, 'pm', $unavailable_days, $reservations, $is_weekend);
+        $am_status = fpco_calculate_slot_status($current_date, 'am', $unavailable_days, $reservations, $is_weekend, $is_holiday);
+        $pm_status = fpco_calculate_slot_status($current_date, 'pm', $unavailable_days, $reservations, $is_weekend, $is_holiday);
         
         $calendar_days[$current_date] = array(
             'date' => $current_date,
             'weekday' => $weekday,
             'is_other_month' => ($date_obj->format('Y-m') !== sprintf('%04d-%02d', $year, $month)),
+            'is_holiday' => $is_holiday,
             'am' => $am_status,
             'pm' => $pm_status
         );
@@ -440,10 +447,7 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
 /**
  * 時間帯の状況を計算
  */
-function fpco_calculate_slot_status($date, $time_period, $unavailable_days, $reservations, $is_weekend) {
-    // 祝日チェック
-    $is_holiday = fpco_is_theme_holiday($date);
-    
+function fpco_calculate_slot_status($date, $time_period, $unavailable_days, $reservations, $is_weekend, $is_holiday = false) {
     // 特別な日付（大晦日・元旦）をチェック
     $date_obj = new DateTime($date);
     $month = intval($date_obj->format('n'));
@@ -537,5 +541,42 @@ function fpco_is_theme_holiday($date) {
     );
     
     return $result > 0;
+}
+
+/**
+ * 期間内の祝日データを取得
+ */
+function fpco_get_holidays_for_period($start_date, $end_date) {
+    global $wpdb;
+    
+    // プラグインの祝日取得関数を使用（プラグインが有効な場合）
+    if (function_exists('fpco_get_holidays')) {
+        return fpco_get_holidays($start_date, $end_date);
+    }
+    
+    // フォールバック: 直接データベースから取得
+    $table_name = $wpdb->prefix . 'holidays';
+    
+    // テーブル存在確認
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") !== $table_name) {
+        return array();
+    }
+    
+    $results = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT date, name FROM $table_name 
+             WHERE date BETWEEN %s AND %s 
+             ORDER BY date ASC",
+            $start_date,
+            $end_date
+        )
+    );
+    
+    $holidays = array();
+    foreach ($results as $result) {
+        $holidays[$result->date] = $result->name;
+    }
+    
+    return $holidays;
 }
 
