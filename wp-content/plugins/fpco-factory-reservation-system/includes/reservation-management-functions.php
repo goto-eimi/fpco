@@ -443,7 +443,9 @@ function fpco_validate_reservation_form($data) {
     // 見学者人数の整合性チェック
     if (!empty($data['total_visitors']) && !empty($data['elementary_visitors'])) {
         if (intval($data['elementary_visitors']) > intval($data['total_visitors'])) {
-            $add_field_error('elementary_visitors', '小学生以下の人数は見学者人数を超えることはできません。');
+            $total_count = intval($data['total_visitors']);
+            $elementary_count = intval($data['elementary_visitors']);
+            $add_field_error('elementary_visitors', "内小学生以下の人数が見学者様人数を超えています。見学者様人数：{$total_count}名、内小学生以下：{$elementary_count}名");
         }
     }
     

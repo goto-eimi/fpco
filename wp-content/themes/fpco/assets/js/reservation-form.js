@@ -62,7 +62,8 @@ class ReservationForm {
             if (e.target.type === 'number' && (
                 e.target.name.includes('_count') || 
                 e.target.name.includes('_visitor_count') ||
-                e.target.id === 'total_visitor_count'
+                e.target.id === 'total_visitor_count' ||
+                e.target.id === 'elementary_visitor_count'
             )) {
                 this.calculateTotalVisitors();
                 this.validateVisitorCount();
@@ -443,7 +444,7 @@ class ReservationForm {
         
         const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
         
-        // 小学生以下の人数チェック
+        // 小学生以下の人数チェック（カテゴリー別）
         if (selectedCategory && ['family', 'company', 'government', 'other'].includes(selectedCategory)) {
             const adultField = document.getElementById(`${selectedCategory}_adult_count`);
             const childField = document.getElementById(`${selectedCategory}_child_count`);
@@ -461,6 +462,41 @@ class ReservationForm {
                     errorDiv.style.cssText = 'color: #d32f2f; font-size: 14px; margin-top: 10px; padding: 10px; background-color: #ffebee; border-radius: 4px; border: 1px solid #f8bbd9;';
                     errorDiv.textContent = errorMessage;
                     targetSection.appendChild(errorDiv);
+                }
+                return false;
+            }
+        }
+        
+        // 統一フォーム部分の小学生以下人数チェック
+        const totalVisitorField = document.getElementById('total_visitor_count');
+        const elementaryVisitorField = document.getElementById('elementary_visitor_count');
+        
+        if (totalVisitorField && elementaryVisitorField && 
+            totalVisitorField.value && elementaryVisitorField.value) {
+            const totalCount = parseInt(totalVisitorField.value) || 0;
+            const elementaryCount = parseInt(elementaryVisitorField.value) || 0;
+            
+            if (elementaryCount > totalCount) {
+                errorMessage = `内小学生以下の人数が見学者様人数を超えています。見学者様人数：${totalCount}名、内小学生以下：${elementaryCount}名`;
+                
+                // エラーメッセージを表示（統一フォーム部分）
+                const unifiedFormSection = document.querySelector('.unified-visitor-count-section, #unified-form, .form-section');
+                if (unifiedFormSection) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'visitor-count-error';
+                    errorDiv.style.cssText = 'color: #d32f2f; font-size: 14px; margin-top: 10px; padding: 10px; background-color: #ffebee; border-radius: 4px; border: 1px solid #f8bbd9;';
+                    errorDiv.textContent = errorMessage;
+                    unifiedFormSection.appendChild(errorDiv);
+                } else {
+                    // フォールバック：elementaryVisitorFieldの親要素に表示
+                    const parentElement = elementaryVisitorField.closest('.info-row') || elementaryVisitorField.parentElement;
+                    if (parentElement) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'visitor-count-error';
+                        errorDiv.style.cssText = 'color: #d32f2f; font-size: 14px; margin-top: 10px; padding: 10px; background-color: #ffebee; border-radius: 4px; border: 1px solid #f8bbd9;';
+                        errorDiv.textContent = errorMessage;
+                        parentElement.appendChild(errorDiv);
+                    }
                 }
                 return false;
             }
@@ -701,7 +737,7 @@ class ReservationForm {
             const total = this.calculateTotalVisitors();
             const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
             
-            // 子ども人数超過チェック
+            // 子ども人数超過チェック（カテゴリー別）
             if (selectedCategory && ['family', 'company', 'government', 'other'].includes(selectedCategory)) {
                 const adultField = document.getElementById(`${selectedCategory}_adult_count`);
                 const childField = document.getElementById(`${selectedCategory}_child_count`);
@@ -710,6 +746,24 @@ class ReservationForm {
                 
                 if (childCount > adultCount) {
                     const message = `見学者様人数（子ども）が見学者様人数（大人）を超えています。大人：${adultCount}名、子ども：${childCount}名`;
+                    if (!errorMessages[message]) {
+                        errorMessages[message] = true;
+                        errors.push(message);
+                    }
+                }
+            }
+            
+            // 統一フォーム部分の小学生以下人数チェック
+            const totalVisitorField = document.getElementById('total_visitor_count');
+            const elementaryVisitorField = document.getElementById('elementary_visitor_count');
+            
+            if (totalVisitorField && elementaryVisitorField && 
+                totalVisitorField.value && elementaryVisitorField.value) {
+                const totalCount = parseInt(totalVisitorField.value) || 0;
+                const elementaryCount = parseInt(elementaryVisitorField.value) || 0;
+                
+                if (elementaryCount > totalCount) {
+                    const message = `内小学生以下の人数が見学者様人数を超えています。見学者様人数：${totalCount}名、内小学生以下：${elementaryCount}名`;
                     if (!errorMessages[message]) {
                         errorMessages[message] = true;
                         errors.push(message);
