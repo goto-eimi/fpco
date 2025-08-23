@@ -77,7 +77,7 @@ try {
                     <span class="btn-text">予約内容を印刷する</span>
                     <span class="btn-arrow">→</span>
                 </button>
-                <a href="<?php echo get_return_calendar_url($form_data); ?>" class="btn-home">
+                <a href="<?php echo home_url('/'); ?>" class="btn-home">
                     <span class="btn-text">TOPへ戻る</span>
                     <span class="btn-arrow">→</span>
                 </a>
