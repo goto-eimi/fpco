@@ -321,6 +321,25 @@ function fpco_factory_get_calendar_events() {
         error_log('祝日データ取得: ' . json_encode($holidays)); // 一時的なデバッグ
     }
     
+    // 大晦日と元旦を特別日として追加
+    $start_date = new DateTime($start);
+    $end_date = new DateTime($end);
+    $current_date = clone $start_date;
+    
+    while ($current_date <= $end_date) {
+        $date_str = $current_date->format('Y-m-d');
+        $month = (int)$current_date->format('n');
+        $day = (int)$current_date->format('j');
+        
+        if (($month === 12 && $day === 31) || ($month === 1 && $day === 1)) {
+            if (!isset($holidays[$date_str])) {
+                $holidays[$date_str] = ($month === 12) ? '大晦日' : '元旦';
+            }
+        }
+        
+        $current_date->add(new DateInterval('P1D'));
+    }
+    
     // 見学不可日を取得
     $unavailable_days = $wpdb->get_results(
         $wpdb->prepare(
@@ -669,6 +688,22 @@ function fpco_factory_get_unavailable_info() {
         }
     }
     
+    // 大晦日と元旦を特別日として判定
+    $is_special_day = false;
+    $date_parts = explode('-', $date);
+    $month = (int)$date_parts[1];
+    $day = (int)$date_parts[2];
+    
+    if (($month === 12 && $day === 31) || ($month === 1 && $day === 1)) {
+        $is_special_day = true;
+        if (!$is_holiday) {
+            $holiday_name = ($month === 12) ? '大晦日' : '元旦';
+        }
+    }
+    
+    // 祝日または特別日の場合
+    $is_holiday_or_special = $is_holiday || $is_special_day;
+    
     // 見学不可日の情報を取得
     $info = $wpdb->get_row(
         $wpdb->prepare(
@@ -747,20 +782,20 @@ function fpco_factory_get_unavailable_info() {
         $is_manual_setting = false;
     }
     
-    // 祝日の場合は強制的にAM/PM両方見学不可
-    if ($is_holiday) {
+    // 祝日または特別日の場合は強制的にAM/PM両方見学不可
+    if ($is_holiday_or_special) {
         $am_unavailable = true;
         $pm_unavailable = true;
     }
     
     $result = array(
-        'has_data' => $info !== null || !empty($reservations) || $is_holiday,
+        'has_data' => $info !== null || !empty($reservations) || $is_holiday_or_special,
         'am_unavailable' => $am_unavailable,
         'pm_unavailable' => $pm_unavailable,
         'has_reservation' => !empty($reservations),
         'has_am_reservation' => $has_am_reservation,
         'has_pm_reservation' => $has_pm_reservation,
-        'is_holiday' => $is_holiday,
+        'is_holiday' => $is_holiday_or_special,
         'holiday_name' => $holiday_name
     );
     
