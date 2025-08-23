@@ -441,8 +441,17 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
  * 時間帯の状況を計算
  */
 function fpco_calculate_slot_status($date, $time_period, $unavailable_days, $reservations, $is_weekend) {
-    // 土日は見学不可
-    if ($is_weekend) {
+    // 祝日チェック
+    $is_holiday = fpco_is_theme_holiday($date);
+    
+    // 特別な日付（大晦日・元旦）をチェック
+    $date_obj = new DateTime($date);
+    $month = intval($date_obj->format('n'));
+    $day = intval($date_obj->format('j'));
+    $is_special_date = ($month === 12 && $day === 31) || ($month === 1 && $day === 1);
+    
+    // 土日祝日・特別日は見学不可
+    if ($is_weekend || $is_holiday || $is_special_date) {
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
@@ -499,5 +508,34 @@ function fpco_ajax_get_factory_timeslots() {
     } else {
         wp_send_json_error(array('message' => '工場時間設定が取得できませんでした。'));
     }
+}
+
+/**
+ * テーマ専用の祝日チェック関数
+ */
+function fpco_is_theme_holiday($date) {
+    global $wpdb;
+    
+    // プラグインの祝日関数を使用（プラグインが有効な場合）
+    if (function_exists('fpco_is_holiday')) {
+        return fpco_is_holiday($date);
+    }
+    
+    // フォールバック: 直接データベースをチェック
+    $table_name = $wpdb->prefix . 'holidays';
+    
+    // テーブル存在確認
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") !== $table_name) {
+        return false;
+    }
+    
+    $result = $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT COUNT(*) FROM $table_name WHERE date = %s",
+            $date
+        )
+    );
+    
+    return $result > 0;
 }
 

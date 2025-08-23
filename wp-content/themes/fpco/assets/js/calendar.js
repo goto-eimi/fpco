@@ -275,6 +275,13 @@ class ReservationCalendar {
         // デモデータ（実際のAPIからのデータに置き換え予定）
         const dayData = this.getDayData(dateStr);
         
+        // 祝日チェック（APIデータに含まれているか確認）
+        const isHoliday = this.isHoliday(dateStr);
+        // 大晦日と元旦のチェック
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const isSpecialDate = (month === 12 && day === 31) || (month === 1 && day === 1);
+        
         let classes = ['calendar-day'];
         if (isOtherMonth) classes.push('other-month');
         if (isToday) classes.push('today');
@@ -282,7 +289,7 @@ class ReservationCalendar {
         if (dayData.clickable && !isPast) classes.push('clickable');
         
         let dayNumberClass = 'day-number';
-        if (weekday === 0) dayNumberClass += ' sunday';
+        if (weekday === 0 || isHoliday || isSpecialDate) dayNumberClass += ' sunday'; // 祝日も日曜日と同じ赤色
         if (weekday === 6) dayNumberClass += ' saturday';
         
         let timeSlotsHtml = '';
@@ -333,13 +340,20 @@ class ReservationCalendar {
         // デモデータ
         const dayData = this.getDayData(dateStr);
         
+        // 祝日チェック（APIデータに含まれているか確認）
+        const isHoliday = this.isHoliday(dateStr);
+        // 大晦日と元旦のチェック
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const isSpecialDate = (month === 12 && day === 31) || (month === 1 && day === 1);
+        
         let classes = ['calendar-list-item'];
         if (dayData.clickable && !isPast) classes.push('clickable');
         if (isToday) classes.push('today');
         if (isPast) classes.push('past');
         
         let dayNumberClass = 'list-day-number';
-        if (weekday === 0) dayNumberClass += ' sunday';
+        if (weekday === 0 || isHoliday || isSpecialDate) dayNumberClass += ' sunday'; // 祝日も日曜日と同じ赤色
         if (weekday === 6) dayNumberClass += ' saturday';
         
         // スマホ版カレンダーの新デザイン
@@ -792,6 +806,24 @@ class ReservationCalendar {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
+    }
+    
+    isHoliday(dateStr) {
+        // APIデータから祝日情報を取得
+        if (this.calendarData && this.calendarData.days && this.calendarData.days[dateStr]) {
+            const dayData = this.calendarData.days[dateStr];
+            const date = new Date(dateStr);
+            const weekday = date.getDay();
+            
+            // 土日祝日は見学不可という条件から、祝日を推測
+            // AM/PM両方が unavailable かつ土日でない場合は祝日の可能性
+            if (weekday !== 0 && weekday !== 6 && 
+                dayData.am.status === 'unavailable' && dayData.pm.status === 'unavailable' &&
+                dayData.am.symbol === '－' && dayData.pm.symbol === '－') {
+                return true;
+            }
+        }
+        return false;
     }
     
     formatDisplayDate(date) {
