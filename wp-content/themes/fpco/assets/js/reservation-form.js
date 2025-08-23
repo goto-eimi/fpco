@@ -441,6 +441,31 @@ class ReservationForm {
         const existingErrors = document.querySelectorAll('.visitor-count-error');
         existingErrors.forEach(error => error.remove());
         
+        const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
+        
+        // 小学生以下の人数チェック
+        if (selectedCategory && ['family', 'company', 'government', 'other'].includes(selectedCategory)) {
+            const adultField = document.getElementById(`${selectedCategory}_adult_count`);
+            const childField = document.getElementById(`${selectedCategory}_child_count`);
+            const adultCount = parseInt(adultField?.value) || 0;
+            const childCount = parseInt(childField?.value) || 0;
+            
+            if (childCount > adultCount) {
+                errorMessage = `見学者様人数（子ども）が見学者様人数（大人）を超えています。大人：${adultCount}名、子ども：${childCount}名`;
+                
+                // エラーメッセージを表示
+                const targetSection = document.getElementById(selectedCategory + '-details');
+                if (targetSection) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'visitor-count-error';
+                    errorDiv.style.cssText = 'color: #d32f2f; font-size: 14px; margin-top: 10px; padding: 10px; background-color: #ffebee; border-radius: 4px; border: 1px solid #f8bbd9;';
+                    errorDiv.textContent = errorMessage;
+                    targetSection.appendChild(errorDiv);
+                }
+                return false;
+            }
+        }
+        
         if (total > this.maxVisitors) {
             errorMessage = `見学者様の合計人数が上限（${this.maxVisitors}名）を超えています。現在の合計：${total}名`;
             
@@ -674,10 +699,31 @@ class ReservationForm {
         if (!this.validateVisitorCount()) {
             isValid = false;
             const total = this.calculateTotalVisitors();
-            const message = `見学者様の合計人数が上限（${this.maxVisitors}名）を超えています（現在：${total}名）`;
-            if (!errorMessages[message]) {
-                errorMessages[message] = true;
-                errors.push(message);
+            const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
+            
+            // 子ども人数超過チェック
+            if (selectedCategory && ['family', 'company', 'government', 'other'].includes(selectedCategory)) {
+                const adultField = document.getElementById(`${selectedCategory}_adult_count`);
+                const childField = document.getElementById(`${selectedCategory}_child_count`);
+                const adultCount = parseInt(adultField?.value) || 0;
+                const childCount = parseInt(childField?.value) || 0;
+                
+                if (childCount > adultCount) {
+                    const message = `見学者様人数（子ども）が見学者様人数（大人）を超えています。大人：${adultCount}名、子ども：${childCount}名`;
+                    if (!errorMessages[message]) {
+                        errorMessages[message] = true;
+                        errors.push(message);
+                    }
+                }
+            }
+            
+            // 上限人数チェック
+            if (total > this.maxVisitors) {
+                const message = `見学者様の合計人数が上限（${this.maxVisitors}名）を超えています（現在：${total}名）`;
+                if (!errorMessages[message]) {
+                    errorMessages[message] = true;
+                    errors.push(message);
+                }
             }
         }
         

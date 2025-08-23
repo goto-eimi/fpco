@@ -596,6 +596,13 @@ function fpco_validate_reservation_type_fields($data) {
                 }
             }
             
+            // 子ども人数の整合性チェック
+            if (!empty($data['adult_count']) && !empty($data['child_count'])) {
+                if (intval($data['child_count']) > intval($data['adult_count'])) {
+                    $add_field_error('child_count', '見学者人数（子ども）が見学者人数（大人）を超えることはできません。');
+                }
+            }
+            
             // 子どもの学年チェック
             if (!empty($data['child_count']) && intval($data['child_count']) > 0) {
                 if (!isset($data['child_grade']) || $data['child_grade'] === '' || $data['child_grade'] === null) {
