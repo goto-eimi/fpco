@@ -160,13 +160,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                     if (amCheckbox) {
                                         amCheckbox.checked = data.data.am_unavailable || false;
                                         
-                                        // 予約による見学不可の場合は無効にする
+                                        // 予約がある場合は視覚的に区別するが、無効化はしない
                                         if (data.data.has_am_reservation) {
-                                            amCheckbox.disabled = true;
+                                            amCheckbox.disabled = false; // 予約があっても変更可能
                                             if (amLabel) {
-                                                amLabel.style.opacity = '0.6';
-                                                amLabel.style.cursor = 'not-allowed';
-                                                amLabel.title = '予約があるため変更できません';
+                                                amLabel.style.opacity = '0.8';
+                                                amLabel.style.cursor = 'pointer';
+                                                amLabel.title = '予約があります';
                                             }
                                         } else {
                                             amCheckbox.disabled = false;
@@ -181,13 +181,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                     if (pmCheckbox) {
                                         pmCheckbox.checked = data.data.pm_unavailable || false;
                                         
-                                        // 予約による見学不可の場合は無効にする
+                                        // 予約がある場合は視覚的に区別するが、無効化はしない
                                         if (data.data.has_pm_reservation) {
-                                            pmCheckbox.disabled = true;
+                                            pmCheckbox.disabled = false; // 予約があっても変更可能
                                             if (pmLabel) {
-                                                pmLabel.style.opacity = '0.6';
-                                                pmLabel.style.cursor = 'not-allowed';
-                                                pmLabel.title = '予約があるため変更できません';
+                                                pmLabel.style.opacity = '0.8';
+                                                pmLabel.style.cursor = 'pointer';
+                                                pmLabel.title = '予約があります';
                                             }
                                         } else {
                                             pmCheckbox.disabled = false;
@@ -338,10 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (e.target.classList.contains('am-checkbox') || e.target.classList.contains('pm-checkbox')) {
                     e.stopPropagation();
                     
-                    // 無効化されたチェックボックスの変更は無視
-                    if (e.target.disabled) {
-                        return;
-                    }
+                    // 無効化チェックを削除（予約があっても変更可能）
                     
                     var date = e.target.getAttribute('data-date');
                     var isAM = e.target.classList.contains('am-checkbox');
