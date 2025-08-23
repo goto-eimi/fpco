@@ -453,26 +453,25 @@ function fpco_factory_get_calendar_events() {
             'pm_unavailable' => $data['pm_unavailable'],
             'has_reservation' => isset($reservation_days[$date]),
             'is_holiday' => isset($holidays[$date]),
-            'holiday_name' => isset($holidays[$date]) ? $holidays[$date] : null,
-            'debug_holiday_check' => isset($holidays[$date]) ? 'YES' : 'NO' // デバッグ用
+            'holiday_name' => isset($holidays[$date]) ? $holidays[$date] : null
         );
     }
     
-    // 祝日で見学不可設定がない日付も追加
+    // 祝日で見学不可設定がない日付も追加（デフォルトで見学不可として扱う）
     foreach ($holidays as $holiday_date => $holiday_name) {
         if (!isset($unavailable_array[$holiday_date])) {
+            // 予約がない祝日はデフォルトで見学不可
             $events[] = array(
                 'id' => 'holiday_' . $holiday_date,
                 'title' => '',
                 'start' => $holiday_date,
                 'color' => 'transparent',
                 'type' => 'unavailable',
-                'am_unavailable' => true, // 祝日は自動的にAM見学不可
-                'pm_unavailable' => true, // 祝日は自動的にPM見学不可
+                'am_unavailable' => true,
+                'pm_unavailable' => true,
                 'has_reservation' => false,
                 'is_holiday' => true,
-                'holiday_name' => $holiday_name,
-                'debug_holiday_check' => 'YES (HOLIDAY_ONLY)' // デバッグ用
+                'holiday_name' => $holiday_name
             );
         }
     }
@@ -781,8 +780,8 @@ function fpco_factory_get_unavailable_info() {
         $is_manual_setting = false;
     }
     
-    // 祝日または特別日の場合は強制的にAM/PM両方見学不可
-    if ($is_holiday_or_special) {
+    // 祝日または特別日の場合のデフォルト処理（手動設定がない場合のみ）
+    if ($is_holiday_or_special && !$info) {
         $am_unavailable = true;
         $pm_unavailable = true;
     }
