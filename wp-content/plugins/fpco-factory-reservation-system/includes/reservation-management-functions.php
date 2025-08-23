@@ -330,10 +330,10 @@ function fpco_validate_reservation_form($data) {
     $end_hour = isset($data['visit_time_end_hour']) ? trim($data['visit_time_end_hour']) : '';
     $end_minute = isset($data['visit_time_end_minute']) ? trim($data['visit_time_end_minute']) : '';
     
-    $start_hour_empty = ($start_hour === '' || $start_hour === '0' || $start_hour === '00');
-    $start_minute_empty = ($start_minute === '' || $start_minute === '0' || $start_minute === '00');
-    $end_hour_empty = ($end_hour === '' || $end_hour === '0' || $end_hour === '00');
-    $end_minute_empty = ($end_minute === '' || $end_minute === '0' || $end_minute === '00');
+    $start_hour_empty = ($start_hour === '');
+    $start_minute_empty = ($start_minute === '');
+    $end_hour_empty = ($end_hour === '');
+    $end_minute_empty = ($end_minute === '');
     
     if ($start_hour_empty || $start_minute_empty || $end_hour_empty || $end_minute_empty) {
         $add_field_error('visit_time', '見学時間帯は必須項目です。');
@@ -2014,10 +2014,10 @@ function fpco_reservation_management_admin_page() {
             const endHourValue = endHour.value.trim();
             const endMinuteValue = endMinute.value.trim();
             
-            const startHourEmpty = (!startHourValue || startHourValue === '0' || startHourValue === '00');
-            const startMinuteEmpty = (!startMinuteValue || startMinuteValue === '0' || startMinuteValue === '00');
-            const endHourEmpty = (!endHourValue || endHourValue === '0' || endHourValue === '00');
-            const endMinuteEmpty = (!endMinuteValue || endMinuteValue === '0' || endMinuteValue === '00');
+            const startHourEmpty = (!startHourValue);
+            const startMinuteEmpty = (!startMinuteValue);
+            const endHourEmpty = (!endHourValue);
+            const endMinuteEmpty = (!endMinuteValue);
             
             if (startHourEmpty || startMinuteEmpty || endHourEmpty || endMinuteEmpty) {
                 errors.push('見学時間帯は必須項目です。');
