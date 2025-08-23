@@ -435,7 +435,8 @@ function fpco_factory_get_calendar_events() {
             'pm_unavailable' => $data['pm_unavailable'],
             'has_reservation' => isset($reservation_days[$date]),
             'is_holiday' => isset($holidays[$date]),
-            'holiday_name' => isset($holidays[$date]) ? $holidays[$date] : null
+            'holiday_name' => isset($holidays[$date]) ? $holidays[$date] : null,
+            'debug_holiday_check' => isset($holidays[$date]) ? 'YES' : 'NO' // デバッグ用
         );
     }
     
@@ -452,12 +453,23 @@ function fpco_factory_get_calendar_events() {
                 'pm_unavailable' => true, // 祝日は自動的にPM見学不可
                 'has_reservation' => false,
                 'is_holiday' => true,
-                'holiday_name' => $holiday_name
+                'holiday_name' => $holiday_name,
+                'debug_holiday_check' => 'YES (HOLIDAY_ONLY)' // デバッグ用
             );
         }
     }
     
-    wp_send_json_success($events);
+    // デバッグ情報も含めて返す
+    $debug_info = array(
+        'holidays_found' => count($holidays),
+        'holiday_dates' => array_keys($holidays),
+        'date_range' => array('start' => $start, 'end' => $end)
+    );
+    
+    wp_send_json_success(array(
+        'events' => $events,
+        'debug' => $debug_info
+    ));
 }
 
 /**
