@@ -199,4 +199,38 @@ function fpco_init_holidays_on_activation() {
 function fpco_clear_holiday_cron() {
     wp_clear_scheduled_hook('fpco_update_holidays_cron');
 }
+
+/**
+ * デバッグ用：祝日テーブルの状態を確認
+ */
+function fpco_debug_holiday_table() {
+    global $wpdb;
+    
+    $table_name = $wpdb->prefix . 'holidays';
+    
+    // テーブル存在確認
+    $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name;
+    
+    if (!$table_exists) {
+        return array(
+            'table_exists' => false,
+            'count' => 0,
+            'sample_data' => array(),
+            'message' => '祝日テーブルが存在しません'
+        );
+    }
+    
+    // データ件数
+    $count = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+    
+    // サンプルデータ
+    $sample_data = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date LIMIT 10");
+    
+    return array(
+        'table_exists' => true,
+        'count' => $count,
+        'sample_data' => $sample_data,
+        'message' => "祝日テーブル: {$count}件のデータ"
+    );
+}
 ?>

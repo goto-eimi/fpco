@@ -778,6 +778,11 @@ function fpco_manual_update_holidays() {
         wp_die('Security check failed');
     }
     
+    // 祝日テーブル作成を強制実行
+    if (function_exists('fpco_create_holidays_table')) {
+        fpco_create_holidays_table();
+    }
+    
     if (function_exists('fpco_update_holidays_data')) {
         $result = fpco_update_holidays_data();
         if ($result) {
@@ -811,6 +816,7 @@ function fpco_holiday_management_page() {
     // 現在の祝日データを取得
     $holidays_count = 0;
     $recent_holidays = array();
+    $debug_info = null;
     
     if (function_exists('fpco_get_holidays')) {
         $current_year = date('Y');
@@ -821,6 +827,11 @@ function fpco_holiday_management_page() {
         $recent_holidays = array_slice($holidays, 0, 10, true); // 最初の10件
     }
     
+    // デバッグ情報を取得
+    if (function_exists('fpco_debug_holiday_table')) {
+        $debug_info = fpco_debug_holiday_table();
+    }
+    
     ?>
     <div class="wrap">
         <h1>祝日データ管理</h1>
@@ -828,6 +839,37 @@ function fpco_holiday_management_page() {
         <div class="card">
             <h2>祝日データ統計</h2>
             <p>現在登録されている<?php echo date('Y'); ?>年の祝日: <strong><?php echo $holidays_count; ?></strong>件</p>
+            
+            <?php if ($debug_info): ?>
+            <h3>デバッグ情報</h3>
+            <ul>
+                <li>テーブル存在: <?php echo $debug_info['table_exists'] ? '✓' : '✗'; ?></li>
+                <li>データ件数: <?php echo $debug_info['count']; ?>件</li>
+                <li>メッセージ: <?php echo esc_html($debug_info['message']); ?></li>
+            </ul>
+            
+            <?php if (!empty($debug_info['sample_data'])): ?>
+            <h4>サンプルデータ</h4>
+            <table class="wp-list-table widefat fixed striped" style="width: auto;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>日付</th>
+                        <th>祝日名</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($debug_info['sample_data'] as $row): ?>
+                    <tr>
+                        <td><?php echo esc_html($row->id); ?></td>
+                        <td><?php echo esc_html($row->date); ?></td>
+                        <td><?php echo esc_html($row->name); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+            <?php endif; ?>
         </div>
         
         <div class="card">
