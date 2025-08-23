@@ -115,8 +115,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     dayNumberEl.style.marginBottom = '5px';
                 }
                 
-                // 過去の日付の処理
+                // 日付文字列を作成（過去の日付でも祝日チェックのため）
+                var year = cellDate.getFullYear();
+                var month = String(cellDate.getMonth() + 1).padStart(2, '0');
+                var day = String(cellDate.getDate()).padStart(2, '0');
+                var dateStr = year + '-' + month + '-' + day;
+                
+                // 過去の日付の処理（祝日チェック後に実行）
                 if (cellDate < today) {
+                    // 祝日チェックを先に行う
+                    fetch(factory_calendar.ajax_url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'action=get_unavailable_info&factory_id=' + factoryId + 
+                              '&date=' + dateStr + '&nonce=' + factory_calendar.nonce
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data.is_holiday) {
+                            // 祝日の場合はセルに holiday クラスを付与
+                            arg.el.classList.add('holiday');
+                        }
+                    });
+                    
                     // 既存のイベントコンテナを取得または作成
                     var eventsEl = arg.el.querySelector('.fc-daygrid-day-events');
                     if (eventsEl) {
@@ -142,11 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         var isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                         
                         // チェックボックスコンテナ
-                        // ローカルタイムゾーンでYYYY-MM-DD形式に変換（UTCずれを防ぐ）
-                        var year = cellDate.getFullYear();
-                        var month = String(cellDate.getMonth() + 1).padStart(2, '0');
-                        var day = String(cellDate.getDate()).padStart(2, '0');
-                        var dateStr = year + '-' + month + '-' + day;
                         
                         var checkboxHtml = '<div style="font-size: 11px; line-height: 1.3; padding: 0 5px; margin-bottom: 10px;">' +
                             '<div style="margin-bottom: 8px;">' +
