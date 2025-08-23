@@ -624,7 +624,7 @@ input[type="number"] {
                                 <span>貸切バス</span>
                             </label>
                             <label class="radio-inline">
-                                <input type="radio" name="transportation" value="route_bus">
+                                <input type="radio" name="transportation" value="local_bus">
                                 <span>路線バス</span>
                             </label>
                         </div>

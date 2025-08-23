@@ -174,11 +174,11 @@ function fpco_handle_reservation_form_submission() {
     // 予約タイプごとのデータ処理
     $type_data = fpco_get_type_specific_data($_POST);
     
-    // 交通手段の処理（DBのenumに合わせる: car, bus, taxi, other）
+    // 交通手段の処理（値をそのまま保存するように変更）
     $transportation_mapping = [
         'car' => 'car',
-        'chartered_bus' => 'bus',
-        'local_bus' => 'bus', 
+        'chartered_bus' => 'chartered_bus',
+        'local_bus' => 'local_bus', 
         'taxi' => 'taxi',
         'other' => 'other'
     ];
@@ -890,6 +890,7 @@ function fpco_convert_reservation_to_form_data($reservation) {
             'chartered_bus' => 'chartered_bus',
             'local_bus' => 'local_bus',
             'taxi' => 'taxi',
+            'bus' => 'chartered_bus',  // 古いデータの互換性のため
             'other' => 'other'
         ];
         $form_data['transportation'] = $transportation_reverse_mapping[$transportation_method] ?? 'other';

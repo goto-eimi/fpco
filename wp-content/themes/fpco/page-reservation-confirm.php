@@ -699,7 +699,8 @@ function get_transportation_display($transportation, $form_data) {
     $transportation_labels = [
         'car' => '車',
         'chartered_bus' => '貸切バス',
-        'route_bus' => '路線バス',
+        'local_bus' => '路線バス',
+        'route_bus' => '路線バス',  // 古いデータの互換性のため
         'taxi' => 'タクシー',
         'other' => 'その他'
     ];
