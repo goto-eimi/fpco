@@ -157,6 +157,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             var pmLabel = pmCheckbox ? pmCheckbox.closest('label') : null;
                             
                             if (data.success) {
+                                // 祝日の場合はセルに holiday クラスを付与
+                                if (data.data.is_holiday) {
+                                    cellElement.classList.add('holiday');
+                                }
+                                
                                 if (data.data.has_data) {
                                     // データベースの設定を使用（土日・平日問わず）
                                     if (amCheckbox) {

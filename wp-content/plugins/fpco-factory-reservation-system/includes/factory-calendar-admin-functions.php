@@ -251,6 +251,20 @@ function fpco_factory_calendar_admin_page($factory_id = null) {
         background-color: #f0f0f0 !important;
     }
     
+    /* 祝日のスタイリング（日曜日と同じ色） */
+    .fc .fc-daygrid-day.fc-day-sun {
+        background-color: #ffebee !important;
+    }
+    
+    .fc .fc-daygrid-day.holiday {
+        background-color: #ffebee !important;
+    }
+    
+    .fc .fc-daygrid-day.fc-day-sun .fc-daygrid-day-number,
+    .fc .fc-daygrid-day.holiday .fc-daygrid-day-number {
+        color: #d32f2f !important;
+    }
+    
     .fc .fc-daygrid-day-number {
         font-size: 14px !important;
         font-weight: bold !important;
@@ -287,6 +301,9 @@ function fpco_factory_get_calendar_events() {
     $end = sanitize_text_field($_POST['end']);
     
     $events = array();
+    
+    // 祝日データを取得
+    $holidays = fpco_get_holidays($start, $end);
     
     // 見学不可日を取得
     $unavailable_days = $wpdb->get_results(
@@ -400,8 +417,28 @@ function fpco_factory_get_calendar_events() {
             'type' => 'unavailable',
             'am_unavailable' => $data['am_unavailable'],
             'pm_unavailable' => $data['pm_unavailable'],
-            'has_reservation' => isset($reservation_days[$date])
+            'has_reservation' => isset($reservation_days[$date]),
+            'is_holiday' => isset($holidays[$date]),
+            'holiday_name' => isset($holidays[$date]) ? $holidays[$date] : null
         );
+    }
+    
+    // 祝日で見学不可設定がない日付も追加
+    foreach ($holidays as $holiday_date => $holiday_name) {
+        if (!isset($unavailable_array[$holiday_date])) {
+            $events[] = array(
+                'id' => 'holiday_' . $holiday_date,
+                'title' => '',
+                'start' => $holiday_date,
+                'color' => 'transparent',
+                'type' => 'unavailable',
+                'am_unavailable' => true, // 祝日は自動的にAM見学不可
+                'pm_unavailable' => true, // 祝日は自動的にPM見学不可
+                'has_reservation' => false,
+                'is_holiday' => true,
+                'holiday_name' => $holiday_name
+            );
+        }
     }
     
     wp_send_json_success($events);
@@ -593,6 +630,9 @@ function fpco_factory_get_unavailable_info() {
     $factory_id = intval($_POST['factory_id']);
     $date = sanitize_text_field($_POST['date']);
     
+    // 祝日チェック
+    $is_holiday = fpco_is_holiday($date);
+    
     // 見学不可日の情報を取得
     $info = $wpdb->get_row(
         $wpdb->prepare(
@@ -671,13 +711,20 @@ function fpco_factory_get_unavailable_info() {
         $is_manual_setting = false;
     }
     
+    // 祝日の場合は強制的にAM/PM両方見学不可
+    if ($is_holiday) {
+        $am_unavailable = true;
+        $pm_unavailable = true;
+    }
+    
     $result = array(
-        'has_data' => $info !== null || !empty($reservations),
+        'has_data' => $info !== null || !empty($reservations) || $is_holiday,
         'am_unavailable' => $am_unavailable,
         'pm_unavailable' => $pm_unavailable,
         'has_reservation' => !empty($reservations),
         'has_am_reservation' => $has_am_reservation,
         'has_pm_reservation' => $has_pm_reservation,
+        'is_holiday' => $is_holiday
     );
     
     wp_send_json_success($result);

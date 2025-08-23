@@ -80,6 +80,9 @@ class FPCO_Factory_Reservation_System {
         
         // データベース管理
         require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/class-database.php';
+        
+        // 祝日管理機能
+        require_once FPCO_RESERVATION_PLUGIN_DIR . 'includes/holiday-functions.php';
     }
     
     /**
@@ -119,6 +122,11 @@ class FPCO_Factory_Reservation_System {
         
         // ユーザーロールの追加
         $this->add_user_roles();
+        
+        // 祝日データの初期化
+        if (function_exists('fpco_update_holidays_data')) {
+            fpco_update_holidays_data();
+        }
         
         // 初期データの設定
         $this->setup_initial_data();
