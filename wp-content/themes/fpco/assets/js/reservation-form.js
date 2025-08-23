@@ -1001,7 +1001,6 @@ class ReservationForm {
         if (isFromCalendar) {
             // localStorageをクリア
             this.clearFormData();
-            console.log('カレンダーからの遷移を検出：フォームデータをクリアしました');
         }
     }
     
