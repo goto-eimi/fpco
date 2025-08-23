@@ -360,18 +360,16 @@ function fpco_factory_get_calendar_events() {
             // AM時間帯の判定
             if ($reservation_days[$date]['am'] && $reservation_days[$date]['latest_am_timestamp'] && 
                 $reservation_days[$date]['latest_am_timestamp'] > $manual_timestamp) {
-                $am_unavailable = true; // 予約の方が新しい
-            } elseif ($reservation_days[$date]['am'] && !$am_unavailable) {
-                $am_unavailable = true; // 手動設定が「可」でも予約がある場合は自動チェック
+                $am_unavailable = true; // 予約の方が新しい場合は強制的に見学不可
             }
+            // 手動設定が新しい場合は手動設定を完全に優先（予約があっても手動設定に従う）
             
             // PM時間帯の判定
             if ($reservation_days[$date]['pm'] && $reservation_days[$date]['latest_pm_timestamp'] && 
                 $reservation_days[$date]['latest_pm_timestamp'] > $manual_timestamp) {
-                $pm_unavailable = true; // 予約の方が新しい
-            } elseif ($reservation_days[$date]['pm'] && !$pm_unavailable) {
-                $pm_unavailable = true; // 手動設定が「可」でも予約がある場合は自動チェック
+                $pm_unavailable = true; // 予約の方が新しい場合は強制的に見学不可
             }
+            // 手動設定が新しい場合は手動設定を完全に優先（予約があっても手動設定に従う）
         }
         
         $unavailable_array[$date] = array(
@@ -658,12 +656,8 @@ function fpco_factory_get_unavailable_info() {
             // 予約の方が新しい場合：予約による自動チェック
             $am_unavailable = true;
         } else {
-            // 手動設定の方が新しいか同等の場合：手動設定を優先
+            // 手動設定の方が新しいか同等の場合：手動設定を完全に優先
             $am_unavailable = (bool)$info->am_unavailable;
-            // ただし、手動設定が「可」でも予約がある場合は自動チェック
-            if (!$am_unavailable && $has_am_reservation) {
-                $am_unavailable = true;
-            }
         }
         
         // PM時間帯の判定：手動設定 vs 最新予約のタイムスタンプを比較
@@ -671,12 +665,8 @@ function fpco_factory_get_unavailable_info() {
             // 予約の方が新しい場合：予約による自動チェック
             $pm_unavailable = true;
         } else {
-            // 手動設定の方が新しいか同等の場合：手動設定を優先
+            // 手動設定の方が新しいか同等の場合：手動設定を完全に優先
             $pm_unavailable = (bool)$info->pm_unavailable;
-            // ただし、手動設定が「可」でも予約がある場合は自動チェック
-            if (!$pm_unavailable && $has_pm_reservation) {
-                $pm_unavailable = true;
-            }
         }
         
         $is_manual_setting = (bool)($info->is_manual ?? true);
