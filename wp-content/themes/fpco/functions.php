@@ -557,8 +557,8 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     $is_special_date = ($month === 12 && $day === 31) || ($month === 1 && $day === 1);
     $weekday = intval($date_obj->format('w'));
     
-    // 祝日・特別日は見学不可
-    if ($is_holiday || $is_special_date) {
+    // 特別日（大晦日・元旦）は一律見学不可
+    if ($is_special_date) {
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
@@ -634,7 +634,37 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         }
     }
     
-    // 4. 土日（日曜日・土曜日）のデフォルト処理
+    // 4. 祝日のデフォルト処理（手動設定がある場合は考慮）
+    if ($is_holiday) {
+        // 手動設定で利用可能になっている場合
+        if (isset($unavailable_days[$date]) && 
+            $unavailable_days[$date]['is_manual']) {
+            // AM/PMごとに判定
+            if (($time_period === 'am' && !$unavailable_days[$date]['am']) ||
+                ($time_period === 'pm' && !$unavailable_days[$date]['pm'])) {
+                // 手動で利用可能にしたが、予約がある場合
+                if ($reservation_timestamp) {
+                    if ($reservation_status === 'approved') {
+                        return array('status' => 'unavailable', 'symbol' => '－');
+                    } else {
+                        return array('status' => 'adjusting', 'symbol' => '△');
+                    }
+                }
+                return array('status' => 'available', 'symbol' => '〇');
+            }
+        }
+        // デフォルトの祝日処理（手動設定がない、または手動で見学不可）
+        if ($reservation_timestamp) {
+            if ($reservation_status === 'approved') {
+                return array('status' => 'unavailable', 'symbol' => '－');
+            } else {
+                return array('status' => 'adjusting', 'symbol' => '△');
+            }
+        }
+        return array('status' => 'unavailable', 'symbol' => '－');
+    }
+    
+    // 5. 土日（日曜日・土曜日）のデフォルト処理
     if ($is_weekend) {
         // 土曜日PMで手動設定がない場合のみチェック
         if ($weekday === 6 && $time_period === 'pm') {
@@ -676,7 +706,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 5. 平日で何も設定がない場合は利用可能
+    // 6. 平日で何も設定がない場合は利用可能
     return array('status' => 'available', 'symbol' => '〇');
 }
 
