@@ -595,17 +595,43 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     // 手動設定データを取得
     $manual_timestamp = null;
     $manual_unavailable = false;
+    $has_manual_setting = false;
+    $manual_available = false;
+    
     if (isset($unavailable_days[$date])) {
         $unavailable = $unavailable_days[$date];
+        $has_manual_setting = $unavailable['is_manual'];
+        
         if (($time_period === 'am' && $unavailable['am']) || 
             ($time_period === 'pm' && $unavailable['pm'])) {
             $manual_unavailable = true;
             $manual_timestamp = $unavailable['updated_at'] ? $unavailable['updated_at'] : $unavailable['created_at'];
+        } else if ($has_manual_setting) {
+            // 手動設定があって、該当時間帯が利用可能な場合
+            $manual_available = true;
+            $manual_timestamp = $unavailable['updated_at'] ? $unavailable['updated_at'] : $unavailable['created_at'];
         }
+        
+        // デバッグログ
+        error_log("Debug: $date $time_period - manual_setting: " . ($has_manual_setting ? 'true' : 'false') . 
+                 ", unavailable: " . ($manual_unavailable ? 'true' : 'false') . 
+                 ", available: " . ($manual_available ? 'true' : 'false'));
     }
     
     // 優先度判定
-    // 1. 手動設定がある場合、手動設定が予約より新しいかチェック
+    // 1. 手動で利用可能にした場合（最優先）
+    if ($manual_available) {
+        if ($reservation_timestamp) {
+            if ($reservation_status === 'approved') {
+                return array('status' => 'unavailable', 'symbol' => '－');
+            } else {
+                return array('status' => 'adjusting', 'symbol' => '△');
+            }
+        }
+        return array('status' => 'available', 'symbol' => '〇');
+    }
+    
+    // 2. 手動で見学不可にした場合と予約の競合
     if ($manual_unavailable && $reservation_timestamp) {
         if (strtotime($manual_timestamp) > strtotime($reservation_timestamp)) {
             // 手動設定が新しい場合は手動設定を優先
@@ -620,12 +646,12 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         }
     }
     
-    // 2. 手動設定のみの場合
+    // 3. 手動で見学不可にした場合のみ
     if ($manual_unavailable) {
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 3. 予約のみの場合
+    // 4. 予約のみの場合
     if ($reservation_timestamp) {
         if ($reservation_status === 'approved') {
             return array('status' => 'unavailable', 'symbol' => '－');
@@ -634,26 +660,9 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         }
     }
     
-    // 4. 祝日のデフォルト処理（手動設定がある場合は考慮）
+    // 5. 祝日のデフォルト処理
     if ($is_holiday) {
-        // 手動設定で利用可能になっている場合
-        if (isset($unavailable_days[$date]) && 
-            $unavailable_days[$date]['is_manual']) {
-            // AM/PMごとに判定
-            if (($time_period === 'am' && !$unavailable_days[$date]['am']) ||
-                ($time_period === 'pm' && !$unavailable_days[$date]['pm'])) {
-                // 手動で利用可能にしたが、予約がある場合
-                if ($reservation_timestamp) {
-                    if ($reservation_status === 'approved') {
-                        return array('status' => 'unavailable', 'symbol' => '－');
-                    } else {
-                        return array('status' => 'adjusting', 'symbol' => '△');
-                    }
-                }
-                return array('status' => 'available', 'symbol' => '〇');
-            }
-        }
-        // デフォルトの祝日処理（手動設定がない、または手動で見学不可）
+        // 祝日で予約がある場合は△を表示
         if ($reservation_timestamp) {
             if ($reservation_status === 'approved') {
                 return array('status' => 'unavailable', 'symbol' => '－');
@@ -664,7 +673,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 5. 土日（日曜日・土曜日）のデフォルト処理
+    // 6. 土日（日曜日・土曜日）のデフォルト処理
     if ($is_weekend) {
         // 土曜日PMで手動設定がない場合のみチェック
         if ($weekday === 6 && $time_period === 'pm') {
@@ -706,7 +715,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 6. 平日で何も設定がない場合は利用可能
+    // 7. 平日で何も設定がない場合は利用可能
     return array('status' => 'available', 'symbol' => '〇');
 }
 
