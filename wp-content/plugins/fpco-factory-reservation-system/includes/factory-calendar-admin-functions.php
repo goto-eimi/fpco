@@ -586,9 +586,17 @@ function fpco_factory_get_unavailable_info() {
         }
     }
     
-    // 結果を組み合わせ（予約があっても手動設定を優先）
-    $am_unavailable = ($info && $info->am_unavailable);
-    $pm_unavailable = ($info && $info->pm_unavailable);
+    // 結果を組み合わせ
+    // 手動設定がある場合はそれを優先、ない場合は予約があれば自動チェック
+    if ($info) {
+        // 手動設定がある場合はそれを使用
+        $am_unavailable = $info->am_unavailable;
+        $pm_unavailable = $info->pm_unavailable;
+    } else {
+        // 手動設定がない場合は予約があれば自動チェック
+        $am_unavailable = $has_am_reservation;
+        $pm_unavailable = $has_pm_reservation;
+    }
     
     $result = array(
         'has_data' => $info !== null || !empty($reservations),
