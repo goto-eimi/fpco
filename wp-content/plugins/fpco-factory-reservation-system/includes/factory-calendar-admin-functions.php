@@ -299,10 +299,10 @@ function fpco_factory_get_calendar_events() {
         )
     );
     
-    // 予約がある日を取得
+    // 予約がある日を取得（タイムスタンプも含める）
     $reservations = $wpdb->get_results(
         $wpdb->prepare(
-            "SELECT date, time_slot FROM {$wpdb->prefix}reservations 
+            "SELECT date, time_slot, created_at, updated_at FROM {$wpdb->prefix}reservations 
              WHERE factory_id = %d AND date BETWEEN %s AND %s 
              AND status NOT IN ('cancelled', 'rejected')",
             $factory_id,
@@ -311,13 +311,20 @@ function fpco_factory_get_calendar_events() {
         )
     );
     
-    // 予約がある日を配列に整理
+    // 予約がある日を配列に整理（タイムスタンプも含める）
     $reservation_days = array();
     foreach ($reservations as $reservation) {
         $date = $reservation->date;
         if (!isset($reservation_days[$date])) {
-            $reservation_days[$date] = array('am' => false, 'pm' => false);
+            $reservation_days[$date] = array(
+                'am' => false, 
+                'pm' => false,
+                'latest_am_timestamp' => null,
+                'latest_pm_timestamp' => null
+            );
         }
+        
+        $reservation_timestamp = strtotime($reservation->updated_at ?: $reservation->created_at);
         
         // 時間帯を判定（time_slotから開始時間を抽出）
         $time_slot = $reservation->time_slot;
@@ -325,38 +332,63 @@ function fpco_factory_get_calendar_events() {
             $hour = intval($matches[1]);
             if ($hour < 12) {
                 $reservation_days[$date]['am'] = true;
+                if (!$reservation_days[$date]['latest_am_timestamp'] || $reservation_timestamp > $reservation_days[$date]['latest_am_timestamp']) {
+                    $reservation_days[$date]['latest_am_timestamp'] = $reservation_timestamp;
+                }
             } else {
                 $reservation_days[$date]['pm'] = true;
+                if (!$reservation_days[$date]['latest_pm_timestamp'] || $reservation_timestamp > $reservation_days[$date]['latest_pm_timestamp']) {
+                    $reservation_days[$date]['latest_pm_timestamp'] = $reservation_timestamp;
+                }
             }
         }
     }
     
-    // 見学不可日の配列を作成（予約がある日も含める）
+    // 見学不可日の配列を作成（タイムスタンプ比較ロジック適用）
     $unavailable_array = array();
+    
+    // 手動設定日を処理
     foreach ($unavailable_days as $day) {
-        $unavailable_array[$day->date] = array(
+        $date = $day->date;
+        $manual_timestamp = strtotime($day->updated_at ?: $day->created_at);
+        
+        // タイムスタンプ比較による最終判定
+        $am_unavailable = (bool)$day->am_unavailable;
+        $pm_unavailable = (bool)$day->pm_unavailable;
+        
+        if (isset($reservation_days[$date])) {
+            // AM時間帯の判定
+            if ($reservation_days[$date]['am'] && $reservation_days[$date]['latest_am_timestamp'] && 
+                $reservation_days[$date]['latest_am_timestamp'] > $manual_timestamp) {
+                $am_unavailable = true; // 予約の方が新しい
+            } elseif ($reservation_days[$date]['am'] && !$am_unavailable) {
+                $am_unavailable = true; // 手動設定が「可」でも予約がある場合は自動チェック
+            }
+            
+            // PM時間帯の判定
+            if ($reservation_days[$date]['pm'] && $reservation_days[$date]['latest_pm_timestamp'] && 
+                $reservation_days[$date]['latest_pm_timestamp'] > $manual_timestamp) {
+                $pm_unavailable = true; // 予約の方が新しい
+            } elseif ($reservation_days[$date]['pm'] && !$pm_unavailable) {
+                $pm_unavailable = true; // 手動設定が「可」でも予約がある場合は自動チェック
+            }
+        }
+        
+        $unavailable_array[$date] = array(
             'id' => $day->id,
-            'am_unavailable' => (bool)$day->am_unavailable,
-            'pm_unavailable' => (bool)$day->pm_unavailable
+            'am_unavailable' => $am_unavailable,
+            'pm_unavailable' => $pm_unavailable
         );
     }
     
-    // 予約がある日も見学不可として追加
+    // 手動設定がない日で予約がある日を処理
     foreach ($reservation_days as $date => $times) {
         if (!isset($unavailable_array[$date])) {
             $unavailable_array[$date] = array(
                 'id' => null,
-                'am_unavailable' => false,
-                'pm_unavailable' => false
+                'am_unavailable' => $times['am'],
+                'pm_unavailable' => $times['pm']
             );
-        }
-        
-        // 予約がある時間帯は自動的に見学不可にする
-        if ($times['am']) {
-            $unavailable_array[$date]['am_unavailable'] = true;
-        }
-        if ($times['pm']) {
-            $unavailable_array[$date]['pm_unavailable'] = true;
         }
     }
     
@@ -579,10 +611,10 @@ function fpco_factory_get_unavailable_info() {
         )
     );
     
-    // 予約情報を取得して時間帯を判定
+    // 予約情報を取得して時間帯とタイムスタンプを判定
     $reservations = $wpdb->get_results(
         $wpdb->prepare(
-            "SELECT time_slot FROM {$wpdb->prefix}reservations 
+            "SELECT time_slot, created_at, updated_at FROM {$wpdb->prefix}reservations 
              WHERE factory_id = %d AND date = %s 
              AND status NOT IN ('cancelled', 'rejected')",
             $factory_id,
@@ -590,42 +622,69 @@ function fpco_factory_get_unavailable_info() {
         )
     );
     
-    // 予約による見学不可を判定
+    // 予約による見学不可を判定と最新の予約タイムスタンプ取得
     $has_am_reservation = false;
     $has_pm_reservation = false;
+    $latest_am_reservation_time = null;
+    $latest_pm_reservation_time = null;
     
     foreach ($reservations as $reservation) {
         $time_slot = $reservation->time_slot;
+        $reservation_timestamp = strtotime($reservation->updated_at ?: $reservation->created_at);
+        
         if (preg_match('/^(\d{1,2}):/', $time_slot, $matches)) {
             $hour = intval($matches[1]);
             if ($hour < 12) {
                 $has_am_reservation = true;
+                if (!$latest_am_reservation_time || $reservation_timestamp > $latest_am_reservation_time) {
+                    $latest_am_reservation_time = $reservation_timestamp;
+                }
             } else {
                 $has_pm_reservation = true;
+                if (!$latest_pm_reservation_time || $reservation_timestamp > $latest_pm_reservation_time) {
+                    $latest_pm_reservation_time = $reservation_timestamp;
+                }
             }
         }
     }
     
-    // 結果を組み合わせ：手動設定と予約による自動設定のロジック
+    // タイムスタンプ比較による優先度判定ロジック
     if ($info) {
-        // 既存の手動設定がある場合
-        $manual_am = (bool)$info->am_unavailable;
-        $manual_pm = (bool)$info->pm_unavailable;
-        $is_manual_setting = (bool)($info->is_manual ?? true); // 既存データのためデフォルトtrue
+        // 手動設定のタイムスタンプを取得
+        $manual_setting_timestamp = strtotime($info->updated_at ?: $info->created_at);
         
-        if ($is_manual_setting) {
-            // 手動設定がある場合：手動設定 + 予約による自動追加
-            $am_unavailable = $manual_am || $has_am_reservation;
-            $pm_unavailable = $manual_pm || $has_pm_reservation;
+        // AM時間帯の判定：手動設定 vs 最新予約のタイムスタンプを比較
+        if ($has_am_reservation && $latest_am_reservation_time && $latest_am_reservation_time > $manual_setting_timestamp) {
+            // 予約の方が新しい場合：予約による自動チェック
+            $am_unavailable = true;
         } else {
-            // 自動設定の場合：現在の予約状況に基づいて更新
-            $am_unavailable = $has_am_reservation;
-            $pm_unavailable = $has_pm_reservation;
+            // 手動設定の方が新しいか同等の場合：手動設定を優先
+            $am_unavailable = (bool)$info->am_unavailable;
+            // ただし、手動設定が「可」でも予約がある場合は自動チェック
+            if (!$am_unavailable && $has_am_reservation) {
+                $am_unavailable = true;
+            }
         }
+        
+        // PM時間帯の判定：手動設定 vs 最新予約のタイムスタンプを比較
+        if ($has_pm_reservation && $latest_pm_reservation_time && $latest_pm_reservation_time > $manual_setting_timestamp) {
+            // 予約の方が新しい場合：予約による自動チェック
+            $pm_unavailable = true;
+        } else {
+            // 手動設定の方が新しいか同等の場合：手動設定を優先
+            $pm_unavailable = (bool)$info->pm_unavailable;
+            // ただし、手動設定が「可」でも予約がある場合は自動チェック
+            if (!$pm_unavailable && $has_pm_reservation) {
+                $pm_unavailable = true;
+            }
+        }
+        
+        $is_manual_setting = (bool)($info->is_manual ?? true);
     } else {
         // 設定がない場合は予約があれば自動チェック
         $am_unavailable = $has_am_reservation;
         $pm_unavailable = $has_pm_reservation;
+        $is_manual_setting = false;
     }
     
     $result = array(
