@@ -380,7 +380,7 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
     
     // 予約データを取得（タイムスタンプも含む）
     $reservations_results = $wpdb->get_results($wpdb->prepare(
-        "SELECT date, time_slot, status, created_at
+        "SELECT date, time_slot, status, created_at, updated_at
          FROM {$wpdb->prefix}reservations 
          WHERE factory_id = %d 
          AND date >= %s 
@@ -604,9 +604,11 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 予約データから該当する時間帯を取得（複数予約対応）
-    $reservation_timestamp = null;
-    $reservation_status = null;
+    // 予約データから該当する時間帯を取得（タイムスタンプ比較対応）
+    $has_am_reservation = false;
+    $has_pm_reservation = false;
+    $latest_am_reservation_time = null;
+    $latest_pm_reservation_time = null;
     $has_pending_reservation = false; // 新規受付・確認中の予約があるかフラグ
     $has_approved_reservation = false; // 承認済み予約があるかフラグ
     $all_reservations_for_date = isset($reservations[$date]) ? $reservations[$date] : [];
@@ -614,6 +616,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     if (isset($reservations[$date])) {
         foreach ($reservations[$date] as $reservation) {
             $time_slot = $reservation['time_slot'];
+            $reservation_timestamp = strtotime($reservation['updated_at'] ?: $reservation['created_at']);
             
             // AM/PMの判定（改善版）
             $is_am_slot = false;
@@ -636,52 +639,65 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
                 }
             }
             
-            $slot_matches = false;
+            // 時間帯別に最新の予約タイムスタンプを記録
             if ($time_period === 'am' && $is_am_slot) {
-                $slot_matches = true;
-            } elseif ($time_period === 'pm' && $is_pm_slot) {
-                $slot_matches = true;
-            }
-            
-            if ($slot_matches) {
-                $reservation_timestamp = $reservation['created_at'];
+                $has_am_reservation = true;
+                if (!$latest_am_reservation_time || $reservation_timestamp > $latest_am_reservation_time) {
+                    $latest_am_reservation_time = $reservation_timestamp;
+                }
                 
                 // 予約のステータスを判定
                 if ($reservation['status'] === 'approved') {
                     $has_approved_reservation = true;
                 } else {
-                    // 新規受付・確認中（new, pending）
+                    $has_pending_reservation = true;
+                }
+            } elseif ($time_period === 'pm' && $is_pm_slot) {
+                $has_pm_reservation = true;
+                if (!$latest_pm_reservation_time || $reservation_timestamp > $latest_pm_reservation_time) {
+                    $latest_pm_reservation_time = $reservation_timestamp;
+                }
+                
+                // 予約のステータスを判定
+                if ($reservation['status'] === 'approved') {
+                    $has_approved_reservation = true;
+                } else {
                     $has_pending_reservation = true;
                 }
             }
         }
-        
-        // 優先度判定：新規受付・確認中があれば△、なければ承認済みの－
-        if ($has_pending_reservation) {
-            $reservation_status = 'pending'; // △表示用
-        } elseif ($has_approved_reservation) {
-            $reservation_status = 'approved'; // －表示用
-        }
     }
     
-    // 手動設定データを取得
-    $manual_timestamp = null;
-    $manual_unavailable = false;
-    $has_manual_setting = false;
-    $manual_available = false;
+    // 管理画面と同じタイムスタンプ比較ロジック
+    $final_am_unavailable = false;
+    $final_pm_unavailable = false;
     
     if (isset($unavailable_days[$date])) {
         $unavailable = $unavailable_days[$date];
-        $has_manual_setting = $unavailable['is_manual'];
+        $manual_setting_timestamp = strtotime($unavailable['updated_at'] ?: $unavailable['created_at']);
         
-        if (($time_period === 'am' && $unavailable['am']) || 
-            ($time_period === 'pm' && $unavailable['pm'])) {
-            $manual_unavailable = true;
-            $manual_timestamp = $unavailable['updated_at'] ? $unavailable['updated_at'] : $unavailable['created_at'];
-        } else if ($has_manual_setting) {
-            // 手動設定があって、該当時間帯が利用可能な場合（チェックが外れている）
-            $manual_available = true;
-            $manual_timestamp = $unavailable['updated_at'] ? $unavailable['updated_at'] : $unavailable['created_at'];
+        // AM時間帯の判定
+        if ($time_period === 'am') {
+            if ($has_am_reservation && $latest_am_reservation_time && 
+                $latest_am_reservation_time > $manual_setting_timestamp) {
+                // 予約の方が新しい場合：予約による自動チェック
+                $final_am_unavailable = true;
+            } else {
+                // 手動設定の方が新しいか同等の場合：手動設定を完全に優先
+                $final_am_unavailable = (bool)$unavailable['am'];
+            }
+        }
+        
+        // PM時間帯の判定
+        if ($time_period === 'pm') {
+            if ($has_pm_reservation && $latest_pm_reservation_time && 
+                $latest_pm_reservation_time > $manual_setting_timestamp) {
+                // 予約の方が新しい場合：予約による自動チェック
+                $final_pm_unavailable = true;
+            } else {
+                // 手動設定の方が新しいか同等の場合：手動設定を完全に優先
+                $final_pm_unavailable = (bool)$unavailable['pm'];
+            }
         }
         
         // デバッグ情報をグローバル変数に保存（JavaScriptで使用）
@@ -691,47 +707,44 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         $debug_info = array(
             'date' => $date,
             'period' => $time_period,
-            'manual_setting' => $has_manual_setting,
-            'manual_unavailable' => $manual_unavailable,
-            'manual_available' => $manual_available,
+            'has_manual_setting' => $unavailable['is_manual'],
+            'final_am_unavailable' => $final_am_unavailable,
+            'final_pm_unavailable' => $final_pm_unavailable,
             'has_pending_reservation' => $has_pending_reservation,
             'has_approved_reservation' => $has_approved_reservation,
-            'reservation_status' => $reservation_status ?: 'none',
             'all_reservations_count' => count($all_reservations_for_date),
             'raw_reservations' => $all_reservations_for_date
         );
         $GLOBALS['calendar_debug'][] = $debug_info;
-    }
-    
-    // 優先度判定
-    // 1. 手動で利用可能にした場合（最優先）- 予約の有無に関わらず○を表示
-    if ($manual_available) {
-        $debug_info['result'] = 'available_○_manual_available';
-        $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
-        return array('status' => 'available', 'symbol' => '〇');
-    }
-    
-    // 2. 管理画面でチェックがついていて予約がある場合は予約ステータスを優先
-    if ($manual_unavailable && ($has_pending_reservation || $has_approved_reservation)) {
-        if ($has_approved_reservation) {
-            $debug_info['result'] = 'unavailable_－_manual_unavailable_approved';
-            $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
-            return array('status' => 'unavailable', 'symbol' => '－');
-        } elseif ($has_pending_reservation) {
-            $debug_info['result'] = 'adjusting_△_manual_unavailable_pending';
-            $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
-            return array('status' => 'adjusting', 'symbol' => '△');
+    } else {
+        // 設定がない場合は予約があれば自動チェック
+        if ($time_period === 'am') {
+            $final_am_unavailable = $has_am_reservation;
+        } else {
+            $final_pm_unavailable = $has_pm_reservation;
         }
     }
     
-    // 3. 手動で見学不可にした場合のみ（予約がない場合）
+    $manual_unavailable = ($time_period === 'am') ? $final_am_unavailable : $final_pm_unavailable;
+    
+    // 優先度判定（タイムスタンプ比較結果に基づく）
+    
+    // 1. 見学不可に設定されている場合（手動 or 自動）
     if ($manual_unavailable) {
-        $debug_info['result'] = 'unavailable_－_manual_unavailable_only';
-        $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
-        return array('status' => 'unavailable', 'symbol' => '－');
+        // 予約がある場合は予約のステータスで表示を決定
+        if ($has_pending_reservation || $has_approved_reservation) {
+            if ($has_approved_reservation) {
+                return array('status' => 'unavailable', 'symbol' => '－');
+            } elseif ($has_pending_reservation) {
+                return array('status' => 'adjusting', 'symbol' => '△');
+            }
+        } else {
+            // 予約がない場合は見学不可
+            return array('status' => 'unavailable', 'symbol' => '－');
+        }
     }
     
-    // 4. 祝日のデフォルト処理
+    // 2. 祝日のデフォルト処理
     if ($is_holiday) {
         // 祝日で予約がある場合は予約ステータスに応じて表示
         if ($has_pending_reservation || $has_approved_reservation) {
@@ -744,7 +757,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 5. 土日（日曜日・土曜日）のデフォルト処理
+    // 3. 土日（日曜日・土曜日）のデフォルト処理
     if ($is_weekend) {
         // 土日で予約がある場合は予約ステータスに応じて表示
         if ($has_pending_reservation || $has_approved_reservation) {
@@ -757,7 +770,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 6. 平日で予約のみある場合（手動設定なし）
+    // 4. 平日で予約のみある場合（手動設定なし）
     if ($has_pending_reservation || $has_approved_reservation) {
         if ($has_approved_reservation) {
             return array('status' => 'unavailable', 'symbol' => '－');
@@ -766,7 +779,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         }
     }
     
-    // 7. 平日で何も設定がない場合は利用可能
+    // 5. 平日で何も設定がない場合は利用可能
     return array('status' => 'available', 'symbol' => '〇');
 }
 
