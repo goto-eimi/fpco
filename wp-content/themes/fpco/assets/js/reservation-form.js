@@ -445,28 +445,8 @@ class ReservationForm {
         
         const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
         
-        // 小学生以下の人数チェック（カテゴリー別）
-        if (selectedCategory && ['family', 'company', 'government', 'other'].includes(selectedCategory)) {
-            const adultField = document.getElementById(`${selectedCategory}_adult_count`);
-            const childField = document.getElementById(`${selectedCategory}_child_count`);
-            const adultCount = parseInt(adultField?.value) || 0;
-            const childCount = parseInt(childField?.value) || 0;
-            
-            if (childCount > adultCount) {
-                errorMessage = `見学者様人数（子ども）が見学者様人数（大人）を超えています。大人：${adultCount}名、子ども：${childCount}名`;
-                
-                // エラーメッセージを表示
-                const targetSection = document.getElementById(selectedCategory + '-details');
-                if (targetSection) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'visitor-count-error';
-                    errorDiv.style.cssText = 'color: #d32f2f; font-size: 14px; margin-top: 10px; padding: 10px; background-color: #ffebee; border-radius: 4px; border: 1px solid #f8bbd9;';
-                    errorDiv.textContent = errorMessage;
-                    targetSection.appendChild(errorDiv);
-                }
-                return false;
-            }
-        }
+        // 小学生以下の人数チェック（カテゴリー別）- 削除
+        // 子どもが大人を超えてもエラーにしない
         
         // 統一フォーム部分の小学生以下人数チェック
         const totalVisitorField = document.getElementById('total_visitor_count');
@@ -726,23 +706,6 @@ class ReservationForm {
         if (!this.validateVisitorCount()) {
             isValid = false;
             const total = this.calculateTotalVisitors();
-            const selectedCategory = document.querySelector('input[name="visitor_category"]:checked')?.value;
-            
-            // 子ども人数超過チェック（カテゴリー別）
-            if (selectedCategory && ['family', 'company', 'government', 'other'].includes(selectedCategory)) {
-                const adultField = document.getElementById(`${selectedCategory}_adult_count`);
-                const childField = document.getElementById(`${selectedCategory}_child_count`);
-                const adultCount = parseInt(adultField?.value) || 0;
-                const childCount = parseInt(childField?.value) || 0;
-                
-                if (childCount > adultCount) {
-                    const message = `見学者様人数（子ども）が見学者様人数（大人）を超えています。大人：${adultCount}名、子ども：${childCount}名`;
-                    if (!errorMessages[message]) {
-                        errorMessages[message] = true;
-                        errors.push(message);
-                    }
-                }
-            }
             
             // 統一フォーム部分の小学生以下人数チェック
             const totalVisitorField = document.getElementById('total_visitor_count');
