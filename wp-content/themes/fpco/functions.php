@@ -624,22 +624,16 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'available', 'symbol' => '〇');
     }
     
-    // 2. 手動で見学不可にした場合と予約の競合
+    // 2. 管理画面でチェックがついていて予約がある場合は予約ステータスを優先
     if ($manual_unavailable && $reservation_timestamp) {
-        if (strtotime($manual_timestamp) > strtotime($reservation_timestamp)) {
-            // 手動設定が新しい場合は手動設定を優先
+        if ($reservation_status === 'approved') {
             return array('status' => 'unavailable', 'symbol' => '－');
         } else {
-            // 予約が新しい場合は予約を優先
-            if ($reservation_status === 'approved') {
-                return array('status' => 'unavailable', 'symbol' => '－');
-            } else {
-                return array('status' => 'adjusting', 'symbol' => '△');
-            }
+            return array('status' => 'adjusting', 'symbol' => '△');
         }
     }
     
-    // 3. 手動で見学不可にした場合のみ
+    // 3. 手動で見学不可にした場合のみ（予約がない場合）
     if ($manual_unavailable) {
         return array('status' => 'unavailable', 'symbol' => '－');
     }
