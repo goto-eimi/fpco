@@ -478,18 +478,33 @@ function fpco_calculate_slot_status($date, $time_period, $unavailable_days, $res
         }
     }
     
-    // 予約があるかチェック
+    // 予約があるかチェック（優先度ロジック適用）
     if (isset($reservations[$date])) {
+        $matching_reservations = array();
+        
         foreach ($reservations[$date] as $reservation) {
             $time_slot = $reservation['time_slot'];
             
-            // AM/PMの判定
-            $is_am_slot = (strpos($time_slot, 'AM') !== false) || 
-                         (strpos($time_slot, '午前') !== false) ||
-                         (preg_match('/^(0[0-9]|1[0-1])/', $time_slot));
-            $is_pm_slot = (strpos($time_slot, 'PM') !== false) || 
-                         (strpos($time_slot, '午後') !== false) ||
-                         (preg_match('/^(1[2-9]|2[0-3])/', $time_slot));
+            // AM/PMの判定（改善版）
+            $is_am_slot = false;
+            $is_pm_slot = false;
+            
+            // まず文字列に「AM」「PM」または「午前」「午後」が含まれているかチェック
+            if (strpos($time_slot, 'AM') !== false || strpos($time_slot, '午前') !== false) {
+                $is_am_slot = true;
+            } elseif (strpos($time_slot, 'PM') !== false || strpos($time_slot, '午後') !== false) {
+                $is_pm_slot = true;
+            } else {
+                // 時間から判定（HH:MM形式を想定、12時境界問題を修正）
+                if (preg_match('/(\d{1,2}):/', $time_slot, $matches)) {
+                    $hour = intval($matches[1]);
+                    if ($hour >= 0 && $hour < 12) {
+                        $is_am_slot = true;
+                    } elseif ($hour >= 12 && $hour < 24) {
+                        $is_pm_slot = true;
+                    }
+                }
+            }
             
             $slot_matches = false;
             if ($time_period === 'am' && $is_am_slot) {
@@ -499,11 +514,31 @@ function fpco_calculate_slot_status($date, $time_period, $unavailable_days, $res
             }
             
             if ($slot_matches) {
+                $matching_reservations[] = $reservation;
+            }
+        }
+        
+        // 優先度ロジック：approved > pending > new
+        if (!empty($matching_reservations)) {
+            $has_approved = false;
+            $has_pending_or_new = false;
+            
+            foreach ($matching_reservations as $reservation) {
                 if ($reservation['status'] === 'approved') {
-                    return array('status' => 'unavailable', 'symbol' => '－');
-                } else {
-                    return array('status' => 'adjusting', 'symbol' => '△');
+                    $has_approved = true;
+                } elseif (in_array($reservation['status'], ['pending', 'new'])) {
+                    $has_pending_or_new = true;
                 }
+            }
+            
+            // approved予約があれば見学不可（－）
+            if ($has_approved) {
+                return array('status' => 'unavailable', 'symbol' => '－');
+            }
+            
+            // pending/new予約があれば調整中（△）
+            if ($has_pending_or_new) {
+                return array('status' => 'adjusting', 'symbol' => '△');
             }
         }
     }
@@ -580,13 +615,26 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         foreach ($reservations[$date] as $reservation) {
             $time_slot = $reservation['time_slot'];
             
-            // AM/PMの判定
-            $is_am_slot = (strpos($time_slot, 'AM') !== false) || 
-                         (strpos($time_slot, '午前') !== false) ||
-                         (preg_match('/^(0[0-9]|1[0-1])/', $time_slot));
-            $is_pm_slot = (strpos($time_slot, 'PM') !== false) || 
-                         (strpos($time_slot, '午後') !== false) ||
-                         (preg_match('/^(1[2-9]|2[0-3])/', $time_slot));
+            // AM/PMの判定（改善版）
+            $is_am_slot = false;
+            $is_pm_slot = false;
+            
+            // まず文字列に「AM」「PM」または「午前」「午後」が含まれているかチェック
+            if (strpos($time_slot, 'AM') !== false || strpos($time_slot, '午前') !== false) {
+                $is_am_slot = true;
+            } elseif (strpos($time_slot, 'PM') !== false || strpos($time_slot, '午後') !== false) {
+                $is_pm_slot = true;
+            } else {
+                // 時間から判定（HH:MM形式を想定、12時境界問題を修正）
+                if (preg_match('/(\d{1,2}):/', $time_slot, $matches)) {
+                    $hour = intval($matches[1]);
+                    if ($hour >= 0 && $hour < 12) {
+                        $is_am_slot = true;
+                    } elseif ($hour >= 12 && $hour < 24) {
+                        $is_pm_slot = true;
+                    }
+                }
+            }
             
             $slot_matches = false;
             if ($time_period === 'am' && $is_am_slot) {
