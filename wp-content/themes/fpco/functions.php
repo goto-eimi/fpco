@@ -562,9 +562,12 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 予約データから該当する時間帯を取得
+    // 予約データから該当する時間帯を取得（複数予約対応）
     $reservation_timestamp = null;
     $reservation_status = null;
+    $has_pending_reservation = false; // 新規受付・確認中の予約があるかフラグ
+    $has_approved_reservation = false; // 承認済み予約があるかフラグ
+    
     if (isset($reservations[$date])) {
         foreach ($reservations[$date] as $reservation) {
             $time_slot = $reservation['time_slot'];
@@ -586,9 +589,22 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
             
             if ($slot_matches) {
                 $reservation_timestamp = $reservation['created_at'];
-                $reservation_status = $reservation['status'];
-                break;
+                
+                // 予約のステータスを判定
+                if ($reservation['status'] === 'approved') {
+                    $has_approved_reservation = true;
+                } else {
+                    // 新規受付・確認中（new, pending）
+                    $has_pending_reservation = true;
+                }
             }
+        }
+        
+        // 優先度判定：新規受付・確認中があれば△、なければ承認済みの－
+        if ($has_pending_reservation) {
+            $reservation_status = 'pending'; // △表示用
+        } elseif ($has_approved_reservation) {
+            $reservation_status = 'approved'; // －表示用
         }
     }
     
