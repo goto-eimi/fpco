@@ -11,6 +11,9 @@
       "Read(//Users/eimigoto/works/エフピコ/wp-content/**)",
       "Read(//Users/eimigoto/works/エフピコ/wp-content/**)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "/Users/eimigoto/works/エフピコ"
+    ]
   }
 }
