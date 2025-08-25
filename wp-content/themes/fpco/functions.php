@@ -607,7 +607,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
             $manual_unavailable = true;
             $manual_timestamp = $unavailable['updated_at'] ? $unavailable['updated_at'] : $unavailable['created_at'];
         } else if ($has_manual_setting) {
-            // 手動設定があって、該当時間帯が利用可能な場合
+            // 手動設定があって、該当時間帯が利用可能な場合（チェックが外れている）
             $manual_available = true;
             $manual_timestamp = $unavailable['updated_at'] ? $unavailable['updated_at'] : $unavailable['created_at'];
         }
@@ -619,15 +619,8 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     }
     
     // 優先度判定
-    // 1. 手動で利用可能にした場合（最優先）
+    // 1. 手動で利用可能にした場合（最優先）- 予約の有無に関わらず○を表示
     if ($manual_available) {
-        if ($reservation_timestamp) {
-            if ($reservation_status === 'approved') {
-                return array('status' => 'unavailable', 'symbol' => '－');
-            } else {
-                return array('status' => 'adjusting', 'symbol' => '△');
-            }
-        }
         return array('status' => 'available', 'symbol' => '〇');
     }
     

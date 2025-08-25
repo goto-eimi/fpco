@@ -293,15 +293,9 @@ function fpco_calculate_time_slot_status($date, $time_period, $factory_id, $rese
     // 見学不可日設定をチェック
     if (isset($unavailable_days[$date])) {
         $unavailable = $unavailable_days[$date];
-        // チェックが外れている場合（true = 見学不可）は「－」を表示
         if (($time_period === 'am' && $unavailable['am']) || 
             ($time_period === 'pm' && $unavailable['pm'])) {
             return array('status' => 'unavailable', 'symbol' => '－');
-        }
-        // チェックが外れている場合（false = 手動で利用可能）は「〇」を表示
-        if (($time_period === 'am' && !$unavailable['am']) || 
-            ($time_period === 'pm' && !$unavailable['pm'])) {
-            return array('status' => 'available', 'symbol' => '〇');
         }
     }
     
