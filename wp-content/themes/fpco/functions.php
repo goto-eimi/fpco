@@ -446,10 +446,6 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
         'days' => $calendar_days
     );
     
-    // デバッグ情報を含める
-    if (isset($GLOBALS['calendar_debug'])) {
-        $result['debug'] = $GLOBALS['calendar_debug'];
-    }
     
     return $result;
 }
@@ -699,23 +695,6 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
                 $final_pm_unavailable = (bool)$unavailable['pm'];
             }
         }
-        
-        // デバッグ情報をグローバル変数に保存（JavaScriptで使用）
-        if (!isset($GLOBALS['calendar_debug'])) {
-            $GLOBALS['calendar_debug'] = array();
-        }
-        $debug_info = array(
-            'date' => $date,
-            'period' => $time_period,
-            'has_manual_setting' => $unavailable['is_manual'],
-            'final_am_unavailable' => $final_am_unavailable,
-            'final_pm_unavailable' => $final_pm_unavailable,
-            'has_pending_reservation' => $has_pending_reservation,
-            'has_approved_reservation' => $has_approved_reservation,
-            'all_reservations_count' => count($all_reservations_for_date),
-            'raw_reservations' => $all_reservations_for_date
-        );
-        $GLOBALS['calendar_debug'][] = $debug_info;
     } else {
         // 設定がない場合は予約があれば自動チェック
         if ($time_period === 'am') {

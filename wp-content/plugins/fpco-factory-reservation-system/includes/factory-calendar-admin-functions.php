@@ -476,16 +476,8 @@ function fpco_factory_get_calendar_events() {
         }
     }
     
-    // デバッグ情報も含めて返す
-    $debug_info = array(
-        'holidays_found' => count($holidays),
-        'holiday_dates' => array_keys($holidays),
-        'date_range' => array('start' => $start, 'end' => $end)
-    );
-    
     wp_send_json_success(array(
-        'events' => $events,
-        'debug' => $debug_info
+        'events' => $events
     ));
 }
 
@@ -880,10 +872,6 @@ function fpco_holiday_management_page() {
         $recent_holidays = array_slice($holidays, 0, 10, true); // 最初の10件
     }
     
-    // デバッグ情報を取得
-    if (function_exists('fpco_debug_holiday_table')) {
-        $debug_info = fpco_debug_holiday_table();
-    }
     
     ?>
     <div class="wrap">
@@ -893,36 +881,6 @@ function fpco_holiday_management_page() {
             <h2>祝日データ統計</h2>
             <p>現在登録されている<?php echo date('Y'); ?>年の祝日: <strong><?php echo $holidays_count; ?></strong>件</p>
             
-            <?php if ($debug_info): ?>
-            <h3>デバッグ情報</h3>
-            <ul>
-                <li>テーブル存在: <?php echo $debug_info['table_exists'] ? '✓' : '✗'; ?></li>
-                <li>データ件数: <?php echo $debug_info['count']; ?>件</li>
-                <li>メッセージ: <?php echo esc_html($debug_info['message']); ?></li>
-            </ul>
-            
-            <?php if (!empty($debug_info['sample_data'])): ?>
-            <h4>サンプルデータ</h4>
-            <table class="wp-list-table widefat fixed striped" style="width: auto;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>日付</th>
-                        <th>祝日名</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($debug_info['sample_data'] as $row): ?>
-                    <tr>
-                        <td><?php echo esc_html($row->id); ?></td>
-                        <td><?php echo esc_html($row->date); ?></td>
-                        <td><?php echo esc_html($row->name); ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            <?php endif; ?>
-            <?php endif; ?>
         </div>
         
         <div class="card">
@@ -932,47 +890,6 @@ function fpco_holiday_management_page() {
                 <?php wp_nonce_field('update_holidays_action'); ?>
                 <input type="submit" name="update_holidays" class="button button-primary" value="祝日データを更新">
             </form>
-            
-            <hr style="margin: 20px 0;">
-            
-            <h3>デバッグ用 Ajax更新</h3>
-            <button type="button" id="ajax-update-holidays" class="button button-secondary">Ajax で祝日データを更新</button>
-            <div id="ajax-result" style="margin-top: 10px;"></div>
-            
-            <script>
-            document.getElementById('ajax-update-holidays').addEventListener('click', function() {
-                var button = this;
-                var result = document.getElementById('ajax-result');
-                
-                button.disabled = true;
-                button.textContent = '更新中...';
-                result.innerHTML = '<p>祝日データを更新しています...</p>';
-                
-                fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=manual_update_holidays&nonce=<?php echo wp_create_nonce('factory_calendar_nonce'); ?>'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        result.innerHTML = '<p style="color: green;">✓ ' + data.data + '</p>';
-                        location.reload(); // ページをリロードして最新データを表示
-                    } else {
-                        result.innerHTML = '<p style="color: red;">✗ エラー: ' + data.data + '</p>';
-                    }
-                })
-                .catch(error => {
-                    result.innerHTML = '<p style="color: red;">✗ 通信エラー: ' + error.message + '</p>';
-                })
-                .finally(() => {
-                    button.disabled = false;
-                    button.textContent = 'Ajax で祝日データを更新';
-                });
-            });
-            </script>
         </div>
         
         <?php if (!empty($recent_holidays)): ?>
