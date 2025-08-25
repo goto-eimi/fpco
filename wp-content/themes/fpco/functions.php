@@ -574,6 +574,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     $reservation_status = null;
     $has_pending_reservation = false; // 新規受付・確認中の予約があるかフラグ
     $has_approved_reservation = false; // 承認済み予約があるかフラグ
+    $all_reservations_for_date = isset($reservations[$date]) ? $reservations[$date] : [];
     
     if (isset($reservations[$date])) {
         foreach ($reservations[$date] as $reservation) {
@@ -647,7 +648,9 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
             'manual_available' => $manual_available,
             'has_pending_reservation' => $has_pending_reservation,
             'has_approved_reservation' => $has_approved_reservation,
-            'reservation_status' => $reservation_status ?: 'none'
+            'reservation_status' => $reservation_status ?: 'none',
+            'all_reservations_count' => count($all_reservations_for_date),
+            'raw_reservations' => $all_reservations_for_date
         );
         $GLOBALS['calendar_debug'][] = $debug_info;
     }
