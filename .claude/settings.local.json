@@ -7,7 +7,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(php:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Read(//Users/eimigoto/works/エフピコ/wp-content/**)",
+      "Read(//Users/eimigoto/works/エフピコ/wp-content/**)"
     ],
     "deny": []
   }
