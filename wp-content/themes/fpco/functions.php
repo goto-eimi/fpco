@@ -708,7 +708,16 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 7. 平日で何も設定がない場合は利用可能
+    // 7. 平日で予約のみある場合（手動設定なし）
+    if ($reservation_timestamp) {
+        if ($reservation_status === 'approved') {
+            return array('status' => 'unavailable', 'symbol' => '－');
+        } else {
+            return array('status' => 'adjusting', 'symbol' => '△');
+        }
+    }
+    
+    // 8. 平日で何も設定がない場合は利用可能
     return array('status' => 'available', 'symbol' => '〇');
 }
 
