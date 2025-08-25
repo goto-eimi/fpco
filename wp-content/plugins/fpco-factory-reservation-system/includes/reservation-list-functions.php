@@ -256,8 +256,8 @@ function fpco_get_reservations($conditions) {
     $offset = ($page - 1) * $per_page;
     $total_pages = ceil($total_items / $per_page);
     
-    // reservation_typeでソートする場合は全データ取得が必要
-    if ($orderby === 'reservation_type') {
+    // reservation_typeまたはdateでソートする場合は全データ取得が必要（日付+時間のソートのため）
+    if ($orderby === 'reservation_type' || $orderby === 'date') {
         // 全データを取得（ソート用）
         $sql = "SELECT r.*, f.name as factory_name 
                 FROM {$wpdb->prefix}reservations r 
@@ -269,19 +269,38 @@ function fpco_get_reservations($conditions) {
             ARRAY_A
         );
         
-        // 各予約の表示名を計算してソート
-        foreach ($all_reservations as &$reservation) {
-            $visitor_category = $reservation['visitor_category'] ?? $reservation['reservation_type'] ?? '';
-            $type_data = !empty($reservation['type_data']) ? json_decode($reservation['type_data'], true) : null;
-            $reservation['_display_type'] = fpco_get_reservation_type_display_name($visitor_category, $type_data);
+        // reservation_typeの場合は表示名を計算
+        if ($orderby === 'reservation_type') {
+            // 各予約の表示名を計算してソート
+            foreach ($all_reservations as &$reservation) {
+                $visitor_category = $reservation['visitor_category'] ?? $reservation['reservation_type'] ?? '';
+                $type_data = !empty($reservation['type_data']) ? json_decode($reservation['type_data'], true) : null;
+                $reservation['_display_type'] = fpco_get_reservation_type_display_name($visitor_category, $type_data);
+            }
+            unset($reservation);
+            
+            // 表示名でソート
+            usort($all_reservations, function($a, $b) use ($order) {
+                $compare = strcmp($a['_display_type'], $b['_display_type']);
+                return $order === 'ASC' ? $compare : -$compare;
+            });
+        } else if ($orderby === 'date') {
+            // dateの場合は日付と時間でソート
+            usort($all_reservations, function($a, $b) use ($order) {
+                // まず日付で比較
+                $date_compare = strcmp($a['date'], $b['date']);
+                if ($date_compare !== 0) {
+                    return $order === 'ASC' ? $date_compare : -$date_compare;
+                }
+                
+                // 日付が同じ場合は時間で比較
+                $time_a = fpco_extract_start_time($a['time_slot']);
+                $time_b = fpco_extract_start_time($b['time_slot']);
+                
+                $time_compare = strcmp($time_a, $time_b);
+                return $order === 'ASC' ? $time_compare : -$time_compare;
+            });
         }
-        unset($reservation);
-        
-        // 表示名でソート
-        usort($all_reservations, function($a, $b) use ($order) {
-            $compare = strcmp($a['_display_type'], $b['_display_type']);
-            return $order === 'ASC' ? $compare : -$compare;
-        });
         
         // ページネーションを適用
         $reservations = array_slice($all_reservations, $offset, $per_page);
