@@ -712,12 +712,12 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     }
     
     // 2. 管理画面でチェックがついていて予約がある場合は予約ステータスを優先
-    if ($manual_unavailable && $reservation_timestamp) {
-        if ($reservation_status === 'approved') {
+    if ($manual_unavailable && ($has_pending_reservation || $has_approved_reservation)) {
+        if ($has_approved_reservation) {
             $debug_info['result'] = 'unavailable_－_manual_unavailable_approved';
             $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
             return array('status' => 'unavailable', 'symbol' => '－');
-        } else {
+        } elseif ($has_pending_reservation) {
             $debug_info['result'] = 'adjusting_△_manual_unavailable_pending';
             $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
             return array('status' => 'adjusting', 'symbol' => '△');
@@ -734,10 +734,10 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     // 4. 祝日のデフォルト処理
     if ($is_holiday) {
         // 祝日で予約がある場合は予約ステータスに応じて表示
-        if ($reservation_timestamp) {
-            if ($reservation_status === 'approved') {
+        if ($has_pending_reservation || $has_approved_reservation) {
+            if ($has_approved_reservation) {
                 return array('status' => 'unavailable', 'symbol' => '－');
-            } else {
+            } elseif ($has_pending_reservation) {
                 return array('status' => 'adjusting', 'symbol' => '△');
             }
         }
@@ -747,10 +747,10 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     // 5. 土日（日曜日・土曜日）のデフォルト処理
     if ($is_weekend) {
         // 土日で予約がある場合は予約ステータスに応じて表示
-        if ($reservation_timestamp) {
-            if ($reservation_status === 'approved') {
+        if ($has_pending_reservation || $has_approved_reservation) {
+            if ($has_approved_reservation) {
                 return array('status' => 'unavailable', 'symbol' => '－');
-            } else {
+            } elseif ($has_pending_reservation) {
                 return array('status' => 'adjusting', 'symbol' => '△');
             }
         }
@@ -758,10 +758,10 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     }
     
     // 6. 平日で予約のみある場合（手動設定なし）
-    if ($reservation_timestamp) {
-        if ($reservation_status === 'approved') {
+    if ($has_pending_reservation || $has_approved_reservation) {
+        if ($has_approved_reservation) {
             return array('status' => 'unavailable', 'symbol' => '－');
-        } else {
+        } elseif ($has_pending_reservation) {
             return array('status' => 'adjusting', 'symbol' => '△');
         }
     }

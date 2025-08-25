@@ -290,12 +290,13 @@ function fpco_calculate_time_slot_status($date, $time_period, $factory_id, $rese
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 見学不可日設定をチェック
+    // 管理画面での見学不可日設定を取得
+    $manual_unavailable = false;
     if (isset($unavailable_days[$date])) {
         $unavailable = $unavailable_days[$date];
         if (($time_period === 'am' && $unavailable['am']) || 
             ($time_period === 'pm' && $unavailable['pm'])) {
-            return array('status' => 'unavailable', 'symbol' => '－');
+            $manual_unavailable = true;
         }
     }
     
@@ -352,16 +353,27 @@ function fpco_calculate_time_slot_status($date, $time_period, $factory_id, $rese
                 }
             }
             
-            // approved予約があれば見学不可（－）
-            if ($has_approved) {
-                return array('status' => 'unavailable', 'symbol' => '－');
-            }
-            
-            // pending/new予約があれば調整中（△）
-            if ($has_pending_or_new) {
-                return array('status' => 'adjusting', 'symbol' => '△');
+            // 管理画面でチェックがついていて予約がある場合は予約ステータスを優先
+            if ($manual_unavailable) {
+                if ($has_approved) {
+                    return array('status' => 'unavailable', 'symbol' => '－');
+                } elseif ($has_pending_or_new) {
+                    return array('status' => 'adjusting', 'symbol' => '△');
+                }
+            } else {
+                // 手動設定がない場合の通常の予約処理
+                if ($has_approved) {
+                    return array('status' => 'unavailable', 'symbol' => '－');
+                } elseif ($has_pending_or_new) {
+                    return array('status' => 'adjusting', 'symbol' => '△');
+                }
             }
         }
+    }
+    
+    // 手動で見学不可にした場合のみ（予約がない場合）
+    if ($manual_unavailable) {
+        return array('status' => 'unavailable', 'symbol' => '－');
     }
     
     // 空きあり
