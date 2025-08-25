@@ -729,7 +729,15 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     
     // 優先度判定（タイムスタンプ比較結果に基づく）
     
-    // 1. 見学不可に設定されている場合（手動 or 自動）
+    // 1. 手動設定で見学可能になっている場合（最優先）
+    if (isset($unavailable_days[$date]) && $unavailable_days[$date]['is_manual']) {
+        // 手動設定があり、かつ見学不可ではない場合は○
+        if (!$manual_unavailable) {
+            return array('status' => 'available', 'symbol' => '○');
+        }
+    }
+    
+    // 2. 見学不可に設定されている場合（手動 or 自動）
     if ($manual_unavailable) {
         // 予約がある場合は予約のステータスで表示を決定
         if ($has_pending_reservation || $has_approved_reservation) {
@@ -744,7 +752,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         }
     }
     
-    // 2. 祝日のデフォルト処理
+    // 3. 祝日のデフォルト処理
     if ($is_holiday) {
         // 祝日で予約がある場合は予約ステータスに応じて表示
         if ($has_pending_reservation || $has_approved_reservation) {
@@ -757,7 +765,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 3. 土日（日曜日・土曜日）のデフォルト処理
+    // 4. 土日（日曜日・土曜日）のデフォルト処理
     if ($is_weekend) {
         // 土日で予約がある場合は予約ステータスに応じて表示
         if ($has_pending_reservation || $has_approved_reservation) {
@@ -770,7 +778,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
-    // 4. 平日で予約のみある場合（手動設定なし）
+    // 5. 平日で予約のみある場合（手動設定なし）
     if ($has_pending_reservation || $has_approved_reservation) {
         if ($has_approved_reservation) {
             return array('status' => 'unavailable', 'symbol' => '－');
@@ -779,7 +787,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         }
     }
     
-    // 5. 平日で何も設定がない場合は利用可能
+    // 6. 平日で何も設定がない場合は利用可能
     return array('status' => 'available', 'symbol' => '〇');
 }
 
