@@ -737,9 +737,9 @@ class ReservationForm {
             this.displayFormErrors(errors);
         }
         
-        // バリデーション結果に応じて送信ボタンの状態を切り替え
+        // 送信ボタンは常に有効にする
         if (submitBtn) {
-            submitBtn.disabled = !isValid;
+            submitBtn.disabled = false;
         }
         
         return isValid;
