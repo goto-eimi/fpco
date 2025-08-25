@@ -733,7 +733,7 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     if (isset($unavailable_days[$date]) && $unavailable_days[$date]['is_manual']) {
         // 手動設定があり、かつ見学不可ではない場合は○
         if (!$manual_unavailable) {
-            return array('status' => 'available', 'symbol' => '○');
+            return array('status' => 'available', 'symbol' => '〇');
         }
     }
     

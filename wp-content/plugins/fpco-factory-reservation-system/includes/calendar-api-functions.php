@@ -357,7 +357,7 @@ function fpco_calculate_time_slot_status($date, $time_period, $factory_id, $rese
             
             // 手動設定で見学可能になっている場合（最優先）
             if ($has_manual_setting && !$manual_unavailable) {
-                return array('status' => 'available', 'symbol' => '○');
+                return array('status' => 'available', 'symbol' => '〇');
             }
             
             // 管理画面でチェックがついていて予約がある場合は予約ステータスを優先
@@ -380,7 +380,7 @@ function fpco_calculate_time_slot_status($date, $time_period, $factory_id, $rese
     
     // 手動設定で見学可能になっている場合（予約がない場合でも○）
     if ($has_manual_setting && !$manual_unavailable) {
-        return array('status' => 'available', 'symbol' => '○');
+        return array('status' => 'available', 'symbol' => '〇');
     }
     
     // 手動で見学不可にした場合のみ（予約がない場合）
