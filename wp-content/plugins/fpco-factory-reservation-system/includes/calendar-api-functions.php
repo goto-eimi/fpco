@@ -362,17 +362,19 @@ function fpco_calculate_time_slot_status($date, $time_period, $factory_id, $rese
             
             // 管理画面でチェックがついていて予約がある場合は予約ステータスを優先
             if ($manual_unavailable) {
-                if ($has_approved) {
-                    return array('status' => 'unavailable', 'symbol' => '－');
-                } elseif ($has_pending_or_new) {
+                // 確認中があれば△（承認済みと混在していても調整中とする）
+                if ($has_pending_or_new) {
                     return array('status' => 'adjusting', 'symbol' => '△');
+                } elseif ($has_approved) {
+                    return array('status' => 'unavailable', 'symbol' => '－');
                 }
             } else {
                 // 手動設定がない場合の通常の予約処理
-                if ($has_approved) {
-                    return array('status' => 'unavailable', 'symbol' => '－');
-                } elseif ($has_pending_or_new) {
+                // 確認中があれば△（承認済みと混在していても調整中とする）
+                if ($has_pending_or_new) {
                     return array('status' => 'adjusting', 'symbol' => '△');
+                } elseif ($has_approved) {
+                    return array('status' => 'unavailable', 'symbol' => '－');
                 }
             }
         }

@@ -720,10 +720,11 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     if ($manual_unavailable) {
         // 予約がある場合は予約のステータスで表示を決定
         if ($has_pending_reservation || $has_approved_reservation) {
-            if ($has_approved_reservation) {
-                return array('status' => 'unavailable', 'symbol' => '－');
-            } elseif ($has_pending_reservation) {
+            // 確認中があれば△（承認済みと混在していても調整中とする）
+            if ($has_pending_reservation) {
                 return array('status' => 'adjusting', 'symbol' => '△');
+            } elseif ($has_approved_reservation) {
+                return array('status' => 'unavailable', 'symbol' => '－');
             }
         } else {
             // 予約がない場合は見学不可
@@ -735,10 +736,11 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     if ($is_holiday) {
         // 祝日で予約がある場合は予約ステータスに応じて表示
         if ($has_pending_reservation || $has_approved_reservation) {
-            if ($has_approved_reservation) {
-                return array('status' => 'unavailable', 'symbol' => '－');
-            } elseif ($has_pending_reservation) {
+            // 確認中があれば△（承認済みと混在していても調整中とする）
+            if ($has_pending_reservation) {
                 return array('status' => 'adjusting', 'symbol' => '△');
+            } elseif ($has_approved_reservation) {
+                return array('status' => 'unavailable', 'symbol' => '－');
             }
         }
         return array('status' => 'unavailable', 'symbol' => '－');
@@ -748,10 +750,11 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     if ($is_weekend) {
         // 土日で予約がある場合は予約ステータスに応じて表示
         if ($has_pending_reservation || $has_approved_reservation) {
-            if ($has_approved_reservation) {
-                return array('status' => 'unavailable', 'symbol' => '－');
-            } elseif ($has_pending_reservation) {
+            // 確認中があれば△（承認済みと混在していても調整中とする）
+            if ($has_pending_reservation) {
                 return array('status' => 'adjusting', 'symbol' => '△');
+            } elseif ($has_approved_reservation) {
+                return array('status' => 'unavailable', 'symbol' => '－');
             }
         }
         return array('status' => 'unavailable', 'symbol' => '－');
@@ -759,10 +762,11 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
     
     // 5. 平日で予約のみある場合（手動設定なし）
     if ($has_pending_reservation || $has_approved_reservation) {
-        if ($has_approved_reservation) {
-            return array('status' => 'unavailable', 'symbol' => '－');
-        } elseif ($has_pending_reservation) {
+        // 確認中があれば△（承認済みと混在していても調整中とする）
+        if ($has_pending_reservation) {
             return array('status' => 'adjusting', 'symbol' => '△');
+        } elseif ($has_approved_reservation) {
+            return array('status' => 'unavailable', 'symbol' => '－');
         }
     }
     
