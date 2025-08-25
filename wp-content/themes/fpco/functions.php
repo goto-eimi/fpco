@@ -631,26 +631,33 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
         // デバッグログ
         error_log("Debug: $date $time_period - manual_setting: " . ($has_manual_setting ? 'true' : 'false') . 
                  ", unavailable: " . ($manual_unavailable ? 'true' : 'false') . 
-                 ", available: " . ($manual_available ? 'true' : 'false'));
+                 ", available: " . ($manual_available ? 'true' : 'false') . 
+                 ", pending_res: " . ($has_pending_reservation ? 'true' : 'false') . 
+                 ", approved_res: " . ($has_approved_reservation ? 'true' : 'false') . 
+                 ", res_status: " . ($reservation_status ? $reservation_status : 'none'));
     }
     
     // 優先度判定
     // 1. 手動で利用可能にした場合（最優先）- 予約の有無に関わらず○を表示
     if ($manual_available) {
+        error_log("Debug: $date $time_period - Returning ○ (manual available)");
         return array('status' => 'available', 'symbol' => '〇');
     }
     
     // 2. 管理画面でチェックがついていて予約がある場合は予約ステータスを優先
     if ($manual_unavailable && $reservation_timestamp) {
         if ($reservation_status === 'approved') {
+            error_log("Debug: $date $time_period - Returning － (manual unavailable + approved)");
             return array('status' => 'unavailable', 'symbol' => '－');
         } else {
+            error_log("Debug: $date $time_period - Returning △ (manual unavailable + pending)");
             return array('status' => 'adjusting', 'symbol' => '△');
         }
     }
     
     // 3. 手動で見学不可にした場合のみ（予約がない場合）
     if ($manual_unavailable) {
+        error_log("Debug: $date $time_period - Returning － (manual unavailable only)");
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
