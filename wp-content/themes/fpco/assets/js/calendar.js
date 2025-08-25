@@ -119,6 +119,20 @@ class ReservationCalendar {
             }
             
             this.calendarData = result.data;
+            
+            // デバッグ情報をコンソールに出力
+            if (result.data.debug) {
+                console.log('Calendar Debug Information:', result.data.debug);
+                
+                // 問題のある日付をフィルタリング
+                const problemDates = result.data.debug.filter(d => 
+                    d.has_pending_reservation && d.result && d.result.includes('－')
+                );
+                if (problemDates.length > 0) {
+                    console.warn('Problem dates (pending reservation but showing －):', problemDates);
+                }
+            }
+            
             this.renderCalendar(yearMonth);
             
         } catch (error) {

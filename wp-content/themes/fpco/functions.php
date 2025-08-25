@@ -437,7 +437,7 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
         $current_date = date('Y-m-d', strtotime('+1 day', strtotime($current_date)));
     }
     
-    return array(
+    $result = array(
         'year' => $year,
         'month' => $month,
         'calendar_start' => $calendar_start,
@@ -445,6 +445,13 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
         'factory' => $factory_info,
         'days' => $calendar_days
     );
+    
+    // デバッグ情報を含める
+    if (isset($GLOBALS['calendar_debug'])) {
+        $result['debug'] = $GLOBALS['calendar_debug'];
+    }
+    
+    return $result;
 }
 
 /**
@@ -628,36 +635,48 @@ function fpco_calculate_slot_status_with_priority($date, $time_period, $unavaila
             $manual_timestamp = $unavailable['updated_at'] ? $unavailable['updated_at'] : $unavailable['created_at'];
         }
         
-        // デバッグログ
-        error_log("Debug: $date $time_period - manual_setting: " . ($has_manual_setting ? 'true' : 'false') . 
-                 ", unavailable: " . ($manual_unavailable ? 'true' : 'false') . 
-                 ", available: " . ($manual_available ? 'true' : 'false') . 
-                 ", pending_res: " . ($has_pending_reservation ? 'true' : 'false') . 
-                 ", approved_res: " . ($has_approved_reservation ? 'true' : 'false') . 
-                 ", res_status: " . ($reservation_status ? $reservation_status : 'none'));
+        // デバッグ情報をグローバル変数に保存（JavaScriptで使用）
+        if (!isset($GLOBALS['calendar_debug'])) {
+            $GLOBALS['calendar_debug'] = array();
+        }
+        $debug_info = array(
+            'date' => $date,
+            'period' => $time_period,
+            'manual_setting' => $has_manual_setting,
+            'manual_unavailable' => $manual_unavailable,
+            'manual_available' => $manual_available,
+            'has_pending_reservation' => $has_pending_reservation,
+            'has_approved_reservation' => $has_approved_reservation,
+            'reservation_status' => $reservation_status ?: 'none'
+        );
+        $GLOBALS['calendar_debug'][] = $debug_info;
     }
     
     // 優先度判定
     // 1. 手動で利用可能にした場合（最優先）- 予約の有無に関わらず○を表示
     if ($manual_available) {
-        error_log("Debug: $date $time_period - Returning ○ (manual available)");
+        $debug_info['result'] = 'available_○_manual_available';
+        $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
         return array('status' => 'available', 'symbol' => '〇');
     }
     
     // 2. 管理画面でチェックがついていて予約がある場合は予約ステータスを優先
     if ($manual_unavailable && $reservation_timestamp) {
         if ($reservation_status === 'approved') {
-            error_log("Debug: $date $time_period - Returning － (manual unavailable + approved)");
+            $debug_info['result'] = 'unavailable_－_manual_unavailable_approved';
+            $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
             return array('status' => 'unavailable', 'symbol' => '－');
         } else {
-            error_log("Debug: $date $time_period - Returning △ (manual unavailable + pending)");
+            $debug_info['result'] = 'adjusting_△_manual_unavailable_pending';
+            $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
             return array('status' => 'adjusting', 'symbol' => '△');
         }
     }
     
     // 3. 手動で見学不可にした場合のみ（予約がない場合）
     if ($manual_unavailable) {
-        error_log("Debug: $date $time_period - Returning － (manual unavailable only)");
+        $debug_info['result'] = 'unavailable_－_manual_unavailable_only';
+        $GLOBALS['calendar_debug'][count($GLOBALS['calendar_debug']) - 1] = $debug_info;
         return array('status' => 'unavailable', 'symbol' => '－');
     }
     
