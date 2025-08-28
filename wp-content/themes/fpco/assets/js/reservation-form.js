@@ -440,6 +440,7 @@ class ReservationForm {
     validateVisitorCount() {
         const categoryTotal = this.calculateTotalVisitors();
         let errorMessage = '';
+        let hasError = false;
         
         // 既存のエラーメッセージ要素を削除
         const existingErrors = document.querySelectorAll('.visitor-count-error, .visitor-consistency-error');
@@ -455,6 +456,7 @@ class ReservationForm {
             
             if (categoryTotal !== finalTotal && (categoryTotal > 0 || finalTotal > 0)) {
                 errorMessage = `見学者の分類での人数（${categoryTotal}名）と見学者様人数（${finalTotal}名）が一致しません。どちらも同じ値を入力してください。`;
+                hasError = true;
                 
                 // エラーメッセージを表示（最終人数フィールドの近く）
                 const parentElement = totalVisitorField.closest('.info-row') || totalVisitorField.parentElement;
@@ -470,7 +472,6 @@ class ReservationForm {
                     `;
                     parentElement.appendChild(errorDiv);
                 }
-                return false;
             }
         }
         
@@ -482,6 +483,7 @@ class ReservationForm {
             
             if (elementaryCount > totalCount) {
                 errorMessage = `内小学生以下の人数が見学者様人数を超えています。見学者様人数：${totalCount}名、内小学生以下：${elementaryCount}名`;
+                hasError = true;
                 
                 // エラーメッセージを表示（統一フォーム部分）
                 const parentElement = childCountField.closest('.info-row') || childCountField.parentElement;
@@ -492,7 +494,6 @@ class ReservationForm {
                     errorDiv.textContent = errorMessage;
                     parentElement.appendChild(errorDiv);
                 }
-                return false;
             }
         }
         
@@ -557,10 +558,10 @@ class ReservationForm {
                 }, 100);
             }
             
-            return false;
+            hasError = true;
         }
         
-        return true;
+        return !hasError;
     }
     
     validateField(field) {
