@@ -68,6 +68,8 @@ class ReservationForm {
             )) {
                 this.calculateTotalVisitors();
                 this.validateVisitorCount();
+                // バリデーションを実行して送信ボタンの状態を更新
+                this.validateForm();
             }
         });
         
@@ -103,13 +105,18 @@ class ReservationForm {
         // リアルタイムバリデーション（エラーサマリー表示は無効化）
         const inputs = this.form.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
-            input.addEventListener('blur', () => this.validateField(input));
+            input.addEventListener('blur', () => {
+                this.validateField(input);
+                this.validateForm();  // 送信ボタンの状態を更新
+            });
             input.addEventListener('input', () => {
                 this.validateField(input);
                 this.saveFormData(); // 入力時にデータを保存
+                this.validateForm();  // 送信ボタンの状態を更新
             });
             input.addEventListener('change', () => {
                 this.saveFormData(); // 選択変更時にデータを保存
+                this.validateForm();  // 送信ボタンの状態を更新
             });
         });
         
