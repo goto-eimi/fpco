@@ -24,7 +24,7 @@ if ($referer && strpos($referer, '/reservation-') === false) {
 }
 
 // 工場名を取得
-$factory_name = get_factory_name($factory_id);
+$factory_name = function_exists('fpco_get_factory_name_unified') ? fpco_get_factory_name_unified($factory_id) : get_factory_name($factory_id);
 
 // 工場のcapacityを取得
 global $wpdb;
@@ -40,7 +40,7 @@ if ($factory_id) {
 }
 
 // 時間帯情報を解析
-$timeslot_info = parse_timeslot($timeslot, $factory_id);
+$timeslot_info = function_exists('fpco_parse_timeslot_unified') ? fpco_parse_timeslot_unified($timeslot, $factory_id) : parse_timeslot($timeslot, $factory_id);
 
 
 ?>
@@ -154,7 +154,7 @@ input[type="number"] {
             <div class="reservation-info-box">
                 <div class="info-row">
                     <span class="info-label">見学日</span>
-                    <span class="info-value"><?php echo esc_html(format_display_date($date)); ?></span>
+                    <span class="info-value"><?php echo esc_html((function_exists('fpco_format_display_date_unified') ? fpco_format_display_date_unified($date) : format_display_date($date))); ?></span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">見学時間</span>
@@ -1813,7 +1813,7 @@ function calculate_duration_from_time($time_range) {
     return '';
 }
 
-function format_display_date($date) {
+function (function_exists('fpco_format_display_date_unified') ? fpco_format_display_date_unified($date) : format_display_date($date)) {
     $timestamp = strtotime($date);
     if ($timestamp) {
         return date('Y年m月d日', $timestamp);

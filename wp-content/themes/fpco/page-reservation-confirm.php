@@ -17,10 +17,10 @@ if (!$form_data) {
 }
 
 // 工場名を取得
-$factory_name = get_factory_name($form_data['factory_id']);
+$factory_name = function_exists('fpco_get_factory_name_unified') ? fpco_get_factory_name_unified($form_data['factory_id']) : get_factory_name($form_data['factory_id']);
 
 // 時間帯情報を解析
-$timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
+$timeslot_info = function_exists('fpco_parse_timeslot_unified') ? fpco_parse_timeslot_unified($form_data['timeslot'], $form_data['factory_id']) : parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
 
 ?>
 
@@ -439,7 +439,7 @@ textarea:-ms-input-placeholder {
             <div class="reservation-info-box">
             <div class="info-row">
                 <span class="info-label">見学日</span>
-                <span class="info-value"><?php echo esc_html(format_display_date($form_data['date'])); ?></span>
+                <span class="info-value"><?php echo esc_html((function_exists('fpco_format_display_date_unified') ? fpco_format_display_date_unified($form_data['date']) : format_display_date($form_data['date']))); ?></span>
             </div>
             <div class="info-row">
                 <span class="info-label">見学時間</span>

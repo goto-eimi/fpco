@@ -214,7 +214,7 @@ function fpco_reservation_calendar_shortcode($atts) {
                 <div class="factory-selector" style="display: none;">
                     <?php
                     $factory_id = $atts['factory'];
-                    $factory_name = fpco_get_factory_name($factory_id);
+                    $factory_name = function_exists('fpco_get_factory_name_unified') ? fpco_get_factory_name_unified($factory_id) : fpco_get_factory_name($factory_id);
                     ?>
                     <span class="selected-factory"><?php echo esc_html($factory_name); ?></span>
                 </div>
@@ -403,7 +403,7 @@ function fpco_generate_calendar_data($year, $month, $factory_id) {
     // 工場情報
     $factory_info = array(
         'id' => $factory_id,
-        'name' => fpco_get_factory_name($factory_id),
+        'name' => function_exists('fpco_get_factory_name_unified') ? fpco_get_factory_name_unified($factory_id) : fpco_get_factory_name($factory_id),
         'capacity' => 50
     );
     

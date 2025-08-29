@@ -12,8 +12,8 @@ if (empty($form_data)) {
     wp_die('印刷データが見つかりません。');
 }
 
-$factory_name = get_factory_name($form_data['factory_id']);
-$timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
+$factory_name = function_exists('fpco_get_factory_name_unified') ? fpco_get_factory_name_unified($form_data['factory_id']) : get_factory_name($form_data['factory_id']);
+$timeslot_info = function_exists('fpco_parse_timeslot_unified') ? fpco_parse_timeslot_unified($form_data['timeslot'], $form_data['factory_id']) : parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
 $reservation_id = $form_data['reservation_id'] ?? '';
 ?>
 <!DOCTYPE html>
@@ -195,7 +195,7 @@ $reservation_id = $form_data['reservation_id'] ?? '';
             
             <div class="info-row">
                 <span class="info-label">見学日</span>
-                <span class="info-value"><?php echo esc_html(format_display_date($form_data['date'])); ?></span>
+                <span class="info-value"><?php echo esc_html((function_exists('fpco_format_display_date_unified') ? fpco_format_display_date_unified($form_data['date']) : format_display_date($form_data['date']))); ?></span>
             </div>
             
             <div class="info-row">
