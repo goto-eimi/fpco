@@ -532,7 +532,7 @@ function send_user_confirmation_email($reservation_id, $form_data) {
     $subject = '【エフピコ】工場見学予約受付完了のお知らせ';
     
     $factory_name = get_factory_name($form_data['factory_id']);
-    $timeslot_info = parse_timeslot($form_data['timeslot']);
+    $timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
     
     $message = "
 {$form_data['applicant_name']} 様
@@ -568,7 +568,7 @@ function send_admin_notification_email($reservation_id, $form_data) {
     $subject = '【新規予約】工場見学予約申込み - ' . $reservation_id;
     
     $factory_name = get_factory_name($form_data['factory_id']);
-    $timeslot_info = parse_timeslot($form_data['timeslot']);
+    $timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
     
     $message = "
 新しい工場見学予約の申込みがありました。
@@ -653,8 +653,63 @@ function get_factory_name($factory_id) {
     return isset($factories[$factory_id]) ? $factories[$factory_id] : '不明';
 }
 
-function parse_timeslot($timeslot) {
-    // timeslot形式: am-60-1, pm-90-2 など
+function parse_timeslot($timeslot, $factory_id = null) {
+    // プラグインの工場時間設定を取得
+    $plugin_file = WP_PLUGIN_DIR . '/fpco-factory-reservation-system/includes/factory-user-management-functions.php';
+    if (file_exists($plugin_file)) {
+        require_once $plugin_file;
+    }
+    
+    if (function_exists('fpco_get_factory_timeslots') && $factory_id) {
+        $factory_timeslots = fpco_get_factory_timeslots($factory_id);
+        
+        // timeslot形式を解析
+        $parts = explode('-', $timeslot);
+        $period = $parts[0] ?? '';
+        $duration_or_index = $parts[1] ?? '';
+        $index = isset($parts[2]) ? intval($parts[2]) - 1 : intval($duration_or_index) - 1;
+        
+        // 時間文字列を取得
+        $time_range = '';
+        $calculated_duration = '';
+        
+        // 60分・90分パターンの場合
+        if (in_array($duration_or_index, ['60', '90'])) {
+            $duration_key = $duration_or_index . 'min';
+            if (isset($factory_timeslots[$duration_key][$period][$index])) {
+                $time_range = $factory_timeslots[$duration_key][$period][$index];
+                $calculated_duration = $duration_or_index;
+            }
+        } else {
+            // AM/PMパターンの場合
+            $js_index = intval($duration_or_index) - 1;
+            
+            if (isset($factory_timeslots[$period]) && isset($factory_timeslots[$period][$js_index])) {
+                $time_range = $factory_timeslots[$period][$js_index];
+                // 時間から分数を計算
+                if (preg_match('/(\d{1,2}):(\d{2})\s*[~〜]\s*(\d{1,2}):(\d{2})/', $time_range, $matches)) {
+                    $start_hour = intval($matches[1]);
+                    $start_minute = intval($matches[2]);
+                    $end_hour = intval($matches[3]);
+                    $end_minute = intval($matches[4]);
+                    $start_total_minutes = $start_hour * 60 + $start_minute;
+                    $end_total_minutes = $end_hour * 60 + $end_minute;
+                    $calculated_duration = $end_total_minutes - $start_total_minutes;
+                }
+            }
+        }
+        
+        if ($time_range) {
+            return [
+                'period' => strtoupper($period),
+                'duration' => $calculated_duration,
+                'time_range' => $time_range,
+                'display' => strtoupper($period) . '(' . $time_range . ')'
+            ];
+        }
+    }
+    
+    // フォールバック: デフォルト設定
     $parts = explode('-', $timeslot);
     $period = $parts[0] ?? '';
     $duration = $parts[1] ?? '';
