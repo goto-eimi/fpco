@@ -532,7 +532,12 @@ function send_user_confirmation_email($reservation_id, $form_data) {
     $subject = '【エフピコ】工場見学予約受付完了のお知らせ';
     
     $factory_name = get_factory_name($form_data['factory_id']);
-    $timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
+    // プラグインの統一関数を使用、フォールバックとして既存の関数も使用
+    if (function_exists('fpco_parse_timeslot_unified')) {
+        $timeslot_info = fpco_parse_timeslot_unified($form_data['timeslot'], $form_data['factory_id']);
+    } else {
+        $timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
+    }
     
     $message = "
 {$form_data['applicant_name']} 様
@@ -568,7 +573,12 @@ function send_admin_notification_email($reservation_id, $form_data) {
     $subject = '【新規予約】工場見学予約申込み - ' . $reservation_id;
     
     $factory_name = get_factory_name($form_data['factory_id']);
-    $timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
+    // プラグインの統一関数を使用、フォールバックとして既存の関数も使用
+    if (function_exists('fpco_parse_timeslot_unified')) {
+        $timeslot_info = fpco_parse_timeslot_unified($form_data['timeslot'], $form_data['factory_id']);
+    } else {
+        $timeslot_info = parse_timeslot($form_data['timeslot'], $form_data['factory_id']);
+    }
     
     $message = "
 新しい工場見学予約の申込みがありました。
