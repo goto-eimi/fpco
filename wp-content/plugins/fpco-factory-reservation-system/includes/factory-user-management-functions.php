@@ -679,4 +679,85 @@ function fpco_factory_user_management_scripts($hook) {
     
     wp_add_inline_script('jquery', $script);
 }
+
+/**
+ * 統一された時間帯解析関数
+ * 各テンプレートファイルの重複を避けるため
+ */
+if (!function_exists('fpco_parse_timeslot_unified')) {
+    function fpco_parse_timeslot_unified($timeslot, $factory_id = null) {
+        // プラグインの工場時間設定を取得
+        if (function_exists('fpco_get_factory_timeslots') && $factory_id) {
+            $factory_timeslots = fpco_get_factory_timeslots($factory_id);
+            
+            // timeslot形式を解析
+            $parts = explode('-', $timeslot);
+            $period = $parts[0] ?? '';
+            $duration_or_index = $parts[1] ?? '';
+            $index = isset($parts[2]) ? intval($parts[2]) - 1 : intval($duration_or_index) - 1;
+            
+            // 時間文字列を取得
+            $time_range = '';
+            $calculated_duration = '';
+            
+            // 60分・90分パターンの場合
+            if (in_array($duration_or_index, ['60', '90'])) {
+                $duration_key = $duration_or_index . 'min';
+                if (isset($factory_timeslots[$duration_key][$period][$index])) {
+                    $time_range = $factory_timeslots[$duration_key][$period][$index];
+                    $calculated_duration = $duration_or_index;
+                }
+            } else {
+                // AM/PMパターンの場合
+                $js_index = intval($duration_or_index) - 1;
+                
+                if (isset($factory_timeslots[$period]) && isset($factory_timeslots[$period][$js_index])) {
+                    $time_range = $factory_timeslots[$period][$js_index];
+                    // 時間から分数を計算
+                    if (preg_match('/(\d{1,2}):(\d{2})\s*[~〜]\s*(\d{1,2}):(\d{2})/', $time_range, $matches)) {
+                        $start_hour = intval($matches[1]);
+                        $start_minute = intval($matches[2]);
+                        $end_hour = intval($matches[3]);
+                        $end_minute = intval($matches[4]);
+                        $start_total_minutes = $start_hour * 60 + $start_minute;
+                        $end_total_minutes = $end_hour * 60 + $end_minute;
+                        $calculated_duration = $end_total_minutes - $start_total_minutes;
+                    }
+                }
+            }
+            
+            if ($time_range) {
+                return [
+                    'period' => strtoupper($period),
+                    'duration' => $calculated_duration,
+                    'time_range' => $time_range,
+                    'display' => strtoupper($period) . '(' . $time_range . ')'
+                ];
+            }
+        }
+        
+        // フォールバック: デフォルト設定
+        $parts = explode('-', $timeslot);
+        $period = $parts[0] ?? '';
+        $duration = $parts[1] ?? '';
+        
+        $time_ranges = [
+            'am-60-1' => '9:00〜10:00',
+            'am-60-2' => '10:30〜11:30',
+            'am-90-1' => '9:00〜10:30',
+            'am-90-2' => '10:00〜11:30',
+            'pm-60-1' => '14:00〜15:00',
+            'pm-60-2' => '15:30〜16:30',
+            'pm-90-1' => '14:00〜15:30',
+            'pm-90-2' => '15:00〜16:30'
+        ];
+        
+        return [
+            'period' => strtoupper($period),
+            'duration' => $duration,
+            'time_range' => $time_ranges[$timeslot] ?? '',
+            'display' => strtoupper($period) . '(' . ($time_ranges[$timeslot] ?? '') . ')'
+        ];
+    }
+}
 ?>
