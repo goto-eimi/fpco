@@ -531,7 +531,12 @@ function send_user_confirmation_email($reservation_id, $form_data) {
     $to = $form_data['email'];
     $subject = '【エフピコ】工場見学予約受付完了のお知らせ';
     
-    $factory_name = get_factory_name($form_data['factory_id']);
+    // プラグインの統一関数を使用、フォールバックとして既存の関数も使用
+    if (function_exists('fpco_get_factory_name_unified')) {
+        $factory_name = fpco_get_factory_name_unified($form_data['factory_id']);
+    } else {
+        $factory_name = get_factory_name($form_data['factory_id']);
+    }
     // プラグインの統一関数を使用、フォールバックとして既存の関数も使用
     if (function_exists('fpco_parse_timeslot_unified')) {
         $timeslot_info = fpco_parse_timeslot_unified($form_data['timeslot'], $form_data['factory_id']);
@@ -550,7 +555,7 @@ function send_user_confirmation_email($reservation_id, $form_data) {
 
 【ご予約内容】
 見学工場：{$factory_name}工場
-見学日：" . format_display_date($form_data['date']) . "
+見学日：" . (function_exists('fpco_format_display_date_unified') ? fpco_format_display_date_unified($form_data['date']) : format_display_date($form_data['date'])) . "
 見学時間帯：{$timeslot_info['display']}
 見学者様人数：" . calculate_total_visitors($form_data) . "名
 
@@ -572,7 +577,12 @@ function send_admin_notification_email($reservation_id, $form_data) {
     $admin_email = get_option('admin_email');
     $subject = '【新規予約】工場見学予約申込み - ' . $reservation_id;
     
-    $factory_name = get_factory_name($form_data['factory_id']);
+    // プラグインの統一関数を使用、フォールバックとして既存の関数も使用
+    if (function_exists('fpco_get_factory_name_unified')) {
+        $factory_name = fpco_get_factory_name_unified($form_data['factory_id']);
+    } else {
+        $factory_name = get_factory_name($form_data['factory_id']);
+    }
     // プラグインの統一関数を使用、フォールバックとして既存の関数も使用
     if (function_exists('fpco_parse_timeslot_unified')) {
         $timeslot_info = fpco_parse_timeslot_unified($form_data['timeslot'], $form_data['factory_id']);
@@ -587,7 +597,7 @@ function send_admin_notification_email($reservation_id, $form_data) {
 
 【基本情報】
 見学工場：{$factory_name}工場
-見学日：" . format_display_date($form_data['date']) . "
+見学日：" . (function_exists('fpco_format_display_date_unified') ? fpco_format_display_date_unified($form_data['date']) : format_display_date($form_data['date'])) . "
 見学時間帯：{$timeslot_info['display']}
 見学者様人数：" . calculate_total_visitors($form_data) . "名
 

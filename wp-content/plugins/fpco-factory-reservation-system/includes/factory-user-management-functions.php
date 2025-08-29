@@ -760,4 +760,55 @@ if (!function_exists('fpco_parse_timeslot_unified')) {
         ];
     }
 }
+
+/**
+ * 統一された工場名取得関数
+ * 各テンプレートファイルの重複を避けるため
+ */
+if (!function_exists('fpco_get_factory_name_unified')) {
+    function fpco_get_factory_name_unified($factory_id) {
+        global $wpdb;
+        
+        // データベースから工場名を取得
+        $factory_name = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT name FROM {$wpdb->prefix}factorys WHERE id = %d",
+                $factory_id
+            )
+        );
+        
+        if ($factory_name) {
+            return $factory_name;
+        }
+        
+        // フォールバック：ハードコーディングされた工場名
+        $factories = [
+            1 => '関東リサイクル工場',
+            2 => '中部リサイクル工場',
+            3 => '福山リサイクル工場',
+            4 => '山形選別センター',
+            5 => '松本選別センター',
+            6 => '西宮選別センター',
+            7 => '東海選別センター',
+            8 => '金沢選別センター',
+            9 => '九州選別センター'
+        ];
+        
+        return isset($factories[$factory_id]) ? $factories[$factory_id] : '不明';
+    }
+}
+
+/**
+ * 統一された日付フォーマット関数
+ * 各テンプレートファイルの重複を避けるため
+ */
+if (!function_exists('fpco_format_display_date_unified')) {
+    function fpco_format_display_date_unified($date) {
+        $timestamp = strtotime($date);
+        if ($timestamp) {
+            return date('Y年m月d日', $timestamp);
+        }
+        return $date;
+    }
+}
 ?>
