@@ -1,0 +1,476 @@
+/* 予約一覧画面のスタイル */
+
+.wrap {
+    width: calc(100% - 20px);
+    margin: 20px 20px 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+}
+
+/* 検索・絞り込みエリア */
+.search-filters-area {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.search-form .search-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.search-field input,
+.search-field select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+}
+
+.search-field input:focus,
+.search-field select:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 5px rgba(0, 124, 186, 0.3);
+}
+
+.search-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-buttons .button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+}
+
+/* アクションボタンエリア */
+.action-buttons-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px 0;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.action-buttons-area .button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+.items-count-and-pagination {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.items-count {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* 予約一覧テーブル */
+.reservations-table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.wp-list-table {
+    border-collapse: collapse;
+    background: white;
+    table-layout: fixed;
+}
+
+.wp-list-table th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 12px 10px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.wp-list-table th.sortable a {
+    color: #495057;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wp-list-table th.sortable a:hover {
+    color: #007cba;
+}
+
+.wp-list-table th.sorted {
+    background: #e9ecef;
+}
+
+.sorting-indicator {
+    margin-left: 5px;
+}
+
+.wp-list-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: top;
+}
+
+.wp-list-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.wp-list-table tbody tr:hover {
+    background: #e9ecef;
+    cursor: pointer;
+}
+
+/* テーブルセル固有のスタイル */
+.wp-list-table {
+    width: 100%;
+    min-width: 990px;
+}
+
+.wp-list-table th:nth-child(1),
+.wp-list-table td:nth-child(1) {
+    width: 80px;
+}
+
+.wp-list-table th:nth-child(2),
+.wp-list-table td:nth-child(2) {
+    width: 150px;
+}
+
+.wp-list-table th:nth-child(3),
+.wp-list-table td:nth-child(3) {
+    width: 200px;
+}
+
+.wp-list-table th:nth-child(4),
+.wp-list-table td:nth-child(4) {
+    width: 120px;
+}
+
+.wp-list-table th:nth-child(5),
+.wp-list-table td:nth-child(5) {
+    width: 120px;
+}
+
+.wp-list-table th:nth-child(6),
+.wp-list-table td:nth-child(6) {
+    width: 200px;
+}
+
+.wp-list-table th:nth-child(7),
+.wp-list-table td:nth-child(7) {
+    width: 100px;
+}
+
+.reservation-number {
+    font-weight: 600;
+}
+
+.reservation-link {
+    color: #007cba;
+    text-decoration: underline;
+}
+
+.reservation-link:hover {
+    color: #005a87;
+}
+
+.applicant-name {
+    font-weight: 600;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.applicant-address {
+    display: none;
+}
+
+.reservation-datetime {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.reservation-phone {
+    font-family: monospace;
+}
+
+.reservation-type {
+    font-size: 13px;
+}
+
+/* ステータスバッジ */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    min-width: 70px;
+}
+
+.status-badge.status-new {
+    background-color: #007bff;
+}
+
+.status-badge.status-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-badge.status-approved {
+    background-color: #28a745;
+}
+
+.status-badge.status-rejected {
+    background-color: #dc3545;
+}
+
+.status-badge.status-cancelled {
+    background-color: #6c757d;
+}
+
+/* ページネーション */
+.items-count-and-pagination .per-page-selector,
+.items-count-and-pagination .page-navigation {
+    display: flex;
+    align-items: center;
+}
+
+.per-page-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.per-page-selector label {
+    font-size: 14px;
+    color: #495057;
+}
+
+.per-page-selector select {
+    padding: 5px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: white;
+}
+
+.page-navigation {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.page-btn {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* データなしメッセージ */
+.no-data-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.no-data-message p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1199px) {
+    .reservations-table-container {
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+    
+    .wp-list-table {
+        width: 990px;
+        min-width: 990px;
+    }
+}
+
+@media (max-width: 767px) {
+    .wrap {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .search-form .search-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons-area {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .action-buttons-area .button {
+        justify-content: center;
+    }
+    
+    .items-count {
+        text-align: center;
+    }
+    
+    /* スマホ版はカード形式に変更 */
+    .reservations-table-container {
+        display: none;
+    }
+    
+    .reservations-card-container {
+        display: block;
+    }
+    
+    .reservation-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .reservation-card:hover {
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        cursor: pointer;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .card-reservation-number {
+        font-weight: 600;
+        color: #007cba;
+    }
+    
+    .card-applicant-name {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .card-datetime {
+        margin-bottom: 5px;
+        color: #495057;
+    }
+    
+    .card-type {
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .card-phone {
+        font-size: 14px;
+        color: #6c757d;
+        font-family: monospace;
+    }
+    
+    .pagination-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .page-navigation {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* ローディング表示 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007cba;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
